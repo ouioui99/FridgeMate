@@ -1,8 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "./lib/supabase";
-import Auth from "./screens/Auth";
-import Account from "./screens/Account";
-import { View, ActivityIndicator } from "react-native";
+import { View, ActivityIndicator, AppState } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -10,7 +8,9 @@ import HomeScreen from "./screens/HomeScreen";
 import UserScreen from "./screens/UserScreen";
 import { SessionProvider, useSession } from "./contexts/SessionContext";
 import LoginScreen from "./screens/LoginScreen";
-import SignUpScreen from "./screens/SignupScreen";
+import SignUpScreen from "./screens/SignUpScreen";
+import { useAuth0, Auth0Provider } from "react-native-auth0";
+import Test from "./screens/Test";
 
 const Stack = createNativeStackNavigator();
 
@@ -43,6 +43,7 @@ function AppNavigator() {
           {/* <Stack.Screen name="Auth" component={Auth} /> */}
           <Stack.Screen name="Login" component={LoginScreen} />
           <Stack.Screen name="SignUp" component={SignUpScreen} />
+          <Stack.Screen name="Test" component={Test} />
         </>
       )}
     </Stack.Navigator>
@@ -50,13 +51,32 @@ function AppNavigator() {
 }
 
 export default function App() {
+  useEffect(() => {
+    const subscription = AppState.addEventListener("change", (state) => {
+      if (state === "active") {
+        supabase.auth.startAutoRefresh();
+      } else {
+        supabase.auth.stopAutoRefresh();
+      }
+    });
+
+    return () => {
+      subscription.remove(); // クリーンアップ（リスナーの解除）
+    };
+  }, []);
+
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <SessionProvider>
-        <NavigationContainer>
-          <AppNavigator />
-        </NavigationContainer>
-      </SessionProvider>
-    </SafeAreaView>
+    <Auth0Provider
+      domain={"dev-yyrtzodwxsh8oevn.us.auth0.com"}
+      clientId={"HuFqKiZd9zpvdiv5IAcSveW0eyjJ5fhS"}
+    >
+      <SafeAreaView style={{ flex: 1 }}>
+        <SessionProvider>
+          <NavigationContainer>
+            <AppNavigator />
+          </NavigationContainer>
+        </SessionProvider>
+      </SafeAreaView>
+    </Auth0Provider>
   );
 }

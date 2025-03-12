@@ -15,6 +15,7 @@ import {
 import { useNavigation } from "@react-navigation/native";
 //import { useAuth } from "../context/AuthContext"
 import { SafeAreaView } from "react-native-safe-area-context";
+import { supabase } from "../lib/supabase";
 
 export default function SignUpScreen() {
   const [email, setEmail] = useState("");
@@ -22,29 +23,39 @@ export default function SignUpScreen() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const navigation = useNavigation();
-  //const { signUp } = useAuth()
 
-  //   async function handleSignUp() {
-  //     if (email === "" || password === "" || confirmPassword === "") {
-  //       Alert.alert("Error", "Please fill in all fields")
-  //       return
-  //     }
+  async function signUpWithEmail() {
+    if (email === "" || password === "" || confirmPassword === "") {
+      Alert.alert("Error", "Please fill in all fields");
+      return;
+    }
 
-  //     if (password !== confirmPassword) {
-  //       Alert.alert("Error", "Passwords do not match")
-  //       return
-  //     }
+    if (password !== confirmPassword) {
+      Alert.alert("Error", "Passwords do not match");
+      return;
+    }
 
-  //     setLoading(true)
-  //     const { error, session } = await signUp(email, password)
+    setLoading(true);
+    const {
+      data: { session },
+      error,
+    } = await supabase.auth.signUp({
+      email: email,
+      password: password,
+      options: {
+        data: {
+          username: "myUsername",
+          full_name: "John Doe",
+          avatar_url: "https://example.com/avatar.png",
+        },
+      },
+    });
 
-  //     if (error) {
-  //       Alert.alert("Error", error.message)
-  //     } else if (!session) {
-  //       Alert.alert("Success", "Please check your email for verification")
-  //     }
-  //     setLoading(false)
-  //   }
+    if (error) Alert.alert(error.message);
+    if (!session)
+      Alert.alert("Please check your inbox for email verification!");
+    setLoading(false);
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -99,7 +110,7 @@ export default function SignUpScreen() {
 
             <TouchableOpacity
               style={styles.button}
-              //onPress={handleSignUp}
+              onPress={signUpWithEmail}
               disabled={loading}
             >
               {loading ? (

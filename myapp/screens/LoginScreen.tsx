@@ -15,28 +15,24 @@ import {
 import { useNavigation } from "@react-navigation/native";
 //import { useAuth } from "../context/AuthContext"
 import { SafeAreaView } from "react-native-safe-area-context";
+import { supabase } from "../lib/supabase";
 
 export default function LoginScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const navigation = useNavigation();
-  //const { signIn } = useAuth()
 
-  //   async function handleLogin() {
-  //     if (email === "" || password === "") {
-  //       Alert.alert("Error", "Please fill in all fields")
-  //       return
-  //     }
+  async function signInWithEmail() {
+    setLoading(true);
+    const { error } = await supabase.auth.signInWithPassword({
+      email: email,
+      password: password,
+    });
 
-  //     setLoading(true)
-  //     const { error } = await signIn(email, password)
-
-  //     if (error) {
-  //       Alert.alert("Error", error.message)
-  //     }
-  //     setLoading(false)
-  //   }
+    if (error) Alert.alert(error.message);
+    setLoading(false);
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -80,7 +76,7 @@ export default function LoginScreen() {
 
             <TouchableOpacity
               style={styles.button}
-              //onPress={handleLogin}
+              onPress={signInWithEmail}
               disabled={loading}
             >
               {loading ? (
@@ -97,6 +93,14 @@ export default function LoginScreen() {
               onPress={() => navigation.navigate("SignUp" as never)}
             >
               <Text style={styles.footerLink}>Sign Up</Text>
+            </TouchableOpacity>
+          </View>
+          <View style={styles.footer}>
+            <Text style={styles.footerText}>Don't have an account?</Text>
+            <TouchableOpacity
+              onPress={() => navigation.navigate("Test" as never)}
+            >
+              <Text style={styles.footerLink}>Test</Text>
             </TouchableOpacity>
           </View>
         </ScrollView>

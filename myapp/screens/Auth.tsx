@@ -47,7 +47,6 @@ export default function Auth() {
         },
       },
     });
-    console.log(error);
 
     if (error) Alert.alert(error.message);
     if (!session)
