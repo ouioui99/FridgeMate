@@ -3,62 +3,60 @@ import { supabase } from "./lib/supabase";
 import Auth from "./screens/Auth";
 import Account from "./screens/Account";
 import { View, ActivityIndicator } from "react-native";
-import { Session } from "@supabase/supabase-js";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { SafeAreaProvider } from "react-native-safe-area-context";
+import { SafeAreaView } from "react-native-safe-area-context";
 import HomeScreen from "./screens/HomeScreen";
 import UserScreen from "./screens/UserScreen";
+import { SessionProvider, useSession } from "./contexts/SessionContext";
+import LoginScreen from "./screens/LoginScreen";
+import SignUpScreen from "./screens/SignupScreen";
 
 const Stack = createNativeStackNavigator();
 
-export default function App() {
-  const [session, setSession] = useState<Session | null>(null);
-  const [loading, setLoading] = useState(true);
+// ルートスタックの型を定義
+export type RootStackParamList = {
+  Home: undefined;
+  User: undefined;
+};
 
-  useEffect(() => {
-    const fetchSession = async () => {
-      const { data } = await supabase.auth.getSession();
-      setSession(data.session);
-      setLoading(false);
-    };
-
-    fetchSession();
-
-    const { data: listener } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        setSession(session);
-      }
-    );
-
-    return () => listener.subscription.unsubscribe();
-  }, []);
+function AppNavigator() {
+  const { session, loading } = useSession();
 
   if (loading) {
     return (
-      <View className="flex-1 justify-center items-center">
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
         <ActivityIndicator size="large" />
       </View>
     );
   }
 
   return (
-    <SafeAreaProvider>
-      <NavigationContainer>
-        <Stack.Navigator>
-          {session ? (
-            <>
-              <Stack.Screen name="Home" component={HomeScreen} />
-              <Stack.Screen name="User" component={UserScreen} />
-              <Stack.Screen name="Account">
-                {() => <Account session={session} />}
-              </Stack.Screen>
-            </>
-          ) : (
-            <Stack.Screen name="Auth" component={Auth} />
-          )}
-        </Stack.Navigator>
-      </NavigationContainer>
-    </SafeAreaProvider>
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      {session ? (
+        <>
+          <Stack.Screen name="Home" component={HomeScreen} />
+          <Stack.Screen name="User" component={UserScreen} />
+        </>
+      ) : (
+        <>
+          {/* <Stack.Screen name="Auth" component={Auth} /> */}
+          <Stack.Screen name="Login" component={LoginScreen} />
+          <Stack.Screen name="SignUp" component={SignUpScreen} />
+        </>
+      )}
+    </Stack.Navigator>
+  );
+}
+
+export default function App() {
+  return (
+    <SafeAreaView style={{ flex: 1 }}>
+      <SessionProvider>
+        <NavigationContainer>
+          <AppNavigator />
+        </NavigationContainer>
+      </SessionProvider>
+    </SafeAreaView>
   );
 }
