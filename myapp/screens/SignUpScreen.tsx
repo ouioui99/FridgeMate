@@ -6,14 +6,12 @@ import {
   TouchableOpacity,
   StyleSheet,
   ActivityIndicator,
-  Alert,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
   Image,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-//import { useAuth } from "../context/AuthContext"
 import { SafeAreaView } from "react-native-safe-area-context";
 import { supabase } from "../lib/supabase";
 
@@ -22,18 +20,36 @@ export default function SignUpScreen() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState({
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
   const navigation = useNavigation();
 
   async function signUpWithEmail() {
-    if (email === "" || password === "" || confirmPassword === "") {
-      Alert.alert("Error", "Please fill in all fields");
-      return;
+    let newErrors = { email: "", password: "", confirmPassword: "" };
+    let hasError = false;
+
+    if (!email) {
+      newErrors.email = "メールアドレスを入力してください。";
+      hasError = true;
+    }
+    if (!password) {
+      newErrors.password = "パスワードを入力してください。";
+      hasError = true;
+    }
+    if (!confirmPassword) {
+      newErrors.confirmPassword = "確認用パスワードを入力してください。";
+      hasError = true;
+    }
+    if (password && confirmPassword && password !== confirmPassword) {
+      newErrors.confirmPassword = "パスワードが一致しません。";
+      hasError = true;
     }
 
-    if (password !== confirmPassword) {
-      Alert.alert("Error", "Passwords do not match");
-      return;
-    }
+    setErrors(newErrors);
+    if (hasError) return;
 
     setLoading(true);
     const {
@@ -42,18 +58,17 @@ export default function SignUpScreen() {
     } = await supabase.auth.signUp({
       email: email,
       password: password,
-      options: {
-        data: {
-          username: "myUsername",
-          full_name: "John Doe",
-          avatar_url: "https://example.com/avatar.png",
-        },
-      },
     });
 
-    if (error) Alert.alert(error.message);
-    if (!session)
-      Alert.alert("Please check your inbox for email verification!");
+    if (error) {
+      setErrors((prev) => ({ ...prev, email: error.message }));
+    } else if (!session) {
+      setErrors((prev) => ({
+        ...prev,
+        email: "メール認証を確認してください。",
+      }));
+    }
+
     setLoading(false);
   }
 
@@ -69,43 +84,58 @@ export default function SignUpScreen() {
               source={{ uri: "/placeholder.svg?height=100&width=100" }}
               style={styles.logo}
             />
-            <Text style={styles.title}>Create Account</Text>
-            <Text style={styles.subtitle}>Sign up to get started</Text>
+            <Text style={styles.title}>アカウントを作成</Text>
+            <Text style={styles.subtitle}>サインアップして始めましょう</Text>
           </View>
 
           <View style={styles.form}>
             <View style={styles.inputContainer}>
-              <Text style={styles.label}>Email</Text>
+              <Text style={styles.label}>メールアドレス</Text>
               <TextInput
-                style={styles.input}
+                style={[styles.input, errors.email ? styles.inputError : null]}
                 placeholder="email@example.com"
                 value={email}
                 onChangeText={setEmail}
                 autoCapitalize="none"
                 keyboardType="email-address"
               />
+              {errors.email ? (
+                <Text style={styles.errorText}>{errors.email}</Text>
+              ) : null}
             </View>
 
             <View style={styles.inputContainer}>
-              <Text style={styles.label}>Password</Text>
+              <Text style={styles.label}>パスワード</Text>
               <TextInput
-                style={styles.input}
-                placeholder="Create a password"
+                style={[
+                  styles.input,
+                  errors.password ? styles.inputError : null,
+                ]}
+                placeholder="パスワードを入力"
                 value={password}
                 onChangeText={setPassword}
                 secureTextEntry
               />
+              {errors.password ? (
+                <Text style={styles.errorText}>{errors.password}</Text>
+              ) : null}
             </View>
 
             <View style={styles.inputContainer}>
-              <Text style={styles.label}>Confirm Password</Text>
+              <Text style={styles.label}>パスワード確認</Text>
               <TextInput
-                style={styles.input}
-                placeholder="Confirm your password"
+                style={[
+                  styles.input,
+                  errors.confirmPassword ? styles.inputError : null,
+                ]}
+                placeholder="パスワードを確認"
                 value={confirmPassword}
                 onChangeText={setConfirmPassword}
                 secureTextEntry
               />
+              {errors.confirmPassword ? (
+                <Text style={styles.errorText}>{errors.confirmPassword}</Text>
+              ) : null}
             </View>
 
             <TouchableOpacity
@@ -116,17 +146,19 @@ export default function SignUpScreen() {
               {loading ? (
                 <ActivityIndicator color="#fff" />
               ) : (
-                <Text style={styles.buttonText}>Sign Up</Text>
+                <Text style={styles.buttonText}>サインアップ</Text>
               )}
             </TouchableOpacity>
           </View>
 
           <View style={styles.footer}>
-            <Text style={styles.footerText}>Already have an account?</Text>
+            <Text style={styles.footerText}>
+              すでにアカウントをお持ちですか？
+            </Text>
             <TouchableOpacity
               onPress={() => navigation.navigate("Login" as never)}
             >
-              <Text style={styles.footerLink}>Sign In</Text>
+              <Text style={styles.footerLink}>ログイン</Text>
             </TouchableOpacity>
           </View>
         </ScrollView>
@@ -147,6 +179,14 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     justifyContent: "center",
     padding: 20,
+  },
+  inputError: {
+    borderColor: "red",
+  },
+  errorText: {
+    color: "red",
+    fontSize: 14,
+    marginTop: 5,
   },
   header: {
     alignItems: "center",
