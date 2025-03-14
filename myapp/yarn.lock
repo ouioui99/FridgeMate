@@ -1473,6 +1473,14 @@
     invariant "^2.2.4"
     nullthrows "^1.1.1"
 
+"@react-navigation/bottom-tabs@^7.0.0-rc.37":
+  version "7.0.0-rc.37"
+  resolved "https://registry.yarnpkg.com/@react-navigation/bottom-tabs/-/bottom-tabs-7.0.0-rc.37.tgz#36d1e6de61a52808efc0d427d836eb8b86691db6"
+  integrity sha512-GCqCRohTLg0fsOdeArAn6MQnfMmgvT4yrJ/MKe3jShblsDH9G+gzjytnqzglud3H/gJFg97Azdp3DZhQHDz68g==
+  dependencies:
+    "@react-navigation/elements" "^2.0.0-rc.26"
+    color "^4.2.3"
+
 "@react-navigation/core@^7.0.0-rc.15":
   version "7.4.0"
   resolved "https://registry.yarnpkg.com/@react-navigation/core/-/core-7.4.0.tgz#416177bae380ccf4de53916fb7ab8c3d80f25652"
@@ -1619,6 +1627,18 @@
     "@supabase/postgrest-js" "1.19.2"
     "@supabase/realtime-js" "2.11.2"
     "@supabase/storage-js" "2.7.1"
+
+"@tanstack/query-core@5.67.3":
+  version "5.67.3"
+  resolved "https://registry.yarnpkg.com/@tanstack/query-core/-/query-core-5.67.3.tgz#222795762c584d572f6f41bd4eb97f86f46f2eea"
+  integrity sha512-pq76ObpjcaspAW4OmCbpXLF6BCZP2Zr/J5ztnyizXhSlNe7fIUp0QKZsd0JMkw9aDa+vxDX/OY7N+hjNY/dCGg==
+
+"@tanstack/react-query@^5.67.3":
+  version "5.67.3"
+  resolved "https://registry.yarnpkg.com/@tanstack/react-query/-/react-query-5.67.3.tgz#4a1a1a54828465ab6bc421e66dc7ebd88191e851"
+  integrity sha512-u/n2HsQeH1vpZIOzB/w2lqKlXUDUKo6BxTdGXSMvNzIq5MHYFckRMVuFABp+QB7RN8LFXWV6X1/oSkuDq+MPIA==
+  dependencies:
+    "@tanstack/query-core" "5.67.3"
 
 "@types/babel__core@^7.1.14":
   version "7.20.5"
