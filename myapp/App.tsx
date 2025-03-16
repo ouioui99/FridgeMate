@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "./lib/supabase";
 import { View, ActivityIndicator, AppState } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
@@ -12,7 +12,6 @@ import SignUpScreen from "./screens/SignUpScreen";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import SettingsScreen from "./screens/SettingsScreen";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { Ionicons } from "@expo/vector-icons";
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -40,15 +39,7 @@ function AppNavigator() {
     <>
       {session ? (
         <Tab.Navigator screenOptions={{ headerShown: false }}>
-          <Tab.Screen
-            name="Home"
-            component={HomeScreen}
-            options={{
-              tabBarIcon: ({ color, size }) => (
-                <Ionicons name="home" size={size} color={color} />
-              ),
-            }}
-          />
+          <Tab.Screen name="Home" component={HomeScreen} />
           <Tab.Screen name="User" component={UserScreen} />
           <Tab.Screen name="Settings" component={SettingsScreen} />
         </Tab.Navigator>
