@@ -5,7 +5,7 @@ import {
   useEffect,
   ReactNode,
 } from "react";
-import { supabase } from "../lib/supabase";
+import { supabase } from "../lib/supabase/supabase";
 import { AuthChangeEvent, Session } from "@supabase/supabase-js";
 
 type SessionContextType = {

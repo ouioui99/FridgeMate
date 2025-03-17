@@ -9,45 +9,41 @@ import {
   PanResponder,
 } from "react-native";
 import { useNav } from "../hooks/useNav";
-import { supabase } from "../lib/supabase";
-import { Session } from "@supabase/supabase-js";
+
 import React, { useEffect, useRef, useState } from "react";
 import { useSession } from "../contexts/SessionContext";
 import { useGetProfile } from "../hooks/useGetProfile";
 import Cards from "../components/Cards";
 import AddStockModal from "../components/AddStockModal";
-import { fridgeTestData } from "../TestData";
 import { stocks } from "../types";
 import { Ionicons } from "@expo/vector-icons";
+import { fetchStocks } from "../lib/supabase/stocks";
 
 const HomeScreen = () => {
   const { session, loading } = useSession();
   const [modalVisible, setModalVisible] = useState(false);
   const [stocks, setStocks] = useState<stocks[]>([]);
   const userId = session?.user?.id;
-
+  const nav = useNav();
   // プロフィール取得
   const { data: profile, isLoading, error } = useGetProfile(userId);
-  const [username, setUsername] = useState(profile?.username || "");
 
   useEffect(() => {
-    setStocks(fridgeTestData);
+    const loadStocks = async () => {
+      try {
+        const data = await fetchStocks();
+        setStocks(data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    loadStocks();
   }, []);
 
-  // useEffect(() => {
-  //   if (session) getProfile();
-  // }, [session]);
-  const nav = useNav();
   return (
     <View>
-      {/* {isLoading && <ActivityIndicator />}
-      <Text>ホーム画面{username}</Text>
-      <Button title="ユーザ" onPress={() => nav.navigate("User")} />
-      <Button title="設定" onPress={() => nav.navigate("Settings")} />
-      <View style={styles.verticallySpaced}>
-        <Button title="Sign Out" onPress={() => supabase.auth.signOut()} />
-      </View> */}
-      <Cards />
+      <Cards stocks={stocks} />
 
       {/* 在庫追加ボタン（右下の少し上） */}
       <TouchableOpacity
@@ -72,8 +68,17 @@ const HomeScreen = () => {
       <AddStockModal
         visible={modalVisible}
         onClose={() => setModalVisible(false)}
-        //onStockAdded={fetchStocks}
+        onStockAdded={fetchStocks}
+        setStocks={setStocks}
       />
+
+      {/* {isLoading && <ActivityIndicator />}
+      <Text>ホーム画面{username}</Text>
+      <Button title="ユーザ" onPress={() => nav.navigate("User")} />
+      <Button title="設定" onPress={() => nav.navigate("Settings")} />
+      <View style={styles.verticallySpaced}>
+        <Button title="Sign Out" onPress={() => supabase.auth.signOut()} />
+      </View> */}
     </View>
   );
 };

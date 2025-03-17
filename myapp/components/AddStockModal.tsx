@@ -7,18 +7,21 @@ import {
   Text,
   StyleSheet,
 } from "react-native";
-import { supabase } from "../lib/supabase";
+import { addStock } from "../lib/supabase/stocks";
+import { stocks } from "../types";
 
 interface AddStockModalProps {
   visible: boolean;
   onClose: () => void;
-  onStockAdded: () => void;
+  onStockAdded: () => Promise<any>;
+  setStocks: React.Dispatch<React.SetStateAction<stocks[]>>;
 }
 
 const AddStockModal: React.FC<AddStockModalProps> = ({
   visible,
   onClose,
   onStockAdded,
+  setStocks,
 }) => {
   const [name, setName] = useState("");
   const [amount, setAmount] = useState("");
@@ -31,22 +34,33 @@ const AddStockModal: React.FC<AddStockModalProps> = ({
       return;
     }
 
-    const { data, error } = await supabase.from("stocks").insert([
-      {
-        name,
-        amount: Number(amount),
-        expiration_date: expirationDate,
-        image,
-      },
-    ]);
+    const parsedAmount = Number(amount);
 
-    if (error) {
-      console.error("Error adding stock:", error.message);
+    if (isNaN(parsedAmount) || parsedAmount <= 0) {
+      alert("個数は正の数で入力してください");
       return;
     }
 
-    onStockAdded();
-    onClose();
+    try {
+      await addStock({
+        name,
+        amount: parsedAmount,
+        expiration_date: expirationDate,
+        image,
+      });
+
+      const stockData = await onStockAdded();
+      setStocks(stockData);
+      onClose();
+      setName("");
+      setAmount("");
+      setExpirationDate("");
+      setImage("");
+    } catch (error) {
+      console.log(error);
+
+      alert("在庫追加に失敗しました");
+    }
   };
 
   return (

@@ -9,12 +9,14 @@ import {
 } from "react-native";
 import { Text, Card, Button, Icon } from "@rneui/themed";
 import { fridgeTestData } from "../TestData";
+import { supabase } from "../lib/supabase/supabase";
+import { stocks } from "../types";
 
-type CardsComponentsProps = {};
+type CardsComponentsProps = { stocks: stocks[] };
 const numColumns = 2; // 列数を指定
 const screenWidth = Dimensions.get("window").width; // 画面幅を取得
 
-const Cards: React.FunctionComponent<CardsComponentsProps> = () => {
+const Cards: React.FunctionComponent<CardsComponentsProps> = ({ stocks }) => {
   // カードの幅を計算（画面幅から余白を引いて列数で割る）
   const cardWidth = (screenWidth - 30) / numColumns;
 
@@ -49,7 +51,7 @@ const Cards: React.FunctionComponent<CardsComponentsProps> = () => {
 
   return (
     <FlatList
-      data={fridgeTestData}
+      data={stocks}
       renderItem={renderItem}
       keyExtractor={(item, index) => index.toString()}
       numColumns={numColumns} // 列数を指定
