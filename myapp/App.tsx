@@ -12,6 +12,7 @@ import SignUpScreen from "./screens/SignUpScreen";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import SettingsScreen from "./screens/SettingsScreen";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import ShoppingListScreen from "./screens/ShoppingListScreen";
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -38,8 +39,9 @@ function AppNavigator() {
   return (
     <>
       {session ? (
-        <Tab.Navigator screenOptions={{ headerShown: false }}>
+        <Tab.Navigator>
           <Tab.Screen name="Home" component={HomeScreen} />
+          <Tab.Screen name="ShoppingList" component={ShoppingListScreen} />
           <Tab.Screen name="User" component={UserScreen} />
           <Tab.Screen name="Settings" component={SettingsScreen} />
         </Tab.Navigator>
@@ -71,7 +73,7 @@ export default function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <SafeAreaView style={{ flex: 1 }}>
+      <SafeAreaView style={{ flex: 1, backgroundColor: "#ffffff" }}>
         <SessionProvider>
           <NavigationContainer>
             <AppNavigator />
