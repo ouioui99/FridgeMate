@@ -8,9 +8,14 @@ import {
   TouchableOpacity,
   PanResponder,
 } from "react-native";
+import CheckList from "../components/CheckList";
 
 export default function ShoppingListScreen() {
-  return <View style={styles.container}></View>;
+  return (
+    <View style={styles.container}>
+      <CheckList />
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
