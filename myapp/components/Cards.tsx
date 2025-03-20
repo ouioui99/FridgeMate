@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import { Card } from "@rneui/themed";
 import { stocks } from "../types/daoTypes";
+import { Ionicons } from "@expo/vector-icons";
 
 type CardsComponentsProps = { stocks: stocks[] };
 const numColumns = 2; // 列数を指定
@@ -21,6 +22,8 @@ const Cards: React.FunctionComponent<CardsComponentsProps> = ({ stocks }) => {
 
   // 個数を更新する関数
   const updateAmount = (id: string, newAmount: number) => {
+    console.log(newAmount);
+
     setItemAmounts((prev) => ({
       ...prev,
       [id]: newAmount,
@@ -42,7 +45,7 @@ const Cards: React.FunctionComponent<CardsComponentsProps> = ({ stocks }) => {
           <Image
             style={styles.image}
             resizeMode="cover"
-            source={{ uri: item.image }}
+            source={require("../assets/img/carrot_leaf.png")}
           />
 
           {/* テキスト部分 */}
@@ -56,7 +59,7 @@ const Cards: React.FunctionComponent<CardsComponentsProps> = ({ stocks }) => {
                   updateAmount(item.id, Math.max(currentAmount - 1, 0));
                 }}
               >
-                <Text style={styles.buttonText}>−</Text>
+                <Ionicons name="remove-outline" size={17} />
               </TouchableOpacity>
 
               <Text style={styles.amount}>
@@ -70,7 +73,9 @@ const Cards: React.FunctionComponent<CardsComponentsProps> = ({ stocks }) => {
                   updateAmount(item.id, currentAmount + 1);
                 }}
               >
-                <Text style={styles.buttonText}>＋</Text>
+                <Text style={styles.buttonText}>
+                  <Ionicons name="add-outline" size={17} />
+                </Text>
               </TouchableOpacity>
             </View>
 
@@ -154,10 +159,9 @@ const styles = StyleSheet.create({
   },
   squareButton: {
     backgroundColor: "#E0E0E0",
-    paddingVertical: 6,
-    paddingHorizontal: 12,
+    paddingVertical: 7,
+    paddingHorizontal: 9,
     borderRadius: 6,
-    flexShrink: 0, // はみ出し防止
   },
   buttonText: {
     color: "#333",
