@@ -13,11 +13,9 @@ import React, { useEffect, useRef, useState } from "react";
 import { useSession } from "../contexts/SessionContext";
 import { useGetProfile } from "../hooks/useGetProfile";
 import Cards from "../components/Cards";
-import AddStockModal from "../components/AddStockModal";
 import { stocks } from "../types/daoTypes";
 import { Ionicons } from "@expo/vector-icons";
 import { addStock, fetchStocks, StockInput } from "../lib/supabase/stocks";
-import { Header } from "react-native/Libraries/NewAppScreen";
 import { useNavigation } from "@react-navigation/native";
 import FormModal from "../components/FormModal";
 import { stockFields } from "../inputFields/modalFields";
@@ -76,7 +74,7 @@ const HomeScreen = () => {
         onClose={() => onClose()}
         fields={stockFields}
         onSubmit={async (data) => {
-          await addStock(data); // Supabaseにデータ登録
+          await addStock(data);
         }}
       />
 

@@ -1,15 +1,14 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
-  ScrollView,
   StyleSheet,
   Image,
   Dimensions,
   FlatList,
+  TouchableOpacity,
+  Text,
 } from "react-native";
-import { Text, Card, Button, Icon } from "@rneui/themed";
-import { fridgeTestData } from "../TestData";
-import { supabase } from "../lib/supabase/supabase";
+import { Card } from "@rneui/themed";
 import { stocks } from "../types/daoTypes";
 
 type CardsComponentsProps = { stocks: stocks[] };
@@ -17,10 +16,21 @@ const numColumns = 2; // 列数を指定
 const screenWidth = Dimensions.get("window").width; // 画面幅を取得
 
 const Cards: React.FunctionComponent<CardsComponentsProps> = ({ stocks }) => {
+  // 個数を管理する状態
+  const [itemAmounts, setItemAmounts] = useState<{ [key: string]: number }>({});
+
+  // 個数を更新する関数
+  const updateAmount = (id: string, newAmount: number) => {
+    setItemAmounts((prev) => ({
+      ...prev,
+      [id]: newAmount,
+    }));
+  };
+
   // カードの幅を計算（画面幅から余白を引いて列数で割る）
   const cardWidth = (screenWidth - 30) / numColumns;
 
-  const renderItem = ({ item, index }) => (
+  const renderItem = ({ item }) => (
     <View style={{ width: cardWidth, padding: 2 }}>
       <Card containerStyle={styles.cardContainer}>
         {/* タイトル */}
@@ -28,7 +38,7 @@ const Cards: React.FunctionComponent<CardsComponentsProps> = ({ stocks }) => {
         <Card.Divider />
 
         <View style={styles.cardContent}>
-          {/* 画像を左上に小さく表示 */}
+          {/* 画像 */}
           <Image
             style={styles.image}
             resizeMode="cover"
@@ -37,9 +47,34 @@ const Cards: React.FunctionComponent<CardsComponentsProps> = ({ stocks }) => {
 
           {/* テキスト部分 */}
           <View style={styles.textContainer}>
-            {/* 個数を表示（強調を薄く） */}
-            <Text style={styles.amount}>{item.amount}</Text>
-            {/* 賞味期限を表示 */}
+            {/* 個数の増減ボタンと表示 */}
+            <View style={styles.amountContainer}>
+              <TouchableOpacity
+                style={styles.squareButton}
+                onPress={() => {
+                  const currentAmount = itemAmounts[item.id] || item.amount;
+                  updateAmount(item.id, Math.max(currentAmount - 1, 0));
+                }}
+              >
+                <Text style={styles.buttonText}>−</Text>
+              </TouchableOpacity>
+
+              <Text style={styles.amount}>
+                {itemAmounts[item.id] || item.amount}
+              </Text>
+
+              <TouchableOpacity
+                style={styles.squareButton}
+                onPress={() => {
+                  const currentAmount = itemAmounts[item.id] || item.amount;
+                  updateAmount(item.id, currentAmount + 1);
+                }}
+              >
+                <Text style={styles.buttonText}>＋</Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* 賞味期限 */}
             <Text style={styles.expirationDate}>
               賞味期限: {item.expiration_date}
             </Text>
@@ -65,44 +100,69 @@ const styles = StyleSheet.create({
     //padding: 10,
   },
   cardContainer: {
-    borderRadius: 10,
+    borderRadius: 12,
     borderWidth: 1,
-    borderColor: "#e0e0e0",
+    borderColor: "#E0E0E0",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
-    width: "100%", // カードの幅を親コンテナに合わせる
-    padding: 5, // カード内の余白を追加
+    width: "100%",
+    padding: 12,
+    backgroundColor: "#fff",
   },
   cardContent: {
-    flexDirection: "row", // 横並びに変更
-    alignItems: "flex-start", // 上揃え
+    flexDirection: "row",
+    alignItems: "center",
   },
   image: {
-    width: 40, // 画像を小さく
-    height: 40, // 画像を小さく
-    borderRadius: 20, // 円形にする
-    marginRight: 10, // 画像とテキストの間隔
+    width: 50,
+    height: 50,
+    borderRadius: 8,
+    marginRight: 12,
   },
   textContainer: {
-    flex: 1, // テキスト部分を伸ばす
+    flex: 1,
   },
   cardTitle: {
     fontSize: 16,
     fontWeight: "bold",
-    textAlign: "left", // タイトルを左揃え
-    marginBottom: 10, // タイトルと画像の間隔
+    color: "#333",
+    textAlign: "left",
+    marginBottom: 8,
+  },
+  amountContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    width: "100%",
+    marginBottom: 6,
   },
   amount: {
-    fontSize: 20, // 個数のフォントサイズ
-    color: "#555", // 強調を薄くする
-    marginBottom: 5, // 個数と賞味期限の間隔
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#333",
+    minWidth: 30,
+    textAlign: "center",
   },
   expirationDate: {
     fontSize: 14,
-    color: "#666",
+    color: "#777",
+    fontWeight: "600",
+    textAlign: "left",
+  },
+  squareButton: {
+    backgroundColor: "#E0E0E0",
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 6,
+    flexShrink: 0, // はみ出し防止
+  },
+  buttonText: {
+    color: "#333",
+    fontSize: 18,
+    fontWeight: "bold",
   },
 });
 

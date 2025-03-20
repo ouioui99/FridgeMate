@@ -100,11 +100,11 @@ const CheckListItem: React.FC<Props> = ({
                 height: 24,
                 borderRadius: 12,
                 borderWidth: 2,
-                borderColor: item.checked ? "#4CAF50" : "#aaa", // ✅ しっかり色を指定
+                borderColor: item.checked ? "#4CAF50" : "#aaa",
                 alignItems: "center",
                 justifyContent: "center",
                 marginLeft: 10,
-                backgroundColor: item.checked ? "#4CAF50" : "transparent", // ✅ 明示的に背景色を指定
+                backgroundColor: item.checked ? "#4CAF50" : "transparent",
               }}
             >
               {item.checked && (
