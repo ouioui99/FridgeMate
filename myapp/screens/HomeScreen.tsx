@@ -14,15 +14,17 @@ import { useSession } from "../contexts/SessionContext";
 import { useGetProfile } from "../hooks/useGetProfile";
 import Cards from "../components/Cards";
 import AddStockModal from "../components/AddStockModal";
-import { stocks } from "../types";
+import { stocks } from "../types/daoTypes";
 import { Ionicons } from "@expo/vector-icons";
-import { fetchStocks } from "../lib/supabase/stocks";
+import { addStock, fetchStocks, StockInput } from "../lib/supabase/stocks";
 import { Header } from "react-native/Libraries/NewAppScreen";
 import { useNavigation } from "@react-navigation/native";
+import FormModal from "../components/FormModal";
+import { stockFields } from "../inputFields/modalFields";
 
 const HomeScreen = () => {
   const { session, loading } = useSession();
-  const [modalVisible, setModalVisible] = useState(false);
+  const [stockModalVisible, setStockModalVisible] = useState(false);
   const [stocks, setStocks] = useState<stocks[]>([]);
   const userId = session?.user?.id;
   const nav = useNav();
@@ -49,7 +51,7 @@ const HomeScreen = () => {
     navigation.setOptions({
       headerRight: () => (
         <TouchableOpacity
-          onPress={() => setModalVisible(true)}
+          onPress={() => setStockModalVisible(true)}
           style={styles.addButton}
         >
           <Ionicons name="add-outline" size={28} color="blue" />
@@ -58,16 +60,24 @@ const HomeScreen = () => {
     });
   }, [navigation]);
 
+  const onClose = async () => {
+    const data = await fetchStocks();
+    setStocks(data);
+    setStockModalVisible(false);
+  };
+
   return (
     <View style={styles.container}>
       <Cards stocks={stocks} />
 
       {/* モーダル表示 */}
-      <AddStockModal
-        visible={modalVisible}
-        onClose={() => setModalVisible(false)}
-        onStockAdded={fetchStocks}
-        setStocks={setStocks}
+      <FormModal<StockInput>
+        visible={stockModalVisible}
+        onClose={() => onClose()}
+        fields={stockFields}
+        onSubmit={async (data) => {
+          await addStock(data); // Supabaseにデータ登録
+        }}
       />
 
       {/* ロード中のインジケーター */}

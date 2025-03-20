@@ -7,7 +7,7 @@ import {
   Platform,
 } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import CheckListItem from "./CheckListItem"; // ✅ 追加
+import CheckListItem from "./CheckListItem";
 
 type Item = {
   id: string;

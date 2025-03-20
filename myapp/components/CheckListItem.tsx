@@ -93,7 +93,6 @@ const CheckListItem: React.FC<Props> = ({
             backgroundColor: "#fff",
           }}
         >
-          {/* 丸いチェックボックス（右端） */}
           <TouchableOpacity onPress={() => toggleCheck(item.id)}>
             <View
               style={{
@@ -101,11 +100,11 @@ const CheckListItem: React.FC<Props> = ({
                 height: 24,
                 borderRadius: 12,
                 borderWidth: 2,
-                borderColor: item.checked ? "#4CAF50" : "#aaa",
+                borderColor: item.checked ? "#4CAF50" : "#aaa", // ✅ しっかり色を指定
                 alignItems: "center",
                 justifyContent: "center",
                 marginLeft: 10,
-                backgroundColor: item.checked ? "#4CAF50" : "transparent",
+                backgroundColor: item.checked ? "#4CAF50" : "transparent", // ✅ 明示的に背景色を指定
               }}
             >
               {item.checked && (

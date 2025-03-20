@@ -10,7 +10,7 @@ import {
 import { Text, Card, Button, Icon } from "@rneui/themed";
 import { fridgeTestData } from "../TestData";
 import { supabase } from "../lib/supabase/supabase";
-import { stocks } from "../types";
+import { stocks } from "../types/daoTypes";
 
 type CardsComponentsProps = { stocks: stocks[] };
 const numColumns = 2; // 列数を指定

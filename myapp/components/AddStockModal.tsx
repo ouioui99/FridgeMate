@@ -8,7 +8,7 @@ import {
   StyleSheet,
 } from "react-native";
 import { addStock } from "../lib/supabase/stocks";
-import { stocks } from "../types";
+import { stocks } from "../types/daoTypes";
 
 interface AddStockModalProps {
   visible: boolean;
