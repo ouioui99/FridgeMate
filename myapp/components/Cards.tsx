@@ -22,8 +22,6 @@ const Cards: React.FunctionComponent<CardsComponentsProps> = ({ stocks }) => {
 
   // 個数を更新する関数
   const updateAmount = (id: string, newAmount: number) => {
-    console.log(newAmount);
-
     setItemAmounts((prev) => ({
       ...prev,
       [id]: newAmount,
