@@ -35,13 +35,17 @@ export default function CheckList() {
 
   const toggleCheck = (id: string) => {
     // アニメーションを適用
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-
+    LayoutAnimation.configureNext(
+      LayoutAnimation.create(
+        240, // アニメーション時間
+        LayoutAnimation.Types.easeInEaseOut,
+        LayoutAnimation.Properties.opacity
+      )
+    );
     setItems((prevItems) => {
       const updatedItems = prevItems.map((item) =>
         item.id === id ? { ...item, checked: !item.checked } : item
       );
-
       return updatedItems.sort((a, b) => Number(a.checked) - Number(b.checked));
     });
   };
