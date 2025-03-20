@@ -1,11 +1,13 @@
-import React, { useRef, useState } from "react";
-import { View, Text, FlatList, TouchableOpacity, Animated } from "react-native";
+import React, { useState } from "react";
 import {
-  GestureHandlerRootView,
-  PanGestureHandler,
-  State,
-} from "react-native-gesture-handler";
-import CheckListItem from "./CheckListItem";
+  View,
+  FlatList,
+  UIManager,
+  LayoutAnimation,
+  Platform,
+} from "react-native";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import CheckListItem from "./CheckListItem"; // ✅ 追加
 
 type Item = {
   id: string;
@@ -20,19 +22,27 @@ const initialItems: Item[] = [
   { id: "3", name: "Orange", amount: 3, checked: false },
 ];
 
+// Androidでレイアウトアニメーションを有効化
+if (
+  Platform.OS === "android" &&
+  UIManager.setLayoutAnimationEnabledExperimental
+) {
+  UIManager.setLayoutAnimationEnabledExperimental(true);
+}
+
 export default function CheckList() {
   const [items, setItems] = useState<Item[]>(initialItems);
 
   const toggleCheck = (id: string) => {
+    // アニメーションを適用
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+
     setItems((prevItems) => {
       const updatedItems = prevItems.map((item) =>
         item.id === id ? { ...item, checked: !item.checked } : item
       );
 
-      return [
-        ...updatedItems.filter((item) => !item.checked),
-        ...updatedItems.filter((item) => item.checked),
-      ];
+      return updatedItems.sort((a, b) => Number(a.checked) - Number(b.checked));
     });
   };
 
