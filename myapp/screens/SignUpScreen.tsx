@@ -61,6 +61,8 @@ export default function SignUpScreen() {
     });
 
     if (error) {
+      console.log(error);
+
       setErrors((prev) => ({ ...prev, email: error.message }));
     } else if (!session) {
       setErrors((prev) => ({

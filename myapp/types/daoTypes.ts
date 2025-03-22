@@ -3,10 +3,29 @@ export type Stock = {
   id: string;
   name: string;
   amount: number;
-  expiration_date: string;
+  expirationDate: string;
   image?: string;
-  owner_id: string;
+  createdAt: Date;
+  updatedAt: Date;
+  groupId: string;
+  createrId: string;
 };
+
+export type Group = {
+  id: string;
+  name: string;
+  ownerId: string;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+export type GroupShare = {
+  id: string;
+  groupId: string;
+  sharedWith: string;
+  createdAt: string;
+};
+
 export type StockInput = Omit<Stock, "id" | "owner_id">;
 
 export type stocks = Stock[];

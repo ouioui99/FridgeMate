@@ -1,4 +1,5 @@
-import { Stock, StockInput } from "../../types/daoTypes";
+import { Group, GroupShare, StockInput } from "./../../types/daoTypes";
+import { getProfile } from "./profiles";
 import { supabase } from "./supabase";
 import { getLoginUserId } from "./util";
 
@@ -7,13 +8,51 @@ import { getLoginUserId } from "./util";
  * @returns {Promise<Stock[]>} 取得した在庫データ
  */
 export const fetchStocks = async () => {
+  const loginUserId = await getLoginUserId();
+
+  // ユーザーがアクセスできるグループIDを取得
+  const { data: groups, error: groupsError } = await supabase
+    .from("groups")
+    .select("id")
+    .eq("owner_id", loginUserId);
+
+  if (groupsError) {
+    console.error(
+      "グループの取得中にエラーが発生しました:",
+      groupsError.message
+    );
+    throw groupsError;
+  }
+
+  // ユーザーが共有しているグループIDを取得
+  const { data: sharedGroups, error: sharedGroupsError } = await supabase
+    .from("group_shares")
+    .select("group_id")
+    .eq("shared_with", loginUserId);
+
+  if (sharedGroupsError) {
+    console.error(
+      "共有グループの取得中にエラーが発生しました:",
+      sharedGroupsError.message
+    );
+    throw sharedGroupsError;
+  }
+
+  // グループIDをフラットな配列に変換
+  const groupIds = [
+    ...groups.map((group: Group) => group.id),
+    ...sharedGroups.map((share: GroupShare) => share.groupId),
+  ];
+
+  // グループIDを使ってストックを取得
   const { data, error } = await supabase
     .from("stocks")
     .select("*")
-    .order("created_at", { ascending: true }); // ここで順序を固定
+    .in("group_id", groupIds) // フラットな配列を渡す
+    .order("created_at", { ascending: true });
 
   if (error) {
-    console.error("Error fetching stocks:", error.message);
+    console.error("ストックの取得中にエラーが発生しました:", error.message);
     throw error;
   }
 
@@ -26,13 +65,15 @@ export const fetchStocks = async () => {
  * @returns {Promise<void>}
  */
 export const addStock = async (stock: StockInput): Promise<void> => {
-  const userId = await getLoginUserId();
+  const profile = await getProfile();
+  const loginUserId = await getLoginUserId();
 
   const { error } = await supabase.from("stocks").insert([
     {
       ...stock,
       amount: Number(stock.amount),
-      owner_id: userId, // ユーザーIDを設定
+      creater_id: loginUserId,
+      group_id: profile.current_group_id, // ユーザーIDを設定
     },
   ]);
 
@@ -52,14 +93,9 @@ export const updateStock = async (
   stockId: string,
   stock: Partial<StockInput>
 ): Promise<void> => {
-  const userId = await getLoginUserId();
-
   const { error } = await supabase
     .from("stocks")
-    .update({
-      ...stock,
-      owner_id: userId, // ユーザーIDを設定
-    })
+    .update(stock)
     .eq("id", stockId);
 
   if (error) {
