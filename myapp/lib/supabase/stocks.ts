@@ -1,11 +1,16 @@
+import { Stock, StockInput } from "../../types/daoTypes";
 import { supabase } from "./supabase";
+import { getLoginUserId } from "./util";
 
 /**
  * 在庫を取得する関数
  * @returns {Promise<Stock[]>} 取得した在庫データ
  */
 export const fetchStocks = async () => {
-  const { data, error } = await supabase.from("stocks").select("*");
+  const { data, error } = await supabase
+    .from("stocks")
+    .select("*")
+    .order("created_at", { ascending: true }); // ここで順序を固定
 
   if (error) {
     console.error("Error fetching stocks:", error.message);
@@ -21,13 +26,7 @@ export const fetchStocks = async () => {
  * @returns {Promise<void>}
  */
 export const addStock = async (stock: StockInput): Promise<void> => {
-  const { data: userData, error: userError } = await supabase.auth.getUser();
-  if (userError || !userData?.user) {
-    console.error("User not authenticated");
-    throw new Error("ログインが必要です");
-  }
-
-  const userId = userData.user.id;
+  const userId = await getLoginUserId();
 
   const { error } = await supabase.from("stocks").insert([
     {
@@ -43,14 +42,28 @@ export const addStock = async (stock: StockInput): Promise<void> => {
   }
 };
 
-// 型定義
-export type Stock = {
-  id: string;
-  name: string;
-  amount: number;
-  expiration_date: string;
-  image?: string;
-  owner_id: string;
-};
+/**
+ * 在庫を更新する関数
+ * @param {string} stockId 更新する在庫のID
+ * @param {StockInput} stock 更新する在庫データ
+ * @returns {Promise<void>}
+ */
+export const updateStock = async (
+  stockId: string,
+  stock: Partial<StockInput>
+): Promise<void> => {
+  const userId = await getLoginUserId();
 
-export type StockInput = Omit<Stock, "id" | "owner_id">;
+  const { error } = await supabase
+    .from("stocks")
+    .update({
+      ...stock,
+      owner_id: userId, // ユーザーIDを設定
+    })
+    .eq("id", stockId);
+
+  if (error) {
+    console.error("Error updating stock:", error.message);
+    throw error;
+  }
+};

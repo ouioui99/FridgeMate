@@ -12,16 +12,25 @@ import { Card } from "@rneui/themed";
 import { stocks } from "../types/daoTypes";
 import { Ionicons } from "@expo/vector-icons";
 
-type CardsComponentsProps = { stocks: stocks[] };
+type CardsComponentsProps = {
+  stocks: stocks;
+  handleUpdateAmount: (stockId: string, newAmount: number) => void;
+};
+
 const numColumns = 2; // 列数を指定
 const screenWidth = Dimensions.get("window").width; // 画面幅を取得
 
-const Cards: React.FunctionComponent<CardsComponentsProps> = ({ stocks }) => {
+const Cards: React.FunctionComponent<CardsComponentsProps> = ({
+  stocks,
+  handleUpdateAmount,
+}) => {
   // 個数を管理する状態
   const [itemAmounts, setItemAmounts] = useState<{ [key: string]: number }>({});
 
   // 個数を更新する関数
   const updateAmount = (id: string, newAmount: number) => {
+    console.log(itemAmounts);
+
     setItemAmounts((prev) => ({
       ...prev,
       [id]: newAmount,
@@ -54,7 +63,7 @@ const Cards: React.FunctionComponent<CardsComponentsProps> = ({ stocks }) => {
                 style={styles.squareButton}
                 onPress={() => {
                   const currentAmount = itemAmounts[item.id] || item.amount;
-                  updateAmount(item.id, Math.max(currentAmount - 1, 0));
+                  handleUpdateAmount(item.id, Math.max(currentAmount - 1, 0));
                 }}
               >
                 <Ionicons name="remove-outline" size={17} />
@@ -68,7 +77,7 @@ const Cards: React.FunctionComponent<CardsComponentsProps> = ({ stocks }) => {
                 style={styles.squareButton}
                 onPress={() => {
                   const currentAmount = itemAmounts[item.id] || item.amount;
-                  updateAmount(item.id, currentAmount + 1);
+                  handleUpdateAmount(item.id, currentAmount + 1);
                 }}
               >
                 <Text style={styles.buttonText}>

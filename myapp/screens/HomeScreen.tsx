@@ -13,9 +13,9 @@ import React, { useEffect, useRef, useState } from "react";
 import { useSession } from "../contexts/SessionContext";
 import { useGetProfile } from "../hooks/useGetProfile";
 import Cards from "../components/Cards";
-import { stocks } from "../types/daoTypes";
+import { Stock, StockInput, stocks } from "../types/daoTypes";
 import { Ionicons } from "@expo/vector-icons";
-import { addStock, fetchStocks, StockInput } from "../lib/supabase/stocks";
+import { addStock, fetchStocks, updateStock } from "../lib/supabase/stocks";
 import { useNavigation } from "@react-navigation/native";
 import FormModal from "../components/FormModal";
 import { stockFields } from "../inputFields/modalFields";
@@ -23,7 +23,7 @@ import { stockFields } from "../inputFields/modalFields";
 const HomeScreen = () => {
   const { session, loading } = useSession();
   const [stockModalVisible, setStockModalVisible] = useState(false);
-  const [stocks, setStocks] = useState<stocks[]>([]);
+  const [stocks, setStocks] = useState<stocks>([]);
   const userId = session?.user?.id;
   const nav = useNav();
   const navigation = useNavigation();
@@ -64,9 +64,31 @@ const HomeScreen = () => {
     setStockModalVisible(false);
   };
 
+  const handleUpdateAmount = async (targetId: string, newAmount: number) => {
+    // UI を即時更新
+    setStocks((prevStocks) =>
+      prevStocks.map((stock) =>
+        stock.id === targetId ? { ...stock, amount: newAmount } : stock
+      )
+    );
+
+    try {
+      // Supabase のデータを更新（非同期で実行）
+      await updateStock(targetId, { amount: newAmount });
+    } catch (error) {
+      console.error("Error updating stock amount:", error);
+      // エラー時に元の値に戻す
+      setStocks((prevStocks) =>
+        prevStocks.map((stock) =>
+          stock.id === targetId ? { ...stock, amount: stock.amount } : stock
+        )
+      );
+    }
+  };
+
   return (
     <View style={styles.container}>
-      <Cards stocks={stocks} />
+      <Cards stocks={stocks} handleUpdateAmount={handleUpdateAmount} />
 
       {/* モーダル表示 */}
       <FormModal<StockInput>
