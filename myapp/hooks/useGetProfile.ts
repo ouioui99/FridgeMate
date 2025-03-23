@@ -1,16 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "../lib/supabase/supabase";
+import { getProfile } from "../lib/supabase/profiles";
 
 async function fetchProfile(userId: string) {
   if (!userId) throw new Error("User ID is required");
 
-  const { data, error } = await supabase
-    .from("profiles")
-    .select("username, website, avatar_url")
-    .eq("id", userId)
-    .single();
-
-  if (error) throw error;
+  const data = getProfile();
   return data;
 }
 
