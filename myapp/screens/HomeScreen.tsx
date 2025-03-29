@@ -19,6 +19,8 @@ import { addStock, fetchStocks, updateStock } from "../lib/supabase/stocks";
 import { useNavigation } from "@react-navigation/native";
 import FormModal from "../components/FormModal";
 import { stockFields } from "../inputFields/modalFields";
+import { getGroupInvite } from "../lib/supabase/groupInvites";
+import { supabase } from "../lib/supabase/supabase";
 
 const HomeScreen = () => {
   const { session, loading } = useSession();
@@ -40,8 +42,20 @@ const HomeScreen = () => {
         console.error(error);
       }
     };
+    const groupInvite = async () => {
+      try {
+        const { data: userData, error: userError } =
+          await supabase.auth.getUser();
+        const data = await getGroupInvite(userData.user.email);
+
+        console.log(data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
 
     loadStocks();
+    groupInvite();
   }, []);
 
   // ヘッダー右側の「在庫追加ボタン」をナビゲーションにセット

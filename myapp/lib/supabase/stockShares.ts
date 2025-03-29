@@ -1,12 +1,9 @@
 import { supabase } from "./supabase";
 
-export const sendStockInvite = async (
-  stockId: string,
-  inviteeEmail: string
-) => {
-  const { data, error } = await supabase.from("stock_invites").insert([
+export const sendInvite = async (inviteeEmail: string) => {
+  const { data, error } = await supabase.from("invites").insert([
     {
-      stock_id: stockId,
+      group_id: stockId,
       inviter_id: (await supabase.auth.getUser()).data?.user?.id,
       invitee_email: inviteeEmail,
       status: "pending",
@@ -18,7 +15,7 @@ export const sendStockInvite = async (
   }
 };
 
-export const acceptStockInvite = async (inviteId: string) => {
+export const acceptInvite = async (inviteId: string) => {
   const { data, error } = await supabase
     .from("stock_invites")
     .update({ status: "accepted" })
