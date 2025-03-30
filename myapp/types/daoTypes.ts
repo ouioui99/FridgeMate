@@ -29,3 +29,15 @@ export type GroupShare = {
 export type StockInput = Omit<Stock, "id" | "owner_id">;
 
 export type stocks = Stock[];
+
+export type GroupInvite = {
+  id: string;
+  groupId: string;
+  inviterId: string;
+  inviteeEmail: string;
+  inviteCode: string;
+  status: string;
+  isRevoked: boolean;
+  createdAt: Date;
+  expiredAt: Date;
+};

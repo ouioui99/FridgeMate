@@ -1,3 +1,4 @@
+import { GroupInvite } from "../../types/daoTypes";
 import { supabase } from "./supabase";
 import { getLoginUserId } from "./util";
 import { v4 as uuidv4 } from "uuid";
@@ -66,20 +67,23 @@ export const joinGroupByInvite = async (inviteCode: string): Promise<void> => {
     .eq("id", invite.id);
 };
 
-export const getGroupInvite = async (inviteeEmail: string): Promise<void> => {
-  // 招待コードが有効かチェック
+export const getGroupInvite = async (
+  inviteeEmail: string
+): Promise<GroupInvite | null> => {
   const { data: invite, error } = await supabase
     .from("group_invites")
     .select("id, group_id, status, is_revoked")
     .eq("invitee_email", inviteeEmail)
-    .single();
+    .single<GroupInvite>();
 
-  //TODO データが一つもない場合は何もしないよう要修正
-  if (error || !invite || invite.status !== "pending" || invite.is_revoked) {
-    throw new Error("Invalid or expired invite code.");
+  //データが一つもない場合
+  if (error && error.code === "PGRST116") {
+    return null;
   }
 
-  console.log(invite);
+  if (error || invite.status !== "pending" || invite.is_revoked) {
+    throw new Error("Invalid or expired invite code.");
+  }
 
   return invite;
 };
