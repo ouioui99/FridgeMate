@@ -14,9 +14,9 @@ export type Stock = {
 export type Group = {
   id: string;
   name: string;
-  ownerId: string;
-  createdAt: Date;
-  updatedAt: Date;
+  owner_id: string;
+  created_at: Date;
+  updated_at: Date;
 };
 
 export type GroupShare = {
@@ -32,12 +32,12 @@ export type stocks = Stock[];
 
 export type GroupInvite = {
   id: string;
-  groupId: string;
-  inviterId: string;
-  inviteeEmail: string;
-  inviteCode: string;
+  group_id: string;
+  inviter_id: string;
+  invitee_email: string;
+  invite_code: string;
   status: string;
-  isRevoked: boolean;
-  createdAt: Date;
-  expiredAt: Date;
+  is_revoked: boolean;
+  created_at: Date;
+  expired_at: Date;
 };

@@ -52,8 +52,19 @@ export const joinGroupByInvite = async (inviteCode: string): Promise<void> => {
 
   // グループに参加
   const { error: joinError } = await supabase
-    .from("group_members")
-    .insert([{ group_id: invite.group_id, user_id: userId }]);
+    .from("group_shares")
+    .insert([{ group_id: invite.group_id, shared_with: userId }]);
+
+  if (joinError) {
+    console.error("Error joining group:", joinError.message);
+    throw joinError;
+  }
+
+  // current_Groupを変更
+  const { error: changeError } = await supabase
+    .from("profiles")
+    .update([{ current_group_id: invite.group_id }])
+    .eq("id", userId);
 
   if (joinError) {
     console.error("Error joining group:", joinError.message);
@@ -67,21 +78,44 @@ export const joinGroupByInvite = async (inviteCode: string): Promise<void> => {
     .eq("id", invite.id);
 };
 
+export const refusejoinGroupByInvite = async (
+  inviteCode: string
+): Promise<void> => {
+  const userId = await getLoginUserId();
+
+  // 招待コードが有効かチェック
+  const { data: invite, error } = await supabase
+    .from("group_invites")
+    .select("id, group_id, status, is_revoked")
+    .eq("invite_code", inviteCode)
+    .single();
+
+  if (error || !invite || invite.status !== "pending" || invite.is_revoked) {
+    throw new Error("Invalid or expired invite code.");
+  }
+
+  // 招待の状態を `accepted` に更新
+  await supabase
+    .from("group_invites")
+    .update({ is_revoked: true })
+    .eq("id", invite.id);
+};
+
 export const getGroupInvite = async (
   inviteeEmail: string
 ): Promise<GroupInvite | null> => {
   const { data: invite, error } = await supabase
     .from("group_invites")
-    .select("id, group_id, status, is_revoked")
+    .select("id, group_id, invite_code ,status, is_revoked")
     .eq("invitee_email", inviteeEmail)
     .single<GroupInvite>();
 
   //データが一つもない場合
-  if (error && error.code === "PGRST116") {
+  if ((error && error.code === "PGRST116") || invite.status === "accepted") {
     return null;
   }
 
-  if (error || invite.status !== "pending" || invite.is_revoked) {
+  if (error) {
     throw new Error("Invalid or expired invite code.");
   }
 

@@ -18,7 +18,6 @@ const UserScreen = () => {
   };
 
   const handleSendInvite = async () => {
-    const userId = await getLoginUserId();
     const profileData = await getProfile();
 
     // プロフィール取得

@@ -7,48 +7,12 @@ import { getLoginUserId } from "./util";
  * 在庫を取得する関数
  * @returns {Promise<Stock[]>} 取得した在庫データ
  */
-export const fetchStocks = async () => {
-  const loginUserId = await getLoginUserId();
-
-  // ユーザーがアクセスできるグループIDを取得
-  const { data: groups, error: groupsError } = await supabase
-    .from("groups")
-    .select("id")
-    .eq("owner_id", loginUserId);
-
-  if (groupsError) {
-    console.error(
-      "グループの取得中にエラーが発生しました:",
-      groupsError.message
-    );
-    throw groupsError;
-  }
-
-  // ユーザーが共有しているグループIDを取得
-  const { data: sharedGroups, error: sharedGroupsError } = await supabase
-    .from("group_shares")
-    .select("group_id")
-    .eq("shared_with", loginUserId);
-
-  if (sharedGroupsError) {
-    console.error(
-      "共有グループの取得中にエラーが発生しました:",
-      sharedGroupsError.message
-    );
-    throw sharedGroupsError;
-  }
-
-  // グループIDをフラットな配列に変換
-  const groupIds = [
-    ...groups.map((group: Group) => group.id),
-    ...sharedGroups.map((share: GroupShare) => share.groupId),
-  ];
-
+export const fetchStocks = async (currentGroupId: string) => {
   // グループIDを使ってストックを取得
   const { data, error } = await supabase
     .from("stocks")
     .select("*")
-    .in("group_id", groupIds) // フラットな配列を渡す
+    .eq("group_id", currentGroupId)
     .order("created_at", { ascending: true });
 
   if (error) {

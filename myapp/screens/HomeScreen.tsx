@@ -7,25 +7,39 @@ import {
   Animated,
   TouchableOpacity,
   PanResponder,
+  Alert,
 } from "react-native";
 import { useNav } from "../hooks/useNav";
 import React, { useEffect, useRef, useState } from "react";
 import { useSession } from "../contexts/SessionContext";
 import { useGetProfile } from "../hooks/useGetProfile";
 import Cards from "../components/Cards";
-import { Stock, StockInput, stocks } from "../types/daoTypes";
+import {
+  Group,
+  GroupInvite,
+  Stock,
+  StockInput,
+  stocks,
+} from "../types/daoTypes";
 import { Ionicons } from "@expo/vector-icons";
 import { addStock, fetchStocks, updateStock } from "../lib/supabase/stocks";
 import { useNavigation } from "@react-navigation/native";
 import FormModal from "../components/FormModal";
 import { stockFields } from "../inputFields/modalFields";
-import { getGroupInvite } from "../lib/supabase/groupInvites";
+import {
+  getGroupInvite,
+  joinGroupByInvite,
+  refusejoinGroupByInvite,
+} from "../lib/supabase/groupInvites";
 import { supabase } from "../lib/supabase/supabase";
+import { getGroupsEqId } from "../lib/supabase/groups";
 
 const HomeScreen = () => {
   const { session, loading } = useSession();
   const [stockModalVisible, setStockModalVisible] = useState(false);
   const [stocks, setStocks] = useState<stocks>([]);
+  const [inviteData, setInviteData] = useState<GroupInvite | null>(null); // 招待データの状態管理
+  const [invitedGroupData, setInvitedGroupData] = useState<Group | null>(null); // 招待データの状態管理
   const userId = session?.user?.id;
   const nav = useNav();
   const navigation = useNavigation();
@@ -36,27 +50,54 @@ const HomeScreen = () => {
   useEffect(() => {
     const loadStocks = async () => {
       try {
-        const data = await fetchStocks();
+        console.log(profile);
+
+        const data = await fetchStocks(profile.current_group_id);
         setStocks(data);
       } catch (error) {
         console.error(error);
       }
     };
-    const groupInvite = async () => {
+    const checkGroupInvite = async () => {
       try {
         const { data: userData, error: userError } =
           await supabase.auth.getUser();
-        const data = await getGroupInvite(userData.user.email);
+        const invite = await getGroupInvite(userData.user.email);
 
-        console.log(data);
+        if (invite) {
+          const groupData = await getGroupsEqId(invite.group_id);
+          setInvitedGroupData(groupData);
+          setInviteData(invite);
+          showInviteAlert(groupData, invite);
+        }
       } catch (error) {
         console.error(error);
       }
     };
 
-    loadStocks();
-    groupInvite();
-  }, []);
+    if (!isLoading) {
+      loadStocks();
+      checkGroupInvite();
+    }
+  }, [isLoading]);
+
+  const showInviteAlert = (invitedGroup: Group, invite: GroupInvite) => {
+    Alert.alert(
+      "グループ招待",
+      `${invitedGroup.name} に招待されています。承認しますか？`,
+      [
+        {
+          text: "拒否",
+          style: "cancel",
+          onPress: () => refusejoinGroupByInvite(invite.invite_code),
+        },
+        {
+          text: "承認",
+          onPress: () => joinGroupByInvite(invite.invite_code),
+        },
+      ]
+    );
+  };
 
   // ヘッダー右側の「在庫追加ボタン」をナビゲーションにセット
   useEffect(() => {
