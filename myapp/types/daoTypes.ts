@@ -50,7 +50,7 @@ export type ShoppingList = {
   creater_id: string;
   group_id: string;
   created_at: Date;
-  expired_at: Date;
+  updated_at: Date;
 };
 
 export type ShoppingListInput = ShoppingList;

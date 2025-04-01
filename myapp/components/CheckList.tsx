@@ -9,23 +9,11 @@ import {
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import CheckListItem from "./CheckListItem";
 import { ShoppingList } from "../types/daoTypes";
-
-type Item = {
-  id: string;
-  name: string;
-  amount: number;
-  checked: boolean;
-};
+import { updateShoppingList } from "../lib/supabase/shoppingLists";
 
 type CheckListProps = {
   shoppingLists: ShoppingList[];
 };
-
-const initialItems: Item[] = [
-  { id: "1", name: "Apple", amount: 1, checked: false },
-  { id: "2", name: "Banana", amount: 2, checked: false },
-  { id: "3", name: "Orange", amount: 3, checked: false },
-];
 
 // Androidでレイアウトアニメーションを有効化
 if (
@@ -36,15 +24,13 @@ if (
 }
 
 export default function CheckList({ shoppingLists }: CheckListProps) {
-  console.log(shoppingLists);
-
   const [items, setItems] = useState<ShoppingList[]>([]);
 
   useEffect(() => {
     setItems(shoppingLists);
   }, [shoppingLists]);
 
-  const toggleCheck = (id: string) => {
+  const toggleCheck = async (id: string) => {
     // アニメーションを適用
     LayoutAnimation.configureNext(
       LayoutAnimation.create(
@@ -59,9 +45,24 @@ export default function CheckList({ shoppingLists }: CheckListProps) {
       );
       return updatedItems.sort((a, b) => Number(a.checked) - Number(b.checked));
     });
+
+    try {
+      // データベースを更新
+      const targetItem = items.find((item) => item.id === id);
+      if (!targetItem) return;
+
+      await updateShoppingList(id, {
+        checked: !targetItem.checked,
+      });
+    } catch (error) {
+      // エラー発生時は元の状態に戻す（アニメーションなし）
+      setItems(items);
+      console.error("チェック状態の更新に失敗しました:", error);
+      alert("チェック状態の更新に失敗しました");
+    }
   };
 
-  const updateAmount = (id: string, change: number) => {
+  const updateAmount = async (id: string, change: number) => {
     setItems((prevItems) =>
       prevItems.map((item) =>
         item.id === id
@@ -69,6 +70,20 @@ export default function CheckList({ shoppingLists }: CheckListProps) {
           : item
       )
     );
+
+    try {
+      // データベースを更新
+      const targetItem = items.find((item) => item.id === id);
+      if (!targetItem) return;
+
+      const newAmount = Math.max(0, targetItem.amount + change);
+      await updateShoppingList(id, { amount: newAmount });
+    } catch (error) {
+      // エラー発生時は元の状態に戻す
+      setItems(items);
+      console.error("数量の更新に失敗しました:", error);
+      alert("数量の更新に失敗しました");
+    }
   };
 
   return (
