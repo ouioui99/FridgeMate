@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   FlatList,
@@ -8,12 +8,17 @@ import {
 } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import CheckListItem from "./CheckListItem";
+import { ShoppingList } from "../types/daoTypes";
 
 type Item = {
   id: string;
   name: string;
   amount: number;
   checked: boolean;
+};
+
+type CheckListProps = {
+  shoppingLists: ShoppingList[];
 };
 
 const initialItems: Item[] = [
@@ -30,8 +35,14 @@ if (
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
 
-export default function CheckList() {
-  const [items, setItems] = useState<Item[]>(initialItems);
+export default function CheckList({ shoppingLists }: CheckListProps) {
+  console.log(shoppingLists);
+
+  const [items, setItems] = useState<ShoppingList[]>([]);
+
+  useEffect(() => {
+    setItems(shoppingLists);
+  }, [shoppingLists]);
 
   const toggleCheck = (id: string) => {
     // アニメーションを適用

@@ -21,3 +21,13 @@ export const stockFields: Field[] = [
     type: "image",
   },
 ];
+
+export const shoppingListFields: Field[] = [
+  { key: "name", label: "名前", placeholder: "商品名を入力" },
+  {
+    key: "amount",
+    label: "個数",
+    placeholder: "個数を入力",
+    type: "number",
+  },
+];

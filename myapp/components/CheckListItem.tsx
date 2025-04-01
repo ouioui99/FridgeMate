@@ -2,6 +2,7 @@
 import React, { useRef, useState } from "react";
 import { View, Text, TouchableOpacity, Animated } from "react-native";
 import { PanGestureHandler, State } from "react-native-gesture-handler";
+import { ShoppingList } from "../types/daoTypes";
 
 type Item = {
   id: string;
@@ -11,7 +12,7 @@ type Item = {
 };
 
 type Props = {
-  item: Item;
+  item: ShoppingList;
   toggleCheck: (id: string) => void;
   updateAmount: (id: string, change: number) => void;
 };

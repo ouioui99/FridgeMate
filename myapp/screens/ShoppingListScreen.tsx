@@ -13,17 +13,28 @@ import React, { useEffect, useState } from "react";
 import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import FormModal from "../components/FormModal";
-import { stockFields } from "../inputFields/modalFields";
+import { shoppingListFields, stockFields } from "../inputFields/modalFields";
 import { StockInput, addStock, fetchStocks } from "../lib/supabase/stocks";
+import { useGetProfile } from "../hooks/useGetProfile";
+import { useSession } from "../contexts/SessionContext";
+import {
+  addShoppingList,
+  getShoppingLists,
+} from "../lib/supabase/shoppingLists";
+import { ShoppingList, ShoppingListInput } from "../types/daoTypes";
 
 export default function ShoppingListScreen() {
   const navigation = useNavigation();
+  const { session, loading } = useSession();
+  const userId = session?.user?.id;
+  const { data: profile, isLoading, error } = useGetProfile(userId);
   const [shoppingItemFormModalVisible, setShoppingItemFormModalVisibleVisible] =
     useState(false);
+  const [shoppingLists, setShoppingLists] = useState<ShoppingList[]>([]);
 
   const onClose = async () => {
-    const data = await fetchStocks();
-    // setStocks(data);
+    const data = await getShoppingLists(profile.current_group_id);
+    setShoppingLists(data);
     setShoppingItemFormModalVisibleVisible(false);
   };
 
@@ -41,17 +52,33 @@ export default function ShoppingListScreen() {
     });
   }, [navigation]);
 
+  // ヘッダー右側の「在庫追加ボタン」をナビゲーションにセット
+  useEffect(() => {
+    const loadShoppingLists = async () => {
+      try {
+        const data = await getShoppingLists(profile.current_group_id);
+
+        setShoppingLists(data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    if (!isLoading) {
+      loadShoppingLists();
+    }
+  }, [isLoading]);
+
   return (
     <View style={styles.container}>
-      <CheckList />
+      <CheckList shoppingLists={shoppingLists} />
 
       {/* モーダル表示 */}
-      <FormModal<StockInput>
+      <FormModal<ShoppingListInput>
         visible={shoppingItemFormModalVisible}
         onClose={() => onClose()}
-        fields={stockFields}
+        fields={shoppingListFields}
         onSubmit={async (data) => {
-          await addStock(data);
+          await addShoppingList(data);
         }}
       />
     </View>

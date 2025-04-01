@@ -41,3 +41,16 @@ export type GroupInvite = {
   created_at: Date;
   expired_at: Date;
 };
+
+export type ShoppingList = {
+  id: string;
+  name: string;
+  amount: number;
+  checked: boolean;
+  creater_id: string;
+  group_id: string;
+  created_at: Date;
+  expired_at: Date;
+};
+
+export type ShoppingListInput = ShoppingList;

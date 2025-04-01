@@ -114,13 +114,12 @@ const HomeScreen = () => {
   }, [navigation]);
 
   const onClose = async () => {
-    const data = await fetchStocks();
+    const data = await fetchStocks(profile.current_group_id);
     setStocks(data);
     setStockModalVisible(false);
   };
 
   const handleUpdateAmount = async (targetId: string, newAmount: number) => {
-    // UI を即時更新
     setStocks((prevStocks) =>
       prevStocks.map((stock) =>
         stock.id === targetId ? { ...stock, amount: newAmount } : stock
