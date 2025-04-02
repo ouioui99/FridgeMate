@@ -13,6 +13,7 @@ import { updateShoppingList } from "../lib/supabase/shoppingLists";
 
 type CheckListProps = {
   shoppingLists: ShoppingList[];
+  setShoppingLists: React.Dispatch<React.SetStateAction<ShoppingList[]>>;
 };
 
 // Androidでレイアウトアニメーションを有効化
@@ -23,13 +24,10 @@ if (
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
 
-export default function CheckList({ shoppingLists }: CheckListProps) {
-  const [items, setItems] = useState<ShoppingList[]>([]);
-
-  useEffect(() => {
-    setItems(shoppingLists);
-  }, [shoppingLists]);
-
+export default function CheckList({
+  shoppingLists,
+  setShoppingLists,
+}: CheckListProps) {
   const toggleCheck = async (id: string) => {
     // アニメーションを適用
     LayoutAnimation.configureNext(
@@ -39,7 +37,7 @@ export default function CheckList({ shoppingLists }: CheckListProps) {
         LayoutAnimation.Properties.opacity
       )
     );
-    setItems((prevItems) => {
+    setShoppingLists((prevItems) => {
       const updatedItems = prevItems.map((item) =>
         item.id === id ? { ...item, checked: !item.checked } : item
       );
@@ -48,7 +46,7 @@ export default function CheckList({ shoppingLists }: CheckListProps) {
 
     try {
       // データベースを更新
-      const targetItem = items.find((item) => item.id === id);
+      const targetItem = shoppingLists.find((item) => item.id === id);
       if (!targetItem) return;
 
       await updateShoppingList(id, {
@@ -56,14 +54,14 @@ export default function CheckList({ shoppingLists }: CheckListProps) {
       });
     } catch (error) {
       // エラー発生時は元の状態に戻す（アニメーションなし）
-      setItems(items);
+      setShoppingLists(shoppingLists);
       console.error("チェック状態の更新に失敗しました:", error);
       alert("チェック状態の更新に失敗しました");
     }
   };
 
   const updateAmount = async (id: string, change: number) => {
-    setItems((prevItems) =>
+    setShoppingLists((prevItems) =>
       prevItems.map((item) =>
         item.id === id
           ? { ...item, amount: Math.max(0, item.amount + change) }
@@ -73,14 +71,14 @@ export default function CheckList({ shoppingLists }: CheckListProps) {
 
     try {
       // データベースを更新
-      const targetItem = items.find((item) => item.id === id);
+      const targetItem = shoppingLists.find((item) => item.id === id);
       if (!targetItem) return;
 
       const newAmount = Math.max(0, targetItem.amount + change);
       await updateShoppingList(id, { amount: newAmount });
     } catch (error) {
       // エラー発生時は元の状態に戻す
-      setItems(items);
+      setShoppingLists(shoppingLists);
       console.error("数量の更新に失敗しました:", error);
       alert("数量の更新に失敗しました");
     }
@@ -90,7 +88,7 @@ export default function CheckList({ shoppingLists }: CheckListProps) {
     <View style={{ flex: 1, padding: 20 }}>
       <GestureHandlerRootView>
         <FlatList
-          data={items}
+          data={shoppingLists}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
             <CheckListItem

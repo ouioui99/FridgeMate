@@ -14,7 +14,6 @@ import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import FormModal from "../components/FormModal";
 import { shoppingListFields, stockFields } from "../inputFields/modalFields";
-import { StockInput, addStock, fetchStocks } from "../lib/supabase/stocks";
 import { useGetProfile } from "../hooks/useGetProfile";
 import { useSession } from "../contexts/SessionContext";
 import {
@@ -22,6 +21,8 @@ import {
   getShoppingLists,
 } from "../lib/supabase/shoppingLists";
 import { ShoppingList, ShoppingListInput } from "../types/daoTypes";
+import axios from "axios";
+import { getExpirationDateList, getExpiretionDate } from "../lib/google/gemini";
 
 export default function ShoppingListScreen() {
   const navigation = useNavigation();
@@ -36,6 +37,15 @@ export default function ShoppingListScreen() {
     const data = await getShoppingLists(profile.current_group_id);
     setShoppingLists(data);
     setShoppingItemFormModalVisibleVisible(false);
+  };
+
+  const handleShoppingComplete = async () => {
+    const checkedNames = shoppingLists
+      .filter((item) => item.checked)
+      .map((item) => item.name);
+    const expirationDateList = await getExpirationDateList(checkedNames);
+    console.log(checkedNames);
+    console.log(expirationDateList);
   };
 
   // ヘッダー右側の「在庫追加ボタン」をナビゲーションにセット
@@ -70,9 +80,21 @@ export default function ShoppingListScreen() {
 
   return (
     <View style={styles.container}>
-      <CheckList shoppingLists={shoppingLists} />
+      <CheckList
+        shoppingLists={shoppingLists}
+        setShoppingLists={setShoppingLists}
+      />
 
-      {/* モーダル表示 */}
+      <TouchableOpacity
+        style={styles.completeButton}
+        onPress={() => {
+          handleShoppingComplete();
+        }}
+      >
+        <Text style={styles.completeButtonText}>買い物完了</Text>
+      </TouchableOpacity>
+
+      {/* モーダル */}
       <FormModal<ShoppingListInput>
         visible={shoppingItemFormModalVisible}
         onClose={() => onClose()}
@@ -107,5 +129,19 @@ const styles = StyleSheet.create({
   },
   loading: {
     marginTop: 20,
+  },
+  completeButton: {
+    backgroundColor: "#4CAF50", // 緑色
+    padding: 15,
+    borderRadius: 8,
+    alignItems: "center",
+    width: "90%",
+    alignSelf: "center",
+    marginBottom: 20,
+  },
+  completeButtonText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "bold",
   },
 });

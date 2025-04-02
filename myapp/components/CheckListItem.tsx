@@ -57,6 +57,7 @@ const CheckListItem: React.FC<Props> = ({
     <PanGestureHandler
       onGestureEvent={handleGesture}
       onHandlerStateChange={handleGestureEnd}
+      activeOffsetX={[-2, 2]}
     >
       <View style={{ position: "relative", marginVertical: 5 }}>
         {/* スワイプ後の「+」「-」表示 */}

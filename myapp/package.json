@@ -17,6 +17,7 @@
     "@rneui/themed": "^4.0.0-rc.8",
     "@supabase/supabase-js": "^2.49.1",
     "@tanstack/react-query": "^5.67.3",
+    "axios": "^1.8.4",
     "expo": "^52.0.41",
     "expo-linking": "^7.0.5",
     "expo-status-bar": "~2.0.1",
