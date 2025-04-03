@@ -24,6 +24,31 @@ export const fetchStocks = async (currentGroupId: string) => {
 };
 
 /**
+ * 在庫を取得する関数
+ * @param {string} currentGroupId - 現在のグループID
+ * @param {string[]} nameList - 取得したいストックの名前リスト
+ * @returns {Promise<Stock[]>} 取得した在庫データ
+ */
+export const fetchSomeStocks = async (
+  currentGroupId: string,
+  nameList: string[]
+) => {
+  // グループIDとnameListに一致するストックを取得
+  const { data, error } = await supabase
+    .from("stocks")
+    .select("*")
+    .eq("group_id", currentGroupId)
+    .in("name", nameList);
+
+  if (error) {
+    console.error("ストックの取得中にエラーが発生しました:", error.message);
+    throw error;
+  }
+
+  return data;
+};
+
+/**
  * 在庫を追加する関数
  * @param {StockInput} stock 在庫データ
  * @returns {Promise<void>}
