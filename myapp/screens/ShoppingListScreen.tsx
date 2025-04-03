@@ -20,7 +20,7 @@ import {
   addShoppingList,
   getShoppingLists,
 } from "../lib/supabase/shoppingLists";
-import { ShoppingList, ShoppingListInput } from "../types/daoTypes";
+import { ShoppingList, ShoppingListInput, Stock } from "../types/daoTypes";
 import axios from "axios";
 import { getExpirationDateList, getExpiretionDate } from "../lib/google/gemini";
 import { fetchSomeStocks } from "../lib/supabase/stocks";
@@ -46,11 +46,16 @@ export default function ShoppingListScreen() {
       .map((item) => item.name);
     //const expirationDateList = await getExpirationDateList(checkedNames);
 
-    const toUpdateStocks = await fetchSomeStocks(
+    const toUpdateStocks: Stock[] = await fetchSomeStocks(
       profile.current_group_id,
       checkedNameList
     );
-    toUpdateStocks;
+
+    const toUpdateStocksName = new Set(toUpdateStocks.map((obj) => obj.name)); // arr1 の name を全部 Set に
+
+    const toInsertShoppingListName = checkedNameList.filter(
+      (name) => !toUpdateStocksName.has(name)
+    );
   };
 
   // ヘッダー右側の「在庫追加ボタン」をナビゲーションにセット

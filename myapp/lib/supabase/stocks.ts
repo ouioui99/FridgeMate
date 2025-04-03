@@ -44,7 +44,6 @@ export const fetchSomeStocks = async (
     console.error("ストックの取得中にエラーが発生しました:", error.message);
     throw error;
   }
-
   return data;
 };
 
