@@ -33,11 +33,13 @@ export const getExpirationDateList = async (targetNameList: string[]) => {
     );
 
     const responseContent = response.data.candidates[0].content;
+    console.log(responseContent.parts);
+
     const responseParts = responseContent.parts
       .map((part: { text: string }) => part.text)
       .join("\n");
 
-    return responseParts;
+    return JSON.parse(responseParts);
   } catch (error) {
     console.error(
       "Error:",

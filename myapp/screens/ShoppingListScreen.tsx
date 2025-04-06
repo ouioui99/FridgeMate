@@ -21,9 +21,9 @@ import {
   getShoppingLists,
 } from "../lib/supabase/shoppingLists";
 import { ShoppingList, ShoppingListInput, Stock } from "../types/daoTypes";
-import axios from "axios";
 import { getExpirationDateList, getExpiretionDate } from "../lib/google/gemini";
 import { fetchSomeStocks } from "../lib/supabase/stocks";
+import dayjs from "dayjs";
 
 export default function ShoppingListScreen() {
   const navigation = useNavigation();
@@ -44,8 +44,8 @@ export default function ShoppingListScreen() {
     const checkedNameList = shoppingLists
       .filter((item) => item.checked)
       .map((item) => item.name);
-    //const expirationDateList = await getExpirationDateList(checkedNames);
 
+    //すでにDBに登録済みのstocksをDBから取得
     const toUpdateStocks: Stock[] = await fetchSomeStocks(
       profile.current_group_id,
       checkedNameList
@@ -53,8 +53,31 @@ export default function ShoppingListScreen() {
 
     const toUpdateStocksName = new Set(toUpdateStocks.map((obj) => obj.name)); // arr1 の name を全部 Set に
 
-    const toInsertShoppingListName = checkedNameList.filter(
+    const toInsertShoppingListName: string[] = checkedNameList.filter(
       (name) => !toUpdateStocksName.has(name)
+    );
+
+    const expirationDateList: string[] = await getExpirationDateList(
+      toInsertShoppingListName
+    );
+    const insertShoppingList: ShoppingList[] = shoppingLists.filter((item) =>
+      toInsertShoppingListName.includes(item.name)
+    );
+
+    const nameAmountAndExpirationList = insertShoppingList.map(
+      (item, index) => {
+        const daysToAdd = expirationDateList[index];
+        const expirationDate =
+          daysToAdd != null
+            ? dayjs().add(daysToAdd, "day").format("YYYY-MM-DD")
+            : null;
+
+        return {
+          name: item.name,
+          amount: item.amount,
+          expirationDate,
+        };
+      }
     );
   };
 
