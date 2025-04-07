@@ -18,11 +18,17 @@ import { useGetProfile } from "../hooks/useGetProfile";
 import { useSession } from "../contexts/SessionContext";
 import {
   addShoppingList,
+  deleteShoppingList,
   getShoppingLists,
 } from "../lib/supabase/shoppingLists";
-import { ShoppingList, ShoppingListInput, Stock } from "../types/daoTypes";
+import {
+  ShoppingList,
+  ShoppingListInput,
+  Stock,
+  StockInput,
+} from "../types/daoTypes";
 import { getExpirationDateList, getExpiretionDate } from "../lib/google/gemini";
-import { fetchSomeStocks } from "../lib/supabase/stocks";
+import { addStocks, fetchSomeStocks } from "../lib/supabase/stocks";
 import dayjs from "dayjs";
 
 export default function ShoppingListScreen() {
@@ -63,6 +69,9 @@ export default function ShoppingListScreen() {
     const insertShoppingList: ShoppingList[] = shoppingLists.filter((item) =>
       toInsertShoppingListName.includes(item.name)
     );
+    const insertShoppingListId: string[] = insertShoppingList.map(
+      (item) => item.id
+    );
 
     const nameAmountAndExpirationList = insertShoppingList.map(
       (item, index) => {
@@ -75,10 +84,14 @@ export default function ShoppingListScreen() {
         return {
           name: item.name,
           amount: item.amount,
-          expirationDate,
+          expiration_date: expirationDate,
         };
       }
     );
+    addStocks(nameAmountAndExpirationList as StockInput[]);
+    deleteShoppingList(insertShoppingListId);
+    const data = await getShoppingLists(profile.current_group_id);
+    setShoppingLists(data);
   };
 
   // ヘッダー右側の「在庫追加ボタン」をナビゲーションにセット

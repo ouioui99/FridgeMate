@@ -3,7 +3,7 @@ export type Stock = {
   id: string;
   name: string;
   amount: number;
-  expirationDate: string;
+  expiration_date: string;
   image?: string;
   createdAt: Date;
   updatedAt: Date;

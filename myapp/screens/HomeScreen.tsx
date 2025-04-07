@@ -50,8 +50,6 @@ const HomeScreen = () => {
   useEffect(() => {
     const loadStocks = async () => {
       try {
-        console.log(profile);
-
         const data = await fetchStocks(profile.current_group_id);
         setStocks(data);
       } catch (error) {

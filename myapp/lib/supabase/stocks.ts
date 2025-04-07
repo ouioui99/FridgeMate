@@ -72,6 +72,31 @@ export const addStock = async (stock: StockInput): Promise<void> => {
 };
 
 /**
+ * 在庫を複数追加する関数
+ * @param {StockInput[]} stocks 在庫データ
+ * @returns {Promise<void>}
+ */
+export const addStocks = async (
+  stockInputList: StockInput[]
+): Promise<void> => {
+  const profile = await getProfile();
+  const loginUserId = await getLoginUserId();
+
+  const rows = stockInputList.map((stockInput) => ({
+    ...stockInput,
+    creater_id: loginUserId,
+    group_id: profile.current_group_id, // ユーザーIDを設定
+  }));
+
+  const { error } = await supabase.from("stocks").insert(rows);
+
+  if (error) {
+    console.error("Error adding stock:", error.message);
+    throw error;
+  }
+};
+
+/**
  * 在庫を更新する関数
  * @param {string} stockId 更新する在庫のID
  * @param {StockInput} stock 更新する在庫データ

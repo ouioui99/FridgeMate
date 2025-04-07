@@ -74,3 +74,24 @@ export const updateShoppingList = async (
     throw error;
   }
 };
+
+/**
+ * 買い物リストの削除関数（単数・複数対応）
+ * @param {string | string[]} ids - 削除したい買い物リストのIDまたはIDの配列
+ * @returns {Promise<void>}
+ */
+export const deleteShoppingList = async (
+  ids: string | string[]
+): Promise<void> => {
+  const idArray = Array.isArray(ids) ? ids : [ids];
+
+  const { error } = await supabase
+    .from("shopping_lists")
+    .delete()
+    .in("id", idArray);
+
+  if (error) {
+    console.error("買い物リストの削除中にエラーが発生しました:", error.message);
+    throw error;
+  }
+};
