@@ -116,3 +116,17 @@ export const updateStock = async (
     throw error;
   }
 };
+
+/**
+ * 在庫を削除する関数
+ * @param {string} stockId 削除する在庫のID
+ * @returns {Promise<void>}
+ */
+export const deleteStock = async (stockId: string): Promise<void> => {
+  const { error } = await supabase.from("stocks").delete().eq("id", stockId);
+
+  if (error) {
+    console.error("Error deleting stock:", error.message);
+    throw error;
+  }
+};

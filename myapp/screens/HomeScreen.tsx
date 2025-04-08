@@ -17,12 +17,18 @@ import Cards from "../components/Cards";
 import {
   Group,
   GroupInvite,
+  ShoppingListInput,
   Stock,
   StockInput,
   stocks,
 } from "../types/daoTypes";
 import { Ionicons } from "@expo/vector-icons";
-import { addStock, fetchStocks, updateStock } from "../lib/supabase/stocks";
+import {
+  addStock,
+  deleteStock,
+  fetchStocks,
+  updateStock,
+} from "../lib/supabase/stocks";
 import { useNavigation } from "@react-navigation/native";
 import FormModal from "../components/FormModal";
 import { stockFields } from "../inputFields/modalFields";
@@ -33,6 +39,10 @@ import {
 } from "../lib/supabase/groupInvites";
 import { supabase } from "../lib/supabase/supabase";
 import { getGroupsEqId } from "../lib/supabase/groups";
+import {
+  addShoppingList,
+  getShoppingListItem,
+} from "../lib/supabase/shoppingLists";
 
 const HomeScreen = () => {
   const { session, loading } = useSession();
@@ -119,7 +129,16 @@ const HomeScreen = () => {
     setUpdateData({});
   };
 
+  const handleDelete = async () => {
+    await deleteStock(updateData.id);
+    const data = await fetchStocks(profile.current_group_id);
+    setStocks(data);
+    setStockModalVisible(false);
+    setUpdateData({});
+  };
+
   const handleUpdateAmount = async (targetId: string, newAmount: number) => {
+    const targetStock = stocks.find((stock) => stock.id === targetId);
     setStocks((prevStocks) =>
       prevStocks.map((stock) =>
         stock.id === targetId ? { ...stock, amount: newAmount } : stock
@@ -136,6 +155,41 @@ const HomeScreen = () => {
         prevStocks.map((stock) =>
           stock.id === targetId ? { ...stock, amount: stock.amount } : stock
         )
+      );
+    }
+    if (newAmount === 0 && targetStock) {
+      Alert.alert(
+        "買い物リストに追加",
+        `${targetStock.name} の在庫が0になりました。買い物リストに追加しますか？`,
+        [
+          {
+            text: "キャンセル",
+            style: "cancel",
+          },
+          {
+            text: "追加する",
+            onPress: async () => {
+              // ここで買い物リストへの追加処理を実行
+              const shoppingListItem = await getShoppingListItem(
+                targetStock.name,
+                profile.current_group_id
+              );
+              if (shoppingListItem.length === 0) {
+                const addShoppingListData = {
+                  name: targetStock.name,
+                  amount: 1,
+                  checked: false,
+                  creater_id: userId,
+                  group_id: profile.current_group_id,
+                } as ShoppingListInput;
+                await addShoppingList(addShoppingListData);
+                Alert.alert("買い物リストに登録しました");
+              } else {
+                Alert.alert("すでに登録済みです");
+              }
+            },
+          },
+        ]
       );
     }
   };
@@ -167,6 +221,7 @@ const HomeScreen = () => {
             await addStock(data);
           }
         }}
+        handleDelete={handleDelete}
         initialData={updateData}
       />
 

@@ -4,6 +4,7 @@ export type FormModalProps<T extends Record<string, any>> = {
   onClose: () => void;
   fields: Field[];
   onSubmit: (data: T) => Promise<void>;
+  handleDelete: () => Promise<void>;
   initialData: {};
 };
 

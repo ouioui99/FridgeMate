@@ -14,15 +14,20 @@ const FormModal = <T extends Record<string, any>>({
   onClose,
   fields,
   onSubmit,
+  handleDelete,
   initialData = {},
 }: FormModalProps<T>) => {
   const [formData, setFormData] = useState<Partial<T>>(initialData);
+
+  // 編集モードかどうか判定（id の有無 or initialData が空かどうか）
+  const isEditMode: boolean =
+    "id" in initialData && initialData.id ? true : false;
 
   useEffect(() => {
     if (visible) {
       setFormData(initialData); // ← 表示時に初期データをセット
     }
-  }, [visible, initialData]);
+  }, [visible]);
 
   const handleChange = (key: string, value: string) => {
     setFormData((prev) => ({ ...prev, [key]: value }));
@@ -35,7 +40,7 @@ const FormModal = <T extends Record<string, any>>({
       onClose();
     } catch (error) {
       console.error(error);
-      alert("登録に失敗しました");
+      alert(isEditMode ? "更新に失敗しました" : "登録に失敗しました");
     }
   };
 
@@ -58,8 +63,19 @@ const FormModal = <T extends Record<string, any>>({
           ))}
 
           <TouchableOpacity style={styles.addButton} onPress={handleConfirm}>
-            <Text style={styles.addButtonText}>登録</Text>
+            <Text style={styles.addButtonText}>
+              {isEditMode ? "更新" : "登録"}
+            </Text>
           </TouchableOpacity>
+
+          {isEditMode && (
+            <TouchableOpacity
+              style={styles.deleteButton}
+              onPress={handleDelete}
+            >
+              <Text style={styles.deleteButtonText}>削除</Text>
+            </TouchableOpacity>
+          )}
 
           <TouchableOpacity style={styles.closeButton} onPress={onClose}>
             <Text style={styles.closeButtonText}>キャンセル</Text>
@@ -109,6 +125,19 @@ const styles = StyleSheet.create({
     marginTop: 15,
   },
   addButtonText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  deleteButton: {
+    width: "100%",
+    backgroundColor: "#f44336", // 削除ボタンは赤
+    padding: 12,
+    borderRadius: 8,
+    alignItems: "center",
+    marginTop: 15,
+  },
+  deleteButtonText: {
     color: "white",
     fontSize: 16,
     fontWeight: "bold",

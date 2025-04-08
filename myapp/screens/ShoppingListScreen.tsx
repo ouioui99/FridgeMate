@@ -145,9 +145,11 @@ export default function ShoppingListScreen() {
         visible={shoppingItemFormModalVisible}
         onClose={() => onClose()}
         fields={shoppingListFields}
+        handleDelete={async () => {}}
         onSubmit={async (data) => {
           await addShoppingList(data);
         }}
+        initialData={{}}
       />
     </View>
   );

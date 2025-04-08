@@ -22,6 +22,27 @@ export const getShoppingLists = async (
   return data;
 };
 
+export const getShoppingListItem = async (
+  targetName: string,
+  currentGroupId: string
+): Promise<ShoppingList[]> => {
+  // グループIDを使って買い物リストを取得
+  const { data, error } = await supabase
+    .from("shopping_lists")
+    .select("*")
+    .eq("group_id", currentGroupId)
+    .eq("name", targetName)
+    .order("checked", { ascending: true })
+    .order("created_at", { ascending: true });
+
+  if (error) {
+    console.error("買い物リストの取得中にエラーが発生しました:", error.message);
+    throw error;
+  }
+
+  return data;
+};
+
 /**
  * 在庫を追加する関数
  * @param {StockInput} stock 在庫データ
