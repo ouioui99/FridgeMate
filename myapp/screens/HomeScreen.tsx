@@ -40,6 +40,7 @@ const HomeScreen = () => {
   const [stocks, setStocks] = useState<stocks>([]);
   const [inviteData, setInviteData] = useState<GroupInvite | null>(null); // 招待データの状態管理
   const [invitedGroupData, setInvitedGroupData] = useState<Group | null>(null); // 招待データの状態管理
+  const [updateData, setUpdateData] = useState<Stock | {}>({});
   const userId = session?.user?.id;
   const nav = useNav();
   const navigation = useNavigation();
@@ -115,6 +116,7 @@ const HomeScreen = () => {
     const data = await fetchStocks(profile.current_group_id);
     setStocks(data);
     setStockModalVisible(false);
+    setUpdateData({});
   };
 
   const handleUpdateAmount = async (targetId: string, newAmount: number) => {
@@ -138,9 +140,18 @@ const HomeScreen = () => {
     }
   };
 
+  const handleClickCard = (item: Stock) => {
+    setUpdateData(item);
+    setStockModalVisible(true);
+  };
+
   return (
     <View style={styles.container}>
-      <Cards stocks={stocks} handleUpdateAmount={handleUpdateAmount} />
+      <Cards
+        stocks={stocks}
+        handleUpdateAmount={handleUpdateAmount}
+        handleClickCard={handleClickCard}
+      />
 
       {/* モーダル表示 */}
       <FormModal<StockInput>
@@ -148,8 +159,15 @@ const HomeScreen = () => {
         onClose={() => onClose()}
         fields={stockFields}
         onSubmit={async (data) => {
-          await addStock(data);
+          if ("id" in updateData && updateData.id) {
+            // idがある＝編集とみなす
+            await updateStock(updateData.id, data);
+          } else {
+            // 新規登録
+            await addStock(data);
+          }
         }}
+        initialData={updateData}
       />
 
       {/* ロード中のインジケーター */}

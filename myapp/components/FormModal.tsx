@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Modal,
   View,
@@ -14,8 +14,15 @@ const FormModal = <T extends Record<string, any>>({
   onClose,
   fields,
   onSubmit,
+  initialData = {},
 }: FormModalProps<T>) => {
-  const [formData, setFormData] = useState<Partial<T>>({});
+  const [formData, setFormData] = useState<Partial<T>>(initialData);
+
+  useEffect(() => {
+    if (visible) {
+      setFormData(initialData); // ← 表示時に初期データをセット
+    }
+  }, [visible, initialData]);
 
   const handleChange = (key: string, value: string) => {
     setFormData((prev) => ({ ...prev, [key]: value }));
