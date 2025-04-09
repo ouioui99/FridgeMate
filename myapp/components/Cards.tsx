@@ -85,9 +85,9 @@ const Cards: React.FunctionComponent<CardsComponentsProps> = ({
               </View>
 
               {/* 賞味期限 */}
-              <Text style={styles.expirationDate}>
+              {/* <Text style={styles.expirationDate}>
                 賞味期限: {item.expiration_date}
-              </Text>
+              </Text> */}
             </View>
           </View>
         </Card>

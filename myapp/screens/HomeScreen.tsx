@@ -10,7 +10,7 @@ import {
   Alert,
 } from "react-native";
 import { useNav } from "../hooks/useNav";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useSession } from "../contexts/SessionContext";
 import { useGetProfile } from "../hooks/useGetProfile";
 import Cards from "../components/Cards";
@@ -29,7 +29,7 @@ import {
   fetchStocks,
   updateStock,
 } from "../lib/supabase/stocks";
-import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import FormModal from "../components/FormModal";
 import { stockFields } from "../inputFields/modalFields";
 import {
@@ -43,6 +43,7 @@ import {
   addShoppingList,
   getShoppingListItem,
 } from "../lib/supabase/shoppingLists";
+import { checkGroupInvite, fetchItems } from "../lib/supabase/util";
 
 const HomeScreen = () => {
   const { session, loading } = useSession();
@@ -59,36 +60,18 @@ const HomeScreen = () => {
   const { data: profile, isLoading, error } = useGetProfile(userId);
 
   useEffect(() => {
-    const loadStocks = async () => {
-      try {
-        const data = await fetchStocks(profile.current_group_id);
-        setStocks(data);
-      } catch (error) {
-        console.error(error);
-      }
-    };
-    const checkGroupInvite = async () => {
-      try {
-        const { data: userData, error: userError } =
-          await supabase.auth.getUser();
-        const invite = await getGroupInvite(userData.user.email);
-
-        if (invite) {
-          const groupData = await getGroupsEqId(invite.group_id);
-          setInvitedGroupData(groupData);
-          setInviteData(invite);
-          showInviteAlert(groupData, invite);
-        }
-      } catch (error) {
-        console.error(error);
-      }
-    };
-
     if (!isLoading) {
-      loadStocks();
-      checkGroupInvite();
+      checkGroupInvite(setInvitedGroupData, setInviteData, showInviteAlert);
     }
   }, [isLoading]);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (!isLoading) {
+        fetchItems<stocks>(setStocks, profile.current_group_id, fetchStocks);
+      }
+    }, [isLoading])
+  );
 
   const showInviteAlert = (invitedGroup: Group, invite: GroupInvite) => {
     Alert.alert(
@@ -130,7 +113,10 @@ const HomeScreen = () => {
   };
 
   const handleDelete = async () => {
-    await deleteStock(updateData.id);
+    if (updateData && "id" in updateData) {
+      await deleteStock(updateData.id);
+    }
+
     const data = await fetchStocks(profile.current_group_id);
     setStocks(data);
     setStockModalVisible(false);

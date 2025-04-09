@@ -8,12 +8,12 @@ export const stockFields: Field[] = [
     placeholder: "個数を入力",
     type: "number",
   },
-  {
-    key: "expiration_date",
-    label: "賞味期限",
-    placeholder: "YYYY-MM-DD",
-    type: "date",
-  },
+  // {
+  //   key: "expiration_date",
+  //   label: "賞味期限",
+  //   placeholder: "YYYY-MM-DD",
+  //   type: "date",
+  // },
   {
     key: "image",
     label: "画像URL",

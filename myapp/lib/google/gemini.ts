@@ -9,9 +9,10 @@ export const getExpirationDateList = async (targetNameList: string[]) => {
         parts: [
           {
             text: `食品名の配列を渡すので、それぞれの食品の平均的な賞味期限（日数）を 配列のみ で出力してください。
-            賞味期限が取得できない食品は null にしてください。 
+            賞味期限が取得できない食品は「null」にしてください。
             同じことを何度聞いたとしても
             コードや解説ではなく、配列のみを出力してください。
+            同じことを聞かれた場合は同じことを繰り返し出力して回答にブレがないようにしてください。
             ${targetNameList}`,
           },
         ],
@@ -31,6 +32,8 @@ export const getExpirationDateList = async (targetNameList: string[]) => {
       data,
       config
     );
+
+    console.log(response.data.candidates[0]);
 
     const responseContent = response.data.candidates[0].content;
     console.log(responseContent.parts);

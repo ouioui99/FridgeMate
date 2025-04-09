@@ -32,7 +32,6 @@ const UserScreen = () => {
       profileData.current_group_id,
       inviteeEmail
     );
-    console.log(groupInviteCode);
 
     Alert.alert("Success", "Invite sent successfully");
 
