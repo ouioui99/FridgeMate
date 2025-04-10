@@ -1,6 +1,12 @@
 import { Field } from "../types/formModalTypes";
 
 export const stockFields: Field[] = [
+  {
+    key: "image",
+    label: "画像URL",
+    placeholder: "画像URL (任意)",
+    type: "image",
+  },
   { key: "name", label: "名前", placeholder: "商品名を入力" },
   {
     key: "amount",
@@ -14,12 +20,6 @@ export const stockFields: Field[] = [
   //   placeholder: "YYYY-MM-DD",
   //   type: "date",
   // },
-  {
-    key: "image",
-    label: "画像URL",
-    placeholder: "画像URL (任意)",
-    type: "image",
-  },
 ];
 
 export const shoppingListFields: Field[] = [
