@@ -68,6 +68,7 @@ const FormModal = <T extends Record<string, any>>({
     }
   };
   const handleOnPressImage = async (key: string) => {
+    const timestamp = new Date().toISOString().replace(/[-:.]/g, "");
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaType,
       allowsEditing: true,
@@ -78,7 +79,7 @@ const FormModal = <T extends Record<string, any>>({
     if (!result.canceled) {
       // ファイルシステムに保存する際、拡張子を追加
       const fileExtension = result.assets[0].uri.split(".").pop();
-      const to = tempDir + "question_image." + fileExtension;
+      const to = tempDir + "thumbnail_" + timestamp + "." + fileExtension;
 
       try {
         // ファイルをコピーする

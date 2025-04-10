@@ -50,7 +50,7 @@ const Cards: React.FunctionComponent<CardsComponentsProps> = ({
             <Image
               style={styles.image}
               resizeMode="cover"
-              source={require("../assets/img/carrot_leaf.png")}
+              source={{ uri: item.image }}
             />
 
             {/* テキスト部分 */}
