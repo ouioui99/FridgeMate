@@ -23,7 +23,7 @@ export const stockFields: Field[] = [
 ];
 
 export const shoppingListFields: Field[] = [
-  { key: "name", label: "名前", placeholder: "商品名を入力" },
+  { key: "name", label: "買い物アイテム", placeholder: "商品名を入力" },
   {
     key: "amount",
     label: "個数",

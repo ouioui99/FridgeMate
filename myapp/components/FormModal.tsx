@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Modal,
   View,
@@ -8,11 +8,18 @@ import {
   StyleSheet,
   Image,
   Platform,
+  FlatList,
+  Animated,
 } from "react-native";
+import { stocks } from "../types/daoTypes";
 import { FormModalProps } from "../types/formModalTypes";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import Autocomplete from "react-native-autocomplete-input";
 import * as FileSystem from "expo-file-system";
 import * as ImagePicker from "expo-image-picker";
+import { useSession } from "../contexts/SessionContext";
+import { useGetProfile } from "../hooks/useGetProfile";
+import { fetchStocks } from "../lib/supabase/stocks";
 
 const FormModal = <T extends Record<string, any>>({
   visible,
@@ -24,13 +31,28 @@ const FormModal = <T extends Record<string, any>>({
 }: FormModalProps<T>) => {
   const [formData, setFormData] = useState<Partial<T>>(initialData);
   const tempDir = FileSystem.cacheDirectory + "fridgemate/";
+  const [query, setQuery] = useState("");
+  const { session, loading } = useSession();
+  const userId = session?.user?.id;
+  const { data: profile, isLoading, error } = useGetProfile(userId);
+  const data = ["test", "test2", "test3"];
+  const [filteredSuggestions, setFilteredSuggestions] = useState<string[]>([]);
+  const [isInputFocused, setIsInputFocused] = useState(false);
+  const [stocks, setStocks] = useState<stocks>([]);
+  const opacity = useRef(new Animated.Value(0)).current;
+  const translateY = useRef(new Animated.Value(-10)).current;
 
   // 編集モードかどうか判定（id の有無 or initialData が空かどうか）
   const isEditMode: boolean =
     "id" in initialData && initialData.id ? true : false;
 
   useEffect(() => {
+    const fetch = async () => {
+      const data = await fetchStocks(profile.current_group_id);
+      setStocks(data);
+    };
     if (visible) {
+      fetch();
       setFormData(initialData); // ← 表示時に初期データをセット
     }
   }, [visible]);
@@ -53,9 +75,34 @@ const FormModal = <T extends Record<string, any>>({
     }
   }, []);
 
-  const handleChange = (key: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [key]: value }));
-  };
+  useEffect(() => {
+    if (isInputFocused && filteredSuggestions.length > 0) {
+      // 一度値をリセット
+      opacity.setValue(0);
+      translateY.setValue(-10);
+
+      // アニメーション開始
+      Animated.parallel([
+        Animated.timing(opacity, {
+          toValue: 1,
+          duration: 150,
+          useNativeDriver: true,
+        }),
+        Animated.timing(translateY, {
+          toValue: 0,
+          duration: 150,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    } else {
+      // フェードアウトのみ
+      Animated.timing(opacity, {
+        toValue: 0,
+        duration: 100,
+        useNativeDriver: true,
+      }).start();
+    }
+  }, [isInputFocused, filteredSuggestions]);
 
   const handleConfirm = async () => {
     try {
@@ -93,9 +140,26 @@ const FormModal = <T extends Record<string, any>>({
       } catch (error) {
         console.error("Error copying file:", error);
       }
-    } else {
-      console.log("Image picker was canceled.");
     }
+  };
+
+  const handleChange = (key: string, value: string, label?: string) => {
+    setFormData((prev) => ({ ...prev, [key]: value }));
+
+    if (label === "買い物アイテム") {
+      const stockNameList = stocks.map((stock) => stock.name);
+      const filtered = stockNameList.filter((item) =>
+        item.toLowerCase().includes(value.toLowerCase())
+      );
+      setFilteredSuggestions(filtered);
+    } else {
+      setFilteredSuggestions([]);
+    }
+  };
+
+  const handleSuggestionPress = (key: string, item: string) => {
+    setFormData((prev) => ({ ...prev, [key]: item }));
+    setIsInputFocused(false);
   };
 
   return (
@@ -105,7 +169,7 @@ const FormModal = <T extends Record<string, any>>({
           <Text style={styles.title}>データを登録</Text>
 
           {fields.map(({ key, label, placeholder, type }) => {
-            if (type === "image") {
+            if (label === "画像URL") {
               return (
                 <TouchableOpacity
                   onPress={() => handleOnPressImage(key)}
@@ -128,6 +192,53 @@ const FormModal = <T extends Record<string, any>>({
                     )}
                   </View>
                 </TouchableOpacity>
+              );
+            } else if (label === "買い物アイテム") {
+              const suggestions = ["肉", "野菜", "調味料", "飲み物"];
+              return (
+                <React.Fragment key={key}>
+                  <TextInput
+                    key={key}
+                    style={styles.input}
+                    placeholder={placeholder}
+                    placeholderTextColor="#888"
+                    value={formData[key]?.toString() || ""}
+                    keyboardType={type === "number" ? "numeric" : "default"}
+                    onChangeText={(text) => handleChange(key, text, label)}
+                    onFocus={() => setIsInputFocused(true)}
+                    onBlur={() => {
+                      setIsInputFocused(false);
+                    }}
+                  />
+                  {isInputFocused &&
+                    filteredSuggestions.length > 0 &&
+                    formData[key]?.length > 0 && (
+                      <Animated.View
+                        style={[
+                          styles.suggestionList,
+                          {
+                            opacity,
+                            transform: [{ translateY }],
+                          },
+                        ]}
+                      >
+                        <FlatList
+                          key={key}
+                          data={filteredSuggestions}
+                          keyExtractor={(item, index) => index.toString()}
+                          renderItem={({ item }) => (
+                            <TouchableOpacity
+                              onPress={() => handleSuggestionPress(key, item)}
+                              style={styles.suggestionItem}
+                            >
+                              <Text>{item}</Text>
+                            </TouchableOpacity>
+                          )}
+                          keyboardShouldPersistTaps="handled"
+                        />
+                      </Animated.View>
+                    )}
+                </React.Fragment>
               );
             } else {
               return (
@@ -276,6 +387,22 @@ const styles = StyleSheet.create({
     color: "#999",
     marginTop: 4,
     textAlign: "center",
+  },
+  suggestionList: {
+    width: "100%", // ← 追加
+    backgroundColor: "#fff",
+    borderWidth: 1,
+    borderColor: "#ccc",
+    maxHeight: 100,
+    marginTop: -10,
+    marginBottom: 10,
+    borderRadius: 4,
+    zIndex: 1,
+  },
+  suggestionItem: {
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "#eee",
   },
 });
 

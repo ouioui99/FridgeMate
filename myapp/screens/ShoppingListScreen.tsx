@@ -193,7 +193,7 @@ export default function ShoppingListScreen() {
 
         return {
           ...stock,
-          amount: matchedItem.amount, // 明示的に「amount」だけ上書き
+          amount: matchedItem.amount + stock.amount,
         };
       });
 
