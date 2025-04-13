@@ -10,9 +10,11 @@ import { SessionProvider, useSession } from "./contexts/SessionContext";
 import LoginScreen from "./screens/LoginScreen";
 import SignUpScreen from "./screens/SignUpScreen";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import SettingsScreen from "./screens/SettingsScreen";
+import SettingsScreen from "./TabNavigator/Settings/SettingsStack/SettingsMain";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import ShoppingListScreen from "./screens/ShoppingListScreen";
+import SettingsStack from "./screens/SettingsStack";
+import { UserSettingsProvider } from "./contexts/UserSettingsContext";
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -40,10 +42,22 @@ function AppNavigator() {
     <>
       {session ? (
         <Tab.Navigator>
-          <Tab.Screen name="Home" component={HomeScreen} />
-          <Tab.Screen name="ShoppingList" component={ShoppingListScreen} />
+          <Tab.Screen
+            name="Home"
+            component={HomeScreen}
+            options={{ title: "在庫リスト" }}
+          />
+          <Tab.Screen
+            name="ShoppingList"
+            component={ShoppingListScreen}
+            options={{ title: "買い物リスト" }}
+          />
           <Tab.Screen name="User" component={UserScreen} />
-          <Tab.Screen name="Settings" component={SettingsScreen} />
+          <Tab.Screen
+            name="Settings"
+            component={SettingsStack}
+            options={{ headerShown: false }}
+          />
         </Tab.Navigator>
       ) : (
         <Stack.Navigator screenOptions={{ headerShown: false }}>
@@ -75,9 +89,11 @@ export default function App() {
     <QueryClientProvider client={queryClient}>
       <SafeAreaView style={{ flex: 1, backgroundColor: "#ffffff" }}>
         <SessionProvider>
-          <NavigationContainer>
-            <AppNavigator />
-          </NavigationContainer>
+          <UserSettingsProvider>
+            <NavigationContainer>
+              <AppNavigator />
+            </NavigationContainer>
+          </UserSettingsProvider>
         </SessionProvider>
       </SafeAreaView>
     </QueryClientProvider>

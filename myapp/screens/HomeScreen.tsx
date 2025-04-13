@@ -44,6 +44,7 @@ import {
   getShoppingListItem,
 } from "../lib/supabase/shoppingLists";
 import { checkGroupInvite, fetchItems } from "../lib/supabase/util";
+import { useUserSettings } from "../contexts/UserSettingsContext";
 
 const HomeScreen = () => {
   const { session, loading } = useSession();
@@ -59,6 +60,9 @@ const HomeScreen = () => {
   // プロフィール取得
   const { data: profile, isLoading, error } = useGetProfile(userId);
 
+  const { autoAddToShoppingList, isConfirmWhenAutoAddToShoppingList } =
+    useUserSettings();
+
   useEffect(() => {
     if (!isLoading) {
       checkGroupInvite(setInvitedGroupData, setInviteData, showInviteAlert);
@@ -72,6 +76,26 @@ const HomeScreen = () => {
       }
     }, [isLoading])
   );
+
+  const autoAddShoppingList = async (targetStock: Stock) => {
+    const shoppingListItem = await getShoppingListItem(
+      targetStock.name,
+      profile.current_group_id
+    );
+    if (shoppingListItem.length === 0) {
+      const addShoppingListData = {
+        name: targetStock.name,
+        amount: 1,
+        checked: false,
+        creater_id: userId,
+        group_id: profile.current_group_id,
+      } as ShoppingListInput;
+      await addShoppingList(addShoppingListData);
+      Alert.alert("買い物リストに登録しました");
+    } else {
+      Alert.alert("すでに登録済みです");
+    }
+  };
 
   const showInviteAlert = (invitedGroup: Group, invite: GroupInvite) => {
     Alert.alert(
@@ -143,40 +167,28 @@ const HomeScreen = () => {
         )
       );
     }
-    if (newAmount === 0 && targetStock) {
-      Alert.alert(
-        "買い物リストに追加",
-        `${targetStock.name} の在庫が0になりました。買い物リストに追加しますか？`,
-        [
-          {
-            text: "キャンセル",
-            style: "cancel",
-          },
-          {
-            text: "追加する",
-            onPress: async () => {
-              // ここで買い物リストへの追加処理を実行
-              const shoppingListItem = await getShoppingListItem(
-                targetStock.name,
-                profile.current_group_id
-              );
-              if (shoppingListItem.length === 0) {
-                const addShoppingListData = {
-                  name: targetStock.name,
-                  amount: 1,
-                  checked: false,
-                  creater_id: userId,
-                  group_id: profile.current_group_id,
-                } as ShoppingListInput;
-                await addShoppingList(addShoppingListData);
-                Alert.alert("買い物リストに登録しました");
-              } else {
-                Alert.alert("すでに登録済みです");
-              }
+
+    if (autoAddToShoppingList && targetStock && newAmount === 0) {
+      if (targetStock && isConfirmWhenAutoAddToShoppingList) {
+        Alert.alert(
+          "買い物リストに追加",
+          `${targetStock.name} の在庫が0になりました。買い物リストに追加しますか？`,
+          [
+            {
+              text: "キャンセル",
+              style: "cancel",
             },
-          },
-        ]
-      );
+            {
+              text: "追加する",
+              onPress: () => {
+                autoAddShoppingList(targetStock);
+              },
+            },
+          ]
+        );
+      } else {
+        autoAddShoppingList(targetStock);
+      }
     }
   };
 
