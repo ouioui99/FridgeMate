@@ -177,15 +177,15 @@ export default function ShoppingListScreen() {
         };
       });
 
-      addStocks(insertStocks as StockInput[]);
-      deleteShoppingList(insertShoppingListId);
+      await addStocks(insertStocks as StockInput[]);
+      await deleteShoppingList(insertShoppingListId);
     }
 
     if (0 < toUpdateStocksName.size) {
       const updateShoppingList: ShoppingList[] = shoppingLists.filter((item) =>
         toUpdateStocksName.has(item.name)
       );
-      const updateShoppingListId = shoppingLists.map((item) => item.id);
+      const updateShoppingListId = updateShoppingList.map((item) => item.id);
       const updatedStocks = toUpdateStocks.map((stock) => {
         const matchedItem = updateShoppingList.find(
           (item) => item.name === stock.name
@@ -200,10 +200,13 @@ export default function ShoppingListScreen() {
       updatedStocks.forEach(async (stock) => {
         await updateStock(stock.id, stock as StockInput);
       });
-      deleteShoppingList(updateShoppingListId);
+
+      await deleteShoppingList(updateShoppingListId);
     }
 
     const data = await getShoppingLists(profile.current_group_id);
+    console.log(data);
+
     setShoppingLists([...data]);
   };
 
