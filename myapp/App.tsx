@@ -56,7 +56,7 @@ function AppNavigator() {
           <Tab.Screen
             name="Settings"
             component={SettingsStack}
-            options={{ headerShown: false }}
+            options={{ headerShown: false, title: "設定" }}
           />
         </Tab.Navigator>
       ) : (

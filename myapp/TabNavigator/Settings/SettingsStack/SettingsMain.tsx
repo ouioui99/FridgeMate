@@ -48,8 +48,10 @@ const SettingsMain = () => {
         />
       </Section>
       <Section title="グループ">
-        <SettingLink label="ユーザ招待" onPress={() => {}} />
-        <SettingLink label="グループ管理" onPress={() => {}} />
+        <SettingLink
+          label="グループ管理"
+          onPress={() => navigation.navigate("ManageGroup")}
+        />
       </Section>
     </ScrollView>
   );
