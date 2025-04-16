@@ -52,6 +52,10 @@ const SettingsMain = () => {
           label="グループ管理"
           onPress={() => navigation.navigate("ManageGroup")}
         />
+        <SettingLink
+          label="グループメンバー管理"
+          onPress={() => navigation.navigate("ManageGroupMember")}
+        />
       </Section>
     </ScrollView>
   );

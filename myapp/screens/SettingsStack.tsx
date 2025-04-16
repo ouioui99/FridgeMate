@@ -4,12 +4,14 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import SettingsScreen from "../TabNavigator/Settings/SettingsStack/SettingsMain";
 import ChangeEmailScreen from "../TabNavigator/Settings/SettingsStack/ChangeEmailScreen";
 import ChangePasswordScreen from "../TabNavigator/Settings/SettingsStack/ChangePasswordScreen";
-import { ManageGroupScreen } from "../TabNavigator/Settings/SettingsStack/ManageGroupScreen";
+import ManageGroupScreen from "../TabNavigator/Settings/SettingsStack/ManageGroupScreen";
+import ManageGroupMemberScreen from "../TabNavigator/Settings/SettingsStack/ManageGroupMemberScreen";
 
 export type SettingsStackParamList = {
   SettingsMain: undefined;
   ChangeEmail: undefined;
   ChangePassword: undefined;
+  ManageGroupMember: undefined;
   ManageGroup: undefined;
 };
 
@@ -37,6 +39,11 @@ export default function SettingsStack() {
         name="ManageGroup"
         component={ManageGroupScreen}
         options={{ title: "グループ管理" }}
+      />
+      <Stack.Screen
+        name="ManageGroupMember"
+        component={ManageGroupMemberScreen}
+        options={{ title: "グループメンバー管理" }}
       />
     </Stack.Navigator>
   );

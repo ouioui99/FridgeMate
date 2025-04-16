@@ -109,7 +109,11 @@ const HomeScreen = () => {
         },
         {
           text: "承認",
-          onPress: () => joinGroupByInvite(invite.invite_code),
+          onPress: () => {
+            joinGroupByInvite(invite.invite_code).catch((error) => {
+              console.error("参加に失敗しました:", error);
+            });
+          },
         },
       ]
     );

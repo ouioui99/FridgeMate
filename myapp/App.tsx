@@ -52,7 +52,6 @@ function AppNavigator() {
             component={ShoppingListScreen}
             options={{ title: "買い物リスト" }}
           />
-          <Tab.Screen name="User" component={UserScreen} />
           <Tab.Screen
             name="Settings"
             component={SettingsStack}

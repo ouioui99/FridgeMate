@@ -54,3 +54,11 @@ export type ShoppingList = {
 };
 
 export type ShoppingListInput = ShoppingList;
+
+export type GroupMember = {
+  id: string;
+  group_id: string;
+  member_uid: string;
+  created_at: Date;
+  updated_at: Date;
+};

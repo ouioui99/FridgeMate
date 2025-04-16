@@ -36,7 +36,10 @@ export const checkGroupInvite = async (
     const { data: userData, error: userError } = await supabase.auth.getUser();
     const invite = await getGroupInvite(userData.user.email);
 
-    if (invite) {
+    if (
+      (invite && !invite?.is_revoked) ||
+      (invite && invite?.status !== "pending")
+    ) {
       const groupData = await getGroupsEqId(invite.group_id);
       setInvitedGroupData(groupData);
       setInviteData(invite);

@@ -1,4 +1,5 @@
 import { GroupInvite } from "../../types/daoTypes";
+import { joinGroupMembers } from "./groupMembers";
 import { supabase } from "./supabase";
 import { getLoginUserId } from "./util";
 import { v4 as uuidv4 } from "uuid";
@@ -9,7 +10,7 @@ import { v4 as uuidv4 } from "uuid";
  * @param {string | null} inviteeEmail 招待するユーザーのメールアドレス（指定しない場合は null）
  * @returns {Promise<string>} 招待URL（招待コード付き）
  */
-export const createGroupInvite = async (
+export const createGroupInviteCode = async (
   groupId: string,
   inviteeEmail: string | null = null
 ): Promise<string> => {
@@ -23,7 +24,6 @@ export const createGroupInvite = async (
       invitee_email: inviteeEmail, // 指定されていない場合は NULL
       invite_code: inviteCode,
       status: "pending", // 初期状態
-      is_revoked: false, // 招待は有効
       expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 7日後
     },
   ]);
@@ -33,7 +33,7 @@ export const createGroupInvite = async (
     throw error;
   }
 
-  return `${process.env.EXPO_PUBLIC_APP_URL}/invite/${inviteCode}`; // 招待URLを返す
+  return inviteCode;
 };
 
 export const joinGroupByInvite = async (inviteCode: string): Promise<void> => {
@@ -46,30 +46,17 @@ export const joinGroupByInvite = async (inviteCode: string): Promise<void> => {
     .eq("invite_code", inviteCode)
     .single();
 
+  console.log(invite.is_revoked);
+
   if (error || !invite || invite.status !== "pending" || invite.is_revoked) {
     throw new Error("Invalid or expired invite code.");
   }
 
   // グループに参加
-  const { error: joinError } = await supabase
-    .from("group_shares")
-    .insert([{ group_id: invite.group_id, shared_with: userId }]);
-
-  if (joinError) {
-    console.error("Error joining group:", joinError.message);
-    throw joinError;
-  }
+  joinGroupMembers(userId, invite as GroupInvite);
 
   // current_Groupを変更
-  const { error: changeError } = await supabase
-    .from("profiles")
-    .update([{ current_group_id: invite.group_id }])
-    .eq("id", userId);
-
-  if (joinError) {
-    console.error("Error joining group:", joinError.message);
-    throw joinError;
-  }
+  changeCurrentGroup(userId, invite as GroupInvite);
 
   // 招待の状態を `accepted` に更新
   await supabase
@@ -121,3 +108,6 @@ export const getGroupInvite = async (
 
   return invite;
 };
+function changeCurrentGroup(userId: any, arg1: GroupInvite) {
+  throw new Error("Function not implemented.");
+}
