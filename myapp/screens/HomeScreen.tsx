@@ -15,8 +15,6 @@ import { useSession } from "../contexts/SessionContext";
 import { useGetProfile } from "../hooks/useGetProfile";
 import Cards from "../components/Cards";
 import {
-  Group,
-  GroupInvite,
   ShoppingListInput,
   Stock,
   StockInput,
@@ -33,25 +31,16 @@ import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import FormModal from "../components/FormModal";
 import { stockFields } from "../inputFields/modalFields";
 import {
-  getGroupInvite,
-  joinGroupByInvite,
-  refusejoinGroupByInvite,
-} from "../lib/supabase/groupInvites";
-import { supabase } from "../lib/supabase/supabase";
-import { getGroupsEqId } from "../lib/supabase/groups";
-import {
   addShoppingList,
   getShoppingListItem,
 } from "../lib/supabase/shoppingLists";
-import { checkGroupInvite, fetchItems } from "../lib/supabase/util";
+import { fetchItems } from "../lib/supabase/util";
 import { useUserSettings } from "../contexts/UserSettingsContext";
 
 const HomeScreen = () => {
   const { session, loading } = useSession();
   const [stockModalVisible, setStockModalVisible] = useState(false);
   const [stocks, setStocks] = useState<stocks>([]);
-  const [inviteData, setInviteData] = useState<GroupInvite | null>(null); // 招待データの状態管理
-  const [invitedGroupData, setInvitedGroupData] = useState<Group | null>(null); // 招待データの状態管理
   const [updateData, setUpdateData] = useState<Stock | {}>({});
   const userId = session?.user?.id;
   const nav = useNav();
@@ -62,12 +51,6 @@ const HomeScreen = () => {
 
   const { autoAddToShoppingList, isConfirmWhenAutoAddToShoppingList } =
     useUserSettings();
-
-  useEffect(() => {
-    if (!isLoading) {
-      checkGroupInvite(setInvitedGroupData, setInviteData, showInviteAlert);
-    }
-  }, [isLoading]);
 
   useFocusEffect(
     useCallback(() => {
@@ -95,28 +78,6 @@ const HomeScreen = () => {
     } else {
       Alert.alert("すでに登録済みです");
     }
-  };
-
-  const showInviteAlert = (invitedGroup: Group, invite: GroupInvite) => {
-    Alert.alert(
-      "グループ招待",
-      `${invitedGroup.name} に招待されています。承認しますか？`,
-      [
-        {
-          text: "拒否",
-          style: "cancel",
-          onPress: () => refusejoinGroupByInvite(invite.invite_code),
-        },
-        {
-          text: "承認",
-          onPress: () => {
-            joinGroupByInvite(invite.invite_code).catch((error) => {
-              console.error("参加に失敗しました:", error);
-            });
-          },
-        },
-      ]
-    );
   };
 
   // ヘッダー右側の「在庫追加ボタン」をナビゲーションにセット

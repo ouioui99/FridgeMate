@@ -9,7 +9,7 @@ const ChangeEmailScreen = () => {
       await updateUserEmail(email);
       Alert.alert("成功", "メールアドレスが更新されました");
     } catch (error) {
-      Alert.alert("エラー", error.message);
+      if (error instanceof Error) Alert.alert("エラー", error.message);
     }
   };
 

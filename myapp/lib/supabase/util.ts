@@ -1,8 +1,10 @@
 import { Group, GroupInvite, stocks } from "../../types/daoTypes";
+import { SupabaseError } from "@supabase/supabase-js";
 import { getGroupInvite } from "./groupInvites";
 import { getGroupsEqId } from "./groups";
 import { fetchStocks } from "./stocks";
 import { supabase } from "./supabase";
+import { v4 as uuidv4 } from "uuid";
 
 export const getLoginUserId = async () => {
   const { data: userData, error: userError } = await supabase.auth.getUser();
@@ -47,5 +49,34 @@ export const checkGroupInvite = async (
     }
   } catch (error) {
     console.error(error);
+  }
+};
+
+export const generateHashed8DigitNumber = () => {
+  const uuid = uuidv4(); // 例: "de305d54-75b4-431b-adb2-eb6b9e546014"
+  let hash = 0;
+  for (let i = 0; i < uuid.length; i++) {
+    hash = (hash << 5) - hash + uuid.charCodeAt(i);
+    hash |= 0; // Convert to 32bit integer
+  }
+  const num = Math.abs(hash % 1e8); // 8桁に収める
+  return num.toString().padStart(8, "0");
+};
+
+export const handleSupabaseError = (
+  error: SupabaseError | null,
+  showMessage: (msg: string) => void
+) => {
+  if (!error) return;
+
+  console.error("Supabase error:", error);
+
+  // カスタマイズ可
+  if (error.code === "23505") {
+    showMessage("すでに存在するデータです");
+  } else if (error.message.includes("Auth")) {
+    showMessage("認証エラーです。再度ログインしてください");
+  } else {
+    showMessage(error.message || "エラーが発生しました");
   }
 };

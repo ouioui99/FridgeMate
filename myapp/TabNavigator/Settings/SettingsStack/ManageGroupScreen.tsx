@@ -11,26 +11,56 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
 } from "react-native";
+import { Snackbar } from "react-native-paper";
 import * as Clipboard from "expo-clipboard";
+import {
+  appliedGroupFromInvite,
+  createGroupInviteCode,
+  revokedGroupInviteCode,
+} from "../../../lib/supabase/groupInvites";
+import { useSession } from "../../../contexts/SessionContext";
+import { useGetProfile } from "../../../hooks/useGetProfile";
+import { useSnackbar } from "../../../hooks/useSnackbar";
+import { handleSupabaseError } from "../../../lib/supabase/util";
+import { MESSAGES } from "../../../constants/messages";
 
 export default function ManageGroupScreen() {
+  const { session, loading } = useSession();
+  const userId = session?.user?.id;
+  const { visible, message, showMessage, hideSnackbar } = useSnackbar();
+
+  // プロフィール取得
+  const { data: profile, isLoading, error } = useGetProfile(userId);
   const [inviteCode, setInviteCode] = useState("");
   const [generatedCode, setGeneratedCode] = useState("");
 
-  const handleGenerateCode = () => {
-    const code = Math.random().toString(36).substring(2, 10).toUpperCase();
+  const handleGenerateCode = async () => {
+    const code = await createGroupInviteCode(profile.current_group_id);
     setGeneratedCode(code);
   };
 
   const handleCopyCode = () => {
     if (generatedCode) {
-      Clipboard.setStringAsync(generatedCode); // Clipboard は別途インポートが必要
+      Clipboard.setStringAsync(generatedCode);
       alert("コピーしました: " + generatedCode);
     }
   };
 
-  const handleJoinGroup = () => {
-    alert("参加処理: " + inviteCode);
+  const handleAppliedGroup = async () => {
+    try {
+      const isAppied = await appliedGroupFromInvite(inviteCode);
+      if (isAppied) {
+        showMessage(MESSAGES.OK.completeAppliedGroup);
+        setInviteCode("");
+      }
+    } catch (error) {
+      handleSupabaseError(error, showMessage);
+    }
+  };
+
+  const handleRevokeCode = async () => {
+    await revokedGroupInviteCode(generatedCode);
+    setGeneratedCode("");
   };
 
   return (
@@ -52,10 +82,15 @@ export default function ManageGroupScreen() {
                 </View>
               </TouchableOpacity>
               <TouchableOpacity
-                style={styles.button}
-                onPress={handleGenerateCode}
+                style={[
+                  styles.button,
+                  generatedCode ? styles.buttonDanger : styles.buttonPrimary,
+                ]}
+                onPress={generatedCode ? handleRevokeCode : handleGenerateCode}
               >
-                <Text style={styles.buttonText}>招待コード作成</Text>
+                <Text style={styles.buttonText}>
+                  {generatedCode ? "招待コード無効化" : "招待コード作成"}
+                </Text>
               </TouchableOpacity>
             </View>
 
@@ -69,11 +104,22 @@ export default function ManageGroupScreen() {
                 value={inviteCode}
                 onChangeText={setInviteCode}
               />
-              <TouchableOpacity style={styles.button} onPress={handleJoinGroup}>
+              <TouchableOpacity
+                style={styles.button}
+                onPress={handleAppliedGroup}
+              >
                 <Text style={styles.buttonText}>グループに参加</Text>
               </TouchableOpacity>
             </View>
           </View>
+          <Snackbar
+            visible={visible}
+            onDismiss={hideSnackbar}
+            duration={3000}
+            action={{ label: "閉じる", onPress: hideSnackbar }}
+          >
+            {message}
+          </Snackbar>
         </ScrollView>
       </TouchableWithoutFeedback>
     </KeyboardAvoidingView>
@@ -138,5 +184,11 @@ const styles = StyleSheet.create({
     color: "white",
     fontWeight: "600",
     fontSize: 16,
+  },
+  buttonPrimary: {
+    backgroundColor: "#007aff", // 青
+  },
+  buttonDanger: {
+    backgroundColor: "#ff3b30", // 赤（iOS風）
   },
 });

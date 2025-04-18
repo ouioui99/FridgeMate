@@ -50,6 +50,8 @@ const ManageGroupMemberScreen = () => {
 
   const isAdmin = true;
 
+  useEffect(() => {}, []);
+
   const handleRemove = (member: Member) => {
     Alert.alert("メンバー削除", `${member.name} をグループから削除しますか？`, [
       { text: "キャンセル", style: "cancel" },
@@ -61,32 +63,6 @@ const ManageGroupMemberScreen = () => {
         },
       },
     ]);
-  };
-
-  // 招待リンクを作成して共有する関数
-  const handleCreateAndShareInviteLink = async () => {
-    try {
-      const profile = await getProfile(); // ログイン中のユーザーの所属グループIDを取得
-      const groupId = profile.current_group_id;
-
-      if (!groupId) {
-        Alert.alert("エラー", "現在所属しているグループが見つかりません");
-        return;
-      }
-
-      // 招待リンクを作成
-      const inviteCode = await createGroupInviteCode(groupId);
-
-      // ネイティブの共有画面を開く
-      await Share.share({
-        message: `招待リンクをコピーしました！\n在庫を共有したい相手にシェアしよう！\n${inviteCode}`,
-        url: inviteCode,
-        title: "グループに招待",
-      });
-    } catch (error) {
-      console.error("招待リンクの作成に失敗:", error);
-      Alert.alert("エラー", "招待リンクの作成に失敗しました");
-    }
   };
 
   const handleApprove = (member: Member) => {

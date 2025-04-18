@@ -1,8 +1,9 @@
+import { MESSAGES } from "../../constants/messages";
 import { GroupInvite } from "../../types/daoTypes";
 import { joinGroupMembers } from "./groupMembers";
+import { changeCurrentGroup } from "./profiles";
 import { supabase } from "./supabase";
-import { getLoginUserId } from "./util";
-import { v4 as uuidv4 } from "uuid";
+import { generateHashed8DigitNumber, getLoginUserId } from "./util";
 
 /**
  * グループ招待リンクを作成する関数
@@ -15,7 +16,7 @@ export const createGroupInviteCode = async (
   inviteeEmail: string | null = null
 ): Promise<string> => {
   const inviterId = await getLoginUserId();
-  const inviteCode = uuidv4(); // UUIDで招待コードを生成
+  const inviteCode = generateHashed8DigitNumber(); // UUIDで招待コードを生成
 
   const { error } = await supabase.from("group_invites").insert([
     {
@@ -34,35 +35,6 @@ export const createGroupInviteCode = async (
   }
 
   return inviteCode;
-};
-
-export const joinGroupByInvite = async (inviteCode: string): Promise<void> => {
-  const userId = await getLoginUserId();
-
-  // 招待コードが有効かチェック
-  const { data: invite, error } = await supabase
-    .from("group_invites")
-    .select("id, group_id, status, is_revoked")
-    .eq("invite_code", inviteCode)
-    .single();
-
-  console.log(invite.is_revoked);
-
-  if (error || !invite || invite.status !== "pending" || invite.is_revoked) {
-    throw new Error("Invalid or expired invite code.");
-  }
-
-  // グループに参加
-  joinGroupMembers(userId, invite as GroupInvite);
-
-  // current_Groupを変更
-  changeCurrentGroup(userId, invite as GroupInvite);
-
-  // 招待の状態を `accepted` に更新
-  await supabase
-    .from("group_invites")
-    .update({ status: "accepted" })
-    .eq("id", invite.id);
 };
 
 export const refusejoinGroupByInvite = async (
@@ -89,25 +61,54 @@ export const refusejoinGroupByInvite = async (
 };
 
 export const getGroupInvite = async (
-  inviteeEmail: string
-): Promise<GroupInvite | null> => {
+  inviteCode: string
+): Promise<GroupInvite> => {
   const { data: invite, error } = await supabase
     .from("group_invites")
-    .select("id, group_id, invite_code ,status, is_revoked")
-    .eq("invitee_email", inviteeEmail)
+    .select("id, group_id, inviter_id, invitee_email ,invite_code ,status")
+    .eq("invite_code", inviteCode)
     .single<GroupInvite>();
-
-  //データが一つもない場合
-  if ((error && error.code === "PGRST116") || invite.status === "accepted") {
-    return null;
-  }
 
   if (error) {
     throw new Error("Invalid or expired invite code.");
   }
-
   return invite;
 };
-function changeCurrentGroup(userId: any, arg1: GroupInvite) {
-  throw new Error("Function not implemented.");
-}
+
+export const revokedGroupInviteCode = async (inviteCode: string) => {
+  const invite = await getGroupInvite(inviteCode);
+
+  const { error: updateError } = await supabase
+    .from("group_invites")
+    .update({ status: "revoked" })
+    .eq("id", invite.id);
+
+  if (updateError) {
+    throw new Error("招待コードの無効化に失敗しました");
+  }
+};
+
+export const appliedGroupFromInvite = async (
+  inviteCode: string
+): Promise<boolean> => {
+  const invite = await getGroupInvite(inviteCode);
+  const userId = await getLoginUserId();
+
+  console.log(invite);
+  console.log(invite.inviter_id);
+  console.log(userId);
+
+  if (invite.inviter_id === userId) {
+    throw new Error(MESSAGES.NG.hostIdSameAsLoginId);
+  }
+
+  const { error: updateError } = await supabase
+    .from("group_invites")
+    .update({ status: "applied" })
+    .eq("id", invite.id);
+
+  if (updateError) {
+    throw new Error("招待コードの無効化に失敗しました");
+  }
+  return true;
+};
