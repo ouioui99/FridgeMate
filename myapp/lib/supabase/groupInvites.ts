@@ -1,5 +1,5 @@
 import { MESSAGES } from "../../constants/messages";
-import { GroupInvite } from "../../types/daoTypes";
+import { GroupInvite, InviteeGroupMember } from "../../types/daoTypes";
 import { joinGroupMembers } from "./groupMembers";
 import { changeCurrentGroup } from "./profiles";
 import { supabase } from "./supabase";
@@ -94,21 +94,45 @@ export const appliedGroupFromInvite = async (
   const invite = await getGroupInvite(inviteCode);
   const userId = await getLoginUserId();
 
-  console.log(invite);
-  console.log(invite.inviter_id);
-  console.log(userId);
-
   if (invite.inviter_id === userId) {
     throw new Error(MESSAGES.NG.hostIdSameAsLoginId);
   }
 
   const { error: updateError } = await supabase
     .from("group_invites")
-    .update({ status: "applied" })
+    .update({ status: "applied", invitee_id: userId })
     .eq("id", invite.id);
 
   if (updateError) {
     throw new Error("招待コードの無効化に失敗しました");
   }
   return true;
+};
+
+export const getInviteeGroupMember = async (
+  inviterId: string
+): Promise<InviteeGroupMember[]> => {
+  const { data: invite, error } = await supabase
+    .from("group_invites")
+    .select(
+      `
+      id,
+      group_id,
+      inviter_id,
+      invitee_email,
+      invite_code,
+      status,
+      invitee_id,
+      group_invites_invitee_id_fkey (
+        id,
+        username
+      )
+    `
+    )
+    .eq("inviter_id", inviterId);
+  if (error) {
+    throw new Error("Invalid or expired invite code.");
+  }
+
+  return invite;
 };

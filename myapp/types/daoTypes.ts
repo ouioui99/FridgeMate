@@ -62,3 +62,23 @@ export type GroupMember = {
   created_at: Date;
   updated_at: Date;
 };
+
+export type Profile = {
+  id: string;
+  username: string;
+  avatar_url: string;
+  current_group_id: string;
+};
+
+export type InviteeGroupMember = {
+  id: string;
+  group_id: string;
+  inviter_id: string;
+  invitee_email: string;
+  invite_code: string;
+  status: string;
+  is_revoked: boolean;
+  created_at: Date;
+  expired_at: Date;
+  group_invites_invitee_id_fkey: Profile;
+};

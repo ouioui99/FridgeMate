@@ -9,11 +9,16 @@ import {
   KeyboardAvoidingView,
   Platform,
   Share,
+  SectionList,
 } from "react-native";
-import { createGroupInviteCode } from "../../../lib/supabase/groupInvites";
+import {
+  createGroupInviteCode,
+  getInviteeGroupMember,
+} from "../../../lib/supabase/groupInvites";
 import { getProfile } from "../../../lib/supabase/profiles";
 import { getLoginUserId } from "../../../lib/supabase/util";
 import { useSession } from "../../../contexts/SessionContext";
+import { InviteeGroupMember, Profile } from "../../../types/daoTypes";
 
 type Member = {
   uid: string;
@@ -37,6 +42,10 @@ type Group = {
 
 const ManageGroupMemberScreen = () => {
   const { session, loading } = useSession();
+  // const [inviteeGropuMember, setInviteeGropuMember] = useState<
+  //   InviteeGroupMember[]
+  // >([]);
+
   const userId = session?.user?.id;
   const group = {
     id: "1",
@@ -45,75 +54,98 @@ const ManageGroupMemberScreen = () => {
     members: [
       { uid: "u1", name: "自分", status: "accepted" },
       { uid: "u2", name: "お母さん", status: "applied" },
+      { uid: "u3", name: "お父さん", status: "pending" },
+      { uid: "u4", name: "弟", status: "rejected" },
+      { uid: "u5", name: "姉", status: "accepted" },
+      { uid: "u6", name: "叔父さん", status: "revoked" },
     ],
   };
 
+  const joinedMembers = group.members.filter((m) => m.status === "accepted");
+  const invitedMembers = group.members.filter(
+    (m) => m.status === "pending" || m.status === "applied"
+  );
+
   const isAdmin = true;
 
-  useEffect(() => {}, []);
+  useEffect(() => {
+    // const fetchInviteeGropuMember = async () =>
+    //   await getInviteeGroupMember(userId);
+    // fetchInviteeGropuMember().then((result) => {
+    //   setInviteeGropuMember(result);
+    // });
+  }, []);
 
-  const handleRemove = (member: Member) => {
-    Alert.alert("メンバー削除", `${member.name} をグループから削除しますか？`, [
-      { text: "キャンセル", style: "cancel" },
-      {
-        text: "削除",
-        style: "destructive",
-        onPress: () => {
-          //onRemoveMember(member.uid);
-        },
-      },
-    ]);
-  };
-
-  const handleApprove = (member: Member) => {
-    Alert.alert("承認", `${member.name} を承認しますか？`, [
-      { text: "キャンセル", style: "cancel" },
-      {
-        text: "承認",
-        style: "default",
-        onPress: () => {
-          // 承認処理をここに追加
-          Alert.alert(`${member.name} が承認されました`);
-        },
-      },
-    ]);
-  };
-
-  const handleReject = (member: Member) => {
-    Alert.alert("拒否", `${member.name} を拒否しますか？`, [
-      { text: "キャンセル", style: "cancel" },
-      {
-        text: "拒否",
-        style: "destructive",
-        onPress: () => {
-          // 拒否処理をここに追加
-          Alert.alert(`${member.name} が拒否されました`);
-        },
-      },
-    ]);
+  const handleRemove = async (memberProfile: Profile) => {
+    await getInviteeGroupMember(userId);
+    // Alert.alert("メンバー削除", `${member.name} をグループから削除しますか？`, [
+    //   { text: "キャンセル", style: "cancel" },
+    //   {
+    //     text: "削除",
+    //     style: "destructive",
+    //     onPress: () => {
+    //       //onRemoveMember(member.uid);
+    //     },
+    //   },
+    // ]);
   };
 
   return (
     <View style={styles.container}>
-      <FlatList
-        data={group.members}
-        keyExtractor={(item) => item.uid}
-        renderItem={({ item }) => (
-          <View style={styles.memberRow}>
-            <Text>{item.name}</Text>
-            {isAdmin && item.uid !== userId && (
-              <>
-                <Pressable onPress={() => handleRemove(item)}>
-                  <Text style={styles.removeText}>削除</Text>
+      {/* 加入済みメンバー */}
+      <View style={styles.joinedContainer}>
+        <FlatList
+          data={joinedMembers}
+          keyExtractor={(item) => item.uid}
+          renderItem={({ item }) => (
+            <View style={styles.memberRow}>
+              <Text style={styles.memberText}>{item.name}</Text>
+              {isAdmin && item.uid !== userId && (
+                <Pressable
+                  style={styles.actionButtonRemove}
+                  onPress={() => handleRemove(item)}
+                >
+                  <Text style={styles.actionButtonText}>削除</Text>
                 </Pressable>
-              </>
-            )}
-          </View>
-        )}
-        ListHeaderComponent={<Text style={styles.title}>メンバー一覧</Text>}
-        contentContainerStyle={{ paddingBottom: 120 }}
-        keyboardShouldPersistTaps="handled"
-      />
+              )}
+            </View>
+          )}
+        />
+      </View>
+
+      {/* 招待中のメンバー
+      <View style={styles.invitedContainer}>
+        <Text style={styles.title}>招待中のメンバー</Text>
+        <FlatList
+          data={inviteeGropuMember.filter(
+            (item) => item.group_invites_invitee_id_fkey?.username
+          )}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <View style={styles.memberRow}>
+              <Text style={styles.memberText}>
+                {item.group_invites_invitee_id_fkey?.username}
+              </Text>
+              {isAdmin && (
+                <View style={styles.buttonGroup}>
+                  <Pressable
+                    style={styles.actionButtonApprove}
+                    onPress={() => handleApprove(item)}
+                  >
+                    <Text style={styles.actionButtonText}>承認</Text>
+                  </Pressable>
+                  <Pressable
+                    style={styles.actionButtonReject}
+                    onPress={() => handleReject(item)}
+                  >
+                    <Text style={styles.actionButtonText}>拒否</Text>
+                  </Pressable>
+                </View>
+              )}
+            </View>
+          )}
+        />
+      </View> */}
     </View>
   );
 };
@@ -123,53 +155,58 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 16,
   },
+  joinedContainer: {
+    height: "100%", // 高さを画面の半分に
+    marginTop: 10,
+  },
+  // invitedContainer: {
+  //   height: "50%", // こちらも同じく半分に
+  //   borderTopWidth: 1,
+  //   borderColor: "#ccc",
+  // },
   title: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: "bold",
     marginVertical: 12,
   },
   memberRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    paddingVertical: 10,
+    alignItems: "center",
+    paddingVertical: 12,
     borderBottomWidth: 0.5,
     borderColor: "#ddd",
   },
-  removeText: {
-    color: "red",
-  },
-  approveText: {
-    color: "green",
-    marginRight: 10,
-  },
-  rejectText: {
-    color: "red",
+  memberText: {
+    fontSize: 18,
   },
   buttonGroup: {
     flexDirection: "row",
     gap: 10,
   },
-  inviteBar: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    padding: 12,
-    backgroundColor: "#fff",
-    borderTopWidth: 1,
-    borderColor: "#ddd",
+  actionButtonApprove: {
+    backgroundColor: "#4CAF50", // 緑
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 6,
+    marginRight: 6,
   },
-  inviteButton: {
-    backgroundColor: "#007bff",
-    paddingVertical: 15,
-    justifyContent: "center",
-    alignItems: "center",
-    width: "100%", // 横幅を画面いっぱいに
+  actionButtonReject: {
+    backgroundColor: "#F44336", // 赤
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 6,
   },
-  inviteButtonText: {
+  actionButtonRemove: {
+    backgroundColor: "#F44336", // 赤
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 6,
+  },
+  actionButtonText: {
     color: "#fff",
-    fontWeight: "bold",
     fontSize: 16,
+    fontWeight: "bold",
   },
 });
 

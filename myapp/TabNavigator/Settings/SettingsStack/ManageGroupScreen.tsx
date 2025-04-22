@@ -100,9 +100,10 @@ export default function ManageGroupScreen() {
               <Text style={styles.label}>招待コードを入力：</Text>
               <TextInput
                 style={styles.input}
-                placeholder="例: ABCD1234"
+                placeholder="例: 123456789"
                 value={inviteCode}
                 onChangeText={setInviteCode}
+                editable={false}
               />
               <TouchableOpacity
                 style={styles.button}
