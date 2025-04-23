@@ -25,7 +25,7 @@ export const createGroupInviteCode = async (
       invitee_email: inviteeEmail, // 指定されていない場合は NULL
       invite_code: inviteCode,
       status: "pending", // 初期状態
-      expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 7日後
+      expires_at: new Date(Date.now() + 10 * 60 * 6000).toISOString(), // 60分後
     },
   ]);
 
@@ -91,21 +91,48 @@ export const revokedGroupInviteCode = async (inviteCode: string) => {
 export const appliedGroupFromInvite = async (
   inviteCode: string
 ): Promise<boolean> => {
-  const invite = await getGroupInvite(inviteCode);
   const userId = await getLoginUserId();
 
-  if (invite.inviter_id === userId) {
-    throw new Error(MESSAGES.NG.hostIdSameAsLoginId);
-  }
-
-  const { error: updateError } = await supabase
+  const { data: invite, error } = await supabase
     .from("group_invites")
-    .update({ status: "applied", invitee_id: userId })
-    .eq("id", invite.id);
+    .select("id, group_id, inviter_id, status, is_revoked, expires_at")
+    .eq("invite_code", inviteCode)
+    .single();
 
-  if (updateError) {
-    throw new Error("招待コードの無効化に失敗しました");
+  if (error || !invite || invite.status !== "pending" || invite.is_revoked) {
+    throw new Error("無効または期限切れの招待コードです。");
   }
+
+  // すでにこのユーザーが使ったか確認
+  const { count } = await supabase
+    .from("invite_code_uses")
+    .select("*", { count: "exact", head: true })
+    .eq("invite_code_id", invite.id)
+    .eq("invitee_id", userId);
+
+  if (count && count > 0) {
+    throw new Error("このコードはすでに使用済みです。");
+  }
+
+  // 使用記録を保存
+  const { error: insertError } = await supabase
+    .from("invite_code_uses")
+    .insert([
+      {
+        invite_code_id: invite.id,
+        invitee_id: userId,
+        status: "applied",
+        used_at: new Date().toISOString(),
+      },
+    ]);
+
+  if (insertError) {
+    throw insertError;
+  }
+
+  // グループ参加処理（joinGroupMembersなど）
+  // await joinGroupMembers(...);
+
   return true;
 };
 

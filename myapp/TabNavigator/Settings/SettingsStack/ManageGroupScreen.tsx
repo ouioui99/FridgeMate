@@ -99,15 +99,23 @@ export default function ManageGroupScreen() {
               <Text style={styles.title}>📩 あなたが招待される場合</Text>
               <Text style={styles.label}>招待コードを入力：</Text>
               <TextInput
-                style={styles.input}
+                style={[
+                  styles.input,
+                  generatedCode && styles.inputDisabled, // 無効時にスタイルを追加（任意）
+                ]}
                 placeholder="例: 123456789"
                 value={inviteCode}
                 onChangeText={setInviteCode}
-                editable={false}
+                editable={!generatedCode}
               />
+
               <TouchableOpacity
-                style={styles.button}
+                style={[
+                  styles.button,
+                  generatedCode && styles.buttonDisabled, // 無効時にスタイルを追加（任意）
+                ]}
                 onPress={handleAppliedGroup}
+                disabled={!!generatedCode}
               >
                 <Text style={styles.buttonText}>グループに参加</Text>
               </TouchableOpacity>
@@ -191,5 +199,13 @@ const styles = StyleSheet.create({
   },
   buttonDanger: {
     backgroundColor: "#ff3b30", // 赤（iOS風）
+  },
+  inputDisabled: {
+    backgroundColor: "#f0f0f0",
+    color: "#aaa",
+  },
+
+  buttonDisabled: {
+    backgroundColor: "#ccc",
   },
 });
