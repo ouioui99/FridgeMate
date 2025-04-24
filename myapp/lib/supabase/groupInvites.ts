@@ -120,6 +120,7 @@ export const appliedGroupFromInvite = async (
     .insert([
       {
         invite_code_id: invite.id,
+        inviter_id: invite.inviter_id,
         invitee_id: userId,
         status: "applied",
         used_at: new Date().toISOString(),

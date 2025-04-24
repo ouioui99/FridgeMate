@@ -15,6 +15,9 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import ShoppingListScreen from "./screens/ShoppingListScreen";
 import SettingsStack from "./screens/SettingsStack";
 import { UserSettingsProvider } from "./contexts/UserSettingsContext";
+import { InviteRequestPopup } from "./components/InviteRequestPopup";
+import { InviteRequestProvider } from "./contexts/InviteRequestContext";
+import { InviteRealtimeSubscriber } from "./lib/supabase/InviteRealtimeSubscriber";
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -80,18 +83,21 @@ export default function App() {
     });
 
     return () => {
-      subscription.remove(); // クリーンアップ（リスナーの解除）
+      subscription.remove();
     };
   }, []);
-
   return (
     <QueryClientProvider client={queryClient}>
       <SafeAreaView style={{ flex: 1, backgroundColor: "#ffffff" }}>
         <SessionProvider>
           <UserSettingsProvider>
-            <NavigationContainer>
-              <AppNavigator />
-            </NavigationContainer>
+            <InviteRequestProvider>
+              <InviteRealtimeSubscriber />
+              <InviteRequestPopup />
+              <NavigationContainer>
+                <AppNavigator />
+              </NavigationContainer>
+            </InviteRequestProvider>
           </UserSettingsProvider>
         </SessionProvider>
       </SafeAreaView>
