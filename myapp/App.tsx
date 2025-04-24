@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "./lib/supabase/supabase";
-import { View, ActivityIndicator, AppState } from "react-native";
+import { View, ActivityIndicator, AppState, Alert } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -18,6 +18,8 @@ import { UserSettingsProvider } from "./contexts/UserSettingsContext";
 import { InviteRequestPopup } from "./components/InviteRequestPopup";
 import { InviteRequestProvider } from "./contexts/InviteRequestContext";
 import { InviteRealtimeSubscriber } from "./lib/supabase/InviteRealtimeSubscriber";
+import { fetchPendingInviteRequests } from "./lib/supabase/inviteCodesUses";
+import { useInviteNotification } from "./hooks/useInviteNotification";
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -32,6 +34,9 @@ export type RootStackParamList = {
 
 function AppNavigator() {
   const { session, loading } = useSession();
+  const hasPendingInvites = useInviteNotification(); // 通知状態を取得
+
+  const [appState, setAppState] = useState(AppState.currentState);
 
   if (loading) {
     return (
@@ -58,7 +63,11 @@ function AppNavigator() {
           <Tab.Screen
             name="Settings"
             component={SettingsStack}
-            options={{ headerShown: false, title: "設定" }}
+            options={{
+              headerShown: false,
+              title: "設定",
+              tabBarBadge: hasPendingInvites ? "!" : undefined,
+            }}
           />
         </Tab.Navigator>
       ) : (
