@@ -10,6 +10,7 @@ import {
   Platform,
   Share,
   SectionList,
+  TouchableOpacity,
 } from "react-native";
 import {
   createGroupInviteCode,
@@ -21,6 +22,8 @@ import { useSession } from "../../../contexts/SessionContext";
 import { InviteeGroupMember, Profile } from "../../../types/daoTypes";
 import ApplicantModal from "../../../components/ApplicantModal";
 import { useInviteNotification } from "../../../hooks/useInviteNotification";
+import { useNavigation } from "@react-navigation/native";
+import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 
 type Member = {
   uid: string;
@@ -45,12 +48,30 @@ type Group = {
 const ManageGroupMemberScreen = () => {
   const { session, loading } = useSession();
   const { hasPendingInvites, appliedInvites } = useInviteNotification();
-
+  const navigation = useNavigation();
   const [showApplicantModal, setShowApplicantModal] = useState(false);
 
   useEffect(() => {
     setShowApplicantModal(hasPendingInvites);
   }, [hasPendingInvites]);
+
+  useEffect(() => {
+    showApplicantModal &&
+      navigation.setOptions({
+        headerRight: () => (
+          <TouchableOpacity
+            onPress={() => setShowApplicantModal(true)}
+            style={styles.addButton}
+          >
+            <MaterialCommunityIcons
+              name="alert-circle-outline"
+              size={28}
+              color="red"
+            />
+          </TouchableOpacity>
+        ),
+      });
+  }, [navigation, showApplicantModal]);
 
   const userId = session?.user?.id;
   const group = {
@@ -183,6 +204,9 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 16,
     fontWeight: "bold",
+  },
+  addButton: {
+    marginRight: 15,
   },
 });
 
