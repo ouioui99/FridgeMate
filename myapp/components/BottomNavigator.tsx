@@ -9,7 +9,7 @@ import { SettingsIconWithBadge } from "./SettingsIconWithBadge";
 const Tab = createBottomTabNavigator();
 
 export function BottomNavigator() {
-  const hasPendingInvites = useInviteNotification(); // 通知状態を取得
+  const hasPendingInvites = useInviteNotification();
   return (
     <Tab.Navigator
       initialRouteName="Home"

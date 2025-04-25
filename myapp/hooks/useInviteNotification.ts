@@ -5,10 +5,12 @@ import { fetchPendingInviteRequests } from "../lib/supabase/inviteCodesUses";
 
 export const useInviteNotification = () => {
   const [hasPendingInvites, setHasPendingInvites] = useState(false);
+  const [appliedInvites, setAppliedInvites] = useState([]);
 
   useEffect(() => {
     const fetchPendingInvites = async () => {
       const data = await fetchPendingInviteRequests();
+      setAppliedInvites(data);
 
       if (data.length > 0) {
         setHasPendingInvites(true);
@@ -35,5 +37,5 @@ export const useInviteNotification = () => {
     };
   }, []);
 
-  return hasPendingInvites;
+  return { hasPendingInvites, appliedInvites };
 };

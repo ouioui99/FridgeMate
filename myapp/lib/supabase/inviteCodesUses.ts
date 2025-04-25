@@ -10,6 +10,7 @@ export const fetchPendingInviteRequests = async () => {
       `
       id,
       invitee_id,
+      invitee:profiles!invitee_id ( username ),
       status,
       used_at,
       invite_code_id,
@@ -22,6 +23,7 @@ export const fetchPendingInviteRequests = async () => {
     )
     .eq("inviter_id", userId)
     .eq("status", "applied");
+  console.log(data);
 
   if (error) {
     console.error("Failed to fetch pending invites:", error.message);

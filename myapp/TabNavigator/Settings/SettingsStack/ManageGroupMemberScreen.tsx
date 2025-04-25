@@ -19,6 +19,8 @@ import { getProfile } from "../../../lib/supabase/profiles";
 import { getLoginUserId } from "../../../lib/supabase/util";
 import { useSession } from "../../../contexts/SessionContext";
 import { InviteeGroupMember, Profile } from "../../../types/daoTypes";
+import ApplicantModal from "../../../components/ApplicantModal";
+import { useInviteNotification } from "../../../hooks/useInviteNotification";
 
 type Member = {
   uid: string;
@@ -42,9 +44,13 @@ type Group = {
 
 const ManageGroupMemberScreen = () => {
   const { session, loading } = useSession();
-  // const [inviteeGropuMember, setInviteeGropuMember] = useState<
-  //   InviteeGroupMember[]
-  // >([]);
+  const { hasPendingInvites, appliedInvites } = useInviteNotification();
+
+  const [showApplicantModal, setShowApplicantModal] = useState(false);
+
+  useEffect(() => {
+    setShowApplicantModal(hasPendingInvites);
+  }, [hasPendingInvites]);
 
   const userId = session?.user?.id;
   const group = {
@@ -67,14 +73,6 @@ const ManageGroupMemberScreen = () => {
   );
 
   const isAdmin = true;
-
-  useEffect(() => {
-    // const fetchInviteeGropuMember = async () =>
-    //   await getInviteeGroupMember(userId);
-    // fetchInviteeGropuMember().then((result) => {
-    //   setInviteeGropuMember(result);
-    // });
-  }, []);
 
   const handleRemove = async (memberProfile: Profile) => {
     await getInviteeGroupMember(userId);
@@ -113,39 +111,22 @@ const ManageGroupMemberScreen = () => {
         />
       </View>
 
-      {/* 招待中のメンバー
-      <View style={styles.invitedContainer}>
-        <Text style={styles.title}>招待中のメンバー</Text>
-        <FlatList
-          data={inviteeGropuMember.filter(
-            (item) => item.group_invites_invitee_id_fkey?.username
-          )}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <View style={styles.memberRow}>
-              <Text style={styles.memberText}>
-                {item.group_invites_invitee_id_fkey?.username}
-              </Text>
-              {isAdmin && (
-                <View style={styles.buttonGroup}>
-                  <Pressable
-                    style={styles.actionButtonApprove}
-                    onPress={() => handleApprove(item)}
-                  >
-                    <Text style={styles.actionButtonText}>承認</Text>
-                  </Pressable>
-                  <Pressable
-                    style={styles.actionButtonReject}
-                    onPress={() => handleReject(item)}
-                  >
-                    <Text style={styles.actionButtonText}>拒否</Text>
-                  </Pressable>
-                </View>
-              )}
-            </View>
-          )}
-        />
-      </View> */}
+      <ApplicantModal
+        visible={showApplicantModal}
+        applicants={[
+          { uid: "u1", name: "お母さん" },
+          { uid: "u2", name: "お父さん" },
+          { uid: "u3", name: "叔父さん" },
+        ]}
+        onClose={() => setShowApplicantModal(false)}
+        onApprove={(selected) => {
+          console.log("承認する:", selected);
+          // supabaseでstatus更新処理など
+        }}
+        onReject={(selected) => {
+          console.log("拒否する:", selected);
+        }}
+      />
     </View>
   );
 };
@@ -159,11 +140,6 @@ const styles = StyleSheet.create({
     height: "100%", // 高さを画面の半分に
     marginTop: 10,
   },
-  // invitedContainer: {
-  //   height: "50%", // こちらも同じく半分に
-  //   borderTopWidth: 1,
-  //   borderColor: "#ccc",
-  // },
   title: {
     fontSize: 20,
     fontWeight: "bold",
