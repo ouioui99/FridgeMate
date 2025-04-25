@@ -9,7 +9,7 @@ import { SettingsIconWithBadge } from "./SettingsIconWithBadge";
 const Tab = createBottomTabNavigator();
 
 export function BottomNavigator() {
-  const appliedInviteLength = useInviteNotification(); // 通知状態を取得
+  const hasPendingInvites = useInviteNotification(); // 通知状態を取得
   return (
     <Tab.Navigator
       initialRouteName="Home"
@@ -43,10 +43,11 @@ export function BottomNavigator() {
         options={{
           headerShown: false,
           title: "設定",
-          tabBarBadge:
-            0 < appliedInviteLength ? appliedInviteLength : undefined,
           tabBarIcon: ({ color }) => (
-            <MaterialCommunityIcons name="cog" color={color} size={24} />
+            <SettingsIconWithBadge
+              showBadge={hasPendingInvites}
+              color={color}
+            />
           ),
         }}
       />

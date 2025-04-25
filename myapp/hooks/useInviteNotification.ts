@@ -4,13 +4,17 @@ import { getLoginUserId } from "../lib/supabase/util";
 import { fetchPendingInviteRequests } from "../lib/supabase/inviteCodesUses";
 
 export const useInviteNotification = () => {
-  const [appliedInviteLength, setAppliedInviteLength] = useState(0);
+  const [hasPendingInvites, setHasPendingInvites] = useState(false);
 
   useEffect(() => {
     const fetchPendingInvites = async () => {
       const data = await fetchPendingInviteRequests();
 
-      setAppliedInviteLength(data.length);
+      if (data.length > 0) {
+        setHasPendingInvites(true);
+      } else {
+        setHasPendingInvites(false);
+      }
     };
 
     fetchPendingInvites();
@@ -31,5 +35,5 @@ export const useInviteNotification = () => {
     };
   }, []);
 
-  return appliedInviteLength;
+  return hasPendingInvites;
 };

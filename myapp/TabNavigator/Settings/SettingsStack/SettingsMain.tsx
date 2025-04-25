@@ -5,6 +5,7 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import Icon from "react-native-vector-icons/Ionicons";
 import { SettingsStackParamList } from "../../../screens/SettingsStack";
 import { useUserSettings } from "../../../contexts/UserSettingsContext";
+import { useInviteNotification } from "../../../hooks/useInviteNotification";
 
 const SettingsMain = () => {
   const navigation =
@@ -16,6 +17,8 @@ const SettingsMain = () => {
     isConfirmWhenAutoAddToShoppingList,
     setIsConfirmWhenAutoAddToShoppingList,
   } = useUserSettings();
+
+  const hasPendingInvites = useInviteNotification();
 
   return (
     <ScrollView
@@ -52,9 +55,10 @@ const SettingsMain = () => {
           label="グループ管理"
           onPress={() => navigation.navigate("ManageGroup")}
         />
-        <SettingLink
+        <SettingLinkWithBadge
           label="グループメンバー管理"
           onPress={() => navigation.navigate("ManageGroupMember")}
+          showBadge={hasPendingInvites}
         />
       </Section>
     </ScrollView>
@@ -106,6 +110,28 @@ const SettingLink = ({
   </TouchableOpacity>
 );
 
+const SettingLinkWithBadge = ({
+  label,
+  onPress,
+  showBadge,
+}: {
+  label: string;
+  onPress: () => void;
+  showBadge?: boolean;
+}) => (
+  <TouchableOpacity style={styles.item} onPress={onPress}>
+    <Text style={styles.label}>{label}</Text>
+    <View style={{ flexDirection: "row", alignItems: "center" }}>
+      {showBadge && (
+        <View style={styles.rightBadge}>
+          <Text style={styles.rightBadgeText}>申請あり</Text>
+        </View>
+      )}
+      <Icon name="chevron-forward" size={20} />
+    </View>
+  </TouchableOpacity>
+);
+
 const styles = {
   item: {
     flexDirection: "row" as const,
@@ -117,6 +143,16 @@ const styles = {
   },
   label: {
     fontSize: 16,
+  },
+  rightBadge: {
+    backgroundColor: "red",
+    borderRadius: 12,
+    paddingHorizontal: 6,
+    marginRight: 8,
+  },
+  rightBadgeText: {
+    color: "white",
+    fontSize: 12,
   },
 };
 
