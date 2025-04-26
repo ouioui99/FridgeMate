@@ -10,6 +10,7 @@ import { InviteRequestPopup } from "./components/InviteRequestPopup";
 import { InviteRequestProvider } from "./contexts/InviteRequestContext";
 import { InviteRealtimeSubscriber } from "./lib/supabase/InviteRealtimeSubscriber";
 import { AppNavigator } from "./AppNavigator";
+import { InviteNotificationProvider } from "./contexts/InviteNotificationContext";
 
 export default function App() {
   const queryClient = new QueryClient();
@@ -32,11 +33,11 @@ export default function App() {
         <SessionProvider>
           <UserSettingsProvider>
             <InviteRequestProvider>
-              <InviteRealtimeSubscriber />
-              <InviteRequestPopup />
-              <NavigationContainer>
-                <AppNavigator />
-              </NavigationContainer>
+              <InviteNotificationProvider>
+                <NavigationContainer>
+                  <AppNavigator />
+                </NavigationContainer>
+              </InviteNotificationProvider>
             </InviteRequestProvider>
           </UserSettingsProvider>
         </SessionProvider>

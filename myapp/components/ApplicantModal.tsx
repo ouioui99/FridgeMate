@@ -11,14 +11,20 @@ import {
 import React, { useState } from "react";
 import Checkbox from "expo-checkbox";
 
-type Applicant = { uid: string; name: string };
+type Applicant = {
+  inviteCodeUsesId: string;
+  inviteeUid: string;
+  username: string;
+  groupInvitesId: string;
+  groupId: string;
+};
 
 type Props = {
   visible: boolean;
   applicants: Applicant[];
   onClose: () => void;
-  onApprove: (selected: string[]) => void;
-  onReject: (selected: string[]) => void;
+  onApprove: (selected: Applicant[]) => void;
+  onReject: (selected: Applicant[]) => void;
 };
 
 const ApplicantModal = ({
@@ -28,11 +34,19 @@ const ApplicantModal = ({
   onApprove,
   onReject,
 }: Props) => {
-  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [selectedApplicants, setSelectedApplicants] = useState<Applicant[]>([]);
 
-  const toggleSelect = (uid: string) => {
-    setSelectedIds((prev) =>
-      prev.includes(uid) ? prev.filter((id) => id !== uid) : [...prev, uid]
+  const toggleSelect = (applicant: Applicant) => {
+    setSelectedApplicants((prev) =>
+      prev.some((a) => a.inviteCodeUsesId === applicant.inviteCodeUsesId)
+        ? prev.filter((a) => a.inviteCodeUsesId !== applicant.inviteCodeUsesId)
+        : [...prev, applicant]
+    );
+  };
+
+  const isSelected = (inviteCodeUsesId: string) => {
+    return selectedApplicants.some(
+      (a) => a.inviteCodeUsesId === inviteCodeUsesId
     );
   };
 
@@ -51,17 +65,17 @@ const ApplicantModal = ({
 
               <FlatList
                 data={applicants}
-                keyExtractor={(item) => item.uid}
+                keyExtractor={(item) => item.inviteCodeUsesId}
                 renderItem={({ item }) => (
                   <Pressable
-                    onPress={() => toggleSelect(item.uid)}
+                    onPress={() => toggleSelect(item)}
                     style={styles.row}
                   >
                     <Checkbox
-                      value={selectedIds.includes(item.uid)}
-                      onValueChange={() => toggleSelect(item.uid)}
+                      value={isSelected(item.inviteCodeUsesId)}
+                      onValueChange={() => toggleSelect(item)}
                     />
-                    <Text style={styles.name}>{item.name}</Text>
+                    <Text style={styles.name}>{item.username}</Text>
                   </Pressable>
                 )}
               />
@@ -69,13 +83,13 @@ const ApplicantModal = ({
               <View style={styles.buttonRow}>
                 <TouchableOpacity
                   style={[styles.actionButton, { backgroundColor: "#F44336" }]}
-                  onPress={() => onReject(selectedIds)}
+                  onPress={() => onReject(selectedApplicants)}
                 >
                   <Text style={styles.actionText}>拒否</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={[styles.actionButton, { backgroundColor: "#4CAF50" }]}
-                  onPress={() => onApprove(selectedIds)}
+                  onPress={() => onApprove(selectedApplicants)}
                 >
                   <Text style={styles.actionText}>承認</Text>
                 </TouchableOpacity>
@@ -88,6 +102,7 @@ const ApplicantModal = ({
   );
 };
 
+// styles は変更なし
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,

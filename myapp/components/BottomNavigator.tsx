@@ -9,7 +9,9 @@ import { SettingsIconWithBadge } from "./SettingsIconWithBadge";
 const Tab = createBottomTabNavigator();
 
 export function BottomNavigator() {
-  const hasPendingInvites = useInviteNotification();
+  const { hasPendingInvites, inviteCodeUses } = useInviteNotification();
+  console.log(hasPendingInvites);
+
   return (
     <Tab.Navigator
       initialRouteName="Home"

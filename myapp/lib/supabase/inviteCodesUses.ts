@@ -10,7 +10,7 @@ export const fetchPendingInviteRequests = async () => {
       `
       id,
       invitee_id,
-      invitee:profiles!invitee_id ( username ),
+      invitee_Profile:profiles!invitee_id ( id,username ),
       status,
       used_at,
       invite_code_id,
@@ -23,12 +23,30 @@ export const fetchPendingInviteRequests = async () => {
     )
     .eq("inviter_id", userId)
     .eq("status", "applied");
-  console.log(data);
-
   if (error) {
     console.error("Failed to fetch pending invites:", error.message);
     return [];
   }
 
+  return data;
+};
+
+export const rejectAppliedRequests = async (inviteCodeUsesIdList: string[]) => {
+  console.log(inviteCodeUsesIdList);
+
+  const { data, error } = await supabase
+    .from("invite_code_uses")
+    .update({ status: "rejected" })
+    .in("id", inviteCodeUsesIdList) // 配列で指定
+    .select(); // 更新されたデータを返す
+
+  if (error) {
+    console.error("Failed to reject invites:", {
+      message: error.message,
+      details: error.details,
+      code: error.code,
+    });
+    throw error; // エラーをスローして呼び出し元で処理できるように
+  }
   return data;
 };

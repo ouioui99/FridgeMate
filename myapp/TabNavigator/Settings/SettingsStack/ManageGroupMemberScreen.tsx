@@ -17,7 +17,7 @@ import {
   getInviteeGroupMember,
 } from "../../../lib/supabase/groupInvites";
 import { getProfile } from "../../../lib/supabase/profiles";
-import { getLoginUserId } from "../../../lib/supabase/util";
+import { getLoginUserId, rejectApplied } from "../../../lib/supabase/util";
 import { useSession } from "../../../contexts/SessionContext";
 import { InviteeGroupMember, Profile } from "../../../types/daoTypes";
 import ApplicantModal from "../../../components/ApplicantModal";
@@ -47,7 +47,7 @@ type Group = {
 
 const ManageGroupMemberScreen = () => {
   const { session, loading } = useSession();
-  const { hasPendingInvites, appliedInvites } = useInviteNotification();
+  const { hasPendingInvites, inviteCodeUses } = useInviteNotification();
   const navigation = useNavigation();
   const [showApplicantModal, setShowApplicantModal] = useState(false);
 
@@ -134,18 +134,24 @@ const ManageGroupMemberScreen = () => {
 
       <ApplicantModal
         visible={showApplicantModal}
-        applicants={[
-          { uid: "u1", name: "お母さん" },
-          { uid: "u2", name: "お父さん" },
-          { uid: "u3", name: "叔父さん" },
-        ]}
+        applicants={inviteCodeUses.map((inviteCodeUse) => ({
+          inviteCodeUsesId: inviteCodeUse.id,
+          inviteeUid: inviteCodeUse.invitee_Profile.id,
+          username: inviteCodeUse.invitee_Profile.username,
+          groupInvitesId: inviteCodeUse.group_invites.id,
+          groupId: inviteCodeUse.invite_code_id,
+        }))}
         onClose={() => setShowApplicantModal(false)}
         onApprove={(selected) => {
           console.log("承認する:", selected);
           // supabaseでstatus更新処理など
         }}
-        onReject={(selected) => {
-          console.log("拒否する:", selected);
+        onReject={(selectedInviteCodeUse) => {
+          const inviteCodeUseIdList = selectedInviteCodeUse.map(
+            (selectedInviteCodeUse) => selectedInviteCodeUse.inviteCodeUsesId
+          );
+
+          rejectApplied(inviteCodeUseIdList);
         }}
       />
     </View>

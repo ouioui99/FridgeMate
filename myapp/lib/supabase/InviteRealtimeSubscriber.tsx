@@ -6,7 +6,6 @@ import { getLoginUserId } from "./util";
 
 export const InviteRealtimeSubscriber = () => {
   const { setRequest } = useInviteRequest();
-  console.log("sss");
 
   useEffect(() => {
     let channel: ReturnType<typeof supabase.channel>;

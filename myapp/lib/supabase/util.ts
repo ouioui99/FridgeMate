@@ -1,3 +1,4 @@
+import { InviteCodeUses } from "./../../types/daoTypes";
 import { Group, GroupInvite, stocks } from "../../types/daoTypes";
 import { SupabaseError } from "@supabase/supabase-js";
 import { getGroupInvite } from "./groupInvites";
@@ -5,6 +6,10 @@ import { getGroupsEqId } from "./groups";
 import { fetchStocks } from "./stocks";
 import { supabase } from "./supabase";
 import { v4 as uuidv4 } from "uuid";
+import {
+  fetchPendingInviteRequests,
+  rejectAppliedRequests,
+} from "./inviteCodesUses";
 
 export const getLoginUserId = async () => {
   const { data: userData, error: userError } = await supabase.auth.getUser();
@@ -24,29 +29,6 @@ export const fetchItems = async <T>(
   try {
     const data = await fetchItemMethod(current_group_id);
     setStocks(data);
-  } catch (error) {
-    console.error(error);
-  }
-};
-
-export const checkGroupInvite = async (
-  setInvitedGroupData: (value: React.SetStateAction<Group | null>) => void,
-  setInviteData: (value: React.SetStateAction<GroupInvite | null>) => void,
-  showInviteAlert: (invitedGroup: Group, invite: GroupInvite) => void
-) => {
-  try {
-    const { data: userData, error: userError } = await supabase.auth.getUser();
-    const invite = await getGroupInvite(userData.user.email);
-
-    if (
-      (invite && !invite?.is_revoked) ||
-      (invite && invite?.status !== "pending")
-    ) {
-      const groupData = await getGroupsEqId(invite.group_id);
-      setInvitedGroupData(groupData);
-      setInviteData(invite);
-      showInviteAlert(groupData, invite);
-    }
   } catch (error) {
     console.error(error);
   }
@@ -79,4 +61,9 @@ export const handleSupabaseError = (
   } else {
     showMessage(error.message || "エラーが発生しました");
   }
+};
+
+export const rejectApplied = async (inviteCodeUseIdList: string[]) => {
+  await rejectAppliedRequests(inviteCodeUseIdList);
+  fetchPendingInviteRequests();
 };

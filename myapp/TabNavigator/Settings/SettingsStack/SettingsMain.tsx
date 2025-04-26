@@ -6,6 +6,7 @@ import Icon from "react-native-vector-icons/Ionicons";
 import { SettingsStackParamList } from "../../../screens/SettingsStack";
 import { useUserSettings } from "../../../contexts/UserSettingsContext";
 import { useInviteNotification } from "../../../hooks/useInviteNotification";
+import { signOut } from "../../../lib/supabase/users";
 
 const SettingsMain = () => {
   const navigation =
@@ -18,7 +19,7 @@ const SettingsMain = () => {
     setIsConfirmWhenAutoAddToShoppingList,
   } = useUserSettings();
 
-  const hasPendingInvites = useInviteNotification();
+  const { hasPendingInvites, inviteCodeUses } = useInviteNotification();
 
   return (
     <ScrollView
@@ -37,7 +38,12 @@ const SettingsMain = () => {
           value={isConfirmWhenAutoAddToShoppingList}
           onValueChange={setIsConfirmWhenAutoAddToShoppingList}
         />
-        <SettingLink label="最小個数の設定" onPress={() => {}} />
+        <SettingLink
+          label="最小個数の設定"
+          onPress={async () => {
+            await signOut();
+          }}
+        />
       </Section>
 
       <Section title="ユーザー">

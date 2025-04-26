@@ -82,3 +82,12 @@ export type InviteeGroupMember = {
   expired_at: Date;
   group_invites_invitee_id_fkey: Profile;
 };
+
+export type InviteCodeUses = {
+  id: string;
+  invitee_Profile: Profile;
+  status: string;
+  used_at: Date;
+  invite_code_id: string;
+  group_invites: GroupInvite;
+};
