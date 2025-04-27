@@ -63,7 +63,10 @@ export const handleSupabaseError = (
   }
 };
 
-export const rejectApplied = async (inviteCodeUseIdList: string[]) => {
+export const rejectApplied = async (
+  inviteCodeUseIdList: string[],
+  setInviteCodeUses: React.Dispatch<React.SetStateAction<InviteCodeUses[]>>
+) => {
   await rejectAppliedRequests(inviteCodeUseIdList);
   fetchPendingInviteRequests();
 };

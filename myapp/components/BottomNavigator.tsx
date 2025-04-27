@@ -9,8 +9,7 @@ import { SettingsIconWithBadge } from "./SettingsIconWithBadge";
 const Tab = createBottomTabNavigator();
 
 export function BottomNavigator() {
-  const { hasPendingInvites, inviteCodeUses } = useInviteNotification();
-  console.log(hasPendingInvites);
+  const { inviteCodeUses } = useInviteNotification();
 
   return (
     <Tab.Navigator
@@ -47,7 +46,7 @@ export function BottomNavigator() {
           title: "設定",
           tabBarIcon: ({ color }) => (
             <SettingsIconWithBadge
-              showBadge={hasPendingInvites}
+              showBadge={0 < inviteCodeUses.length}
               color={color}
             />
           ),

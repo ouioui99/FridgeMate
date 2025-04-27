@@ -4,7 +4,6 @@ import { fetchPendingInviteRequests } from "../lib/supabase/inviteCodesUses";
 import { InviteCodeUses } from "../types/daoTypes";
 
 type InviteNotificationContextType = {
-  hasPendingInvites: boolean;
   inviteCodeUses: InviteCodeUses[];
 };
 
@@ -17,16 +16,13 @@ export const InviteNotificationProvider = ({
 }: {
   children: React.ReactNode;
 }) => {
-  const [hasPendingInvites, setHasPendingInvites] = useState(false);
   const [inviteCodeUses, setInviteCodeUses] = useState<InviteCodeUses[]>([]);
 
   useEffect(() => {
     const fetchPendingInvites = async () => {
       const data = await fetchPendingInviteRequests();
-      console.log(hasPendingInvites);
 
       setInviteCodeUses(data);
-      setHasPendingInvites(data.length > 0);
     };
 
     fetchPendingInvites();
@@ -36,7 +32,7 @@ export const InviteNotificationProvider = ({
       .on(
         "postgres_changes",
         {
-          event: "INSERT, UPDATE",
+          event: "*",
           schema: "public",
           table: "invite_code_uses",
         },
@@ -52,9 +48,7 @@ export const InviteNotificationProvider = ({
   }, []);
 
   return (
-    <InviteNotificationContext.Provider
-      value={{ hasPendingInvites, inviteCodeUses }}
-    >
+    <InviteNotificationContext.Provider value={{ inviteCodeUses }}>
       {children}
     </InviteNotificationContext.Provider>
   );

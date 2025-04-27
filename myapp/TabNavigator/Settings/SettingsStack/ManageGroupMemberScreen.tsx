@@ -47,13 +47,13 @@ type Group = {
 
 const ManageGroupMemberScreen = () => {
   const { session, loading } = useSession();
-  const { hasPendingInvites, inviteCodeUses } = useInviteNotification();
+  const { inviteCodeUses } = useInviteNotification();
   const navigation = useNavigation();
   const [showApplicantModal, setShowApplicantModal] = useState(false);
 
   useEffect(() => {
-    setShowApplicantModal(hasPendingInvites);
-  }, [hasPendingInvites]);
+    setShowApplicantModal(0 < inviteCodeUses.length);
+  }, [inviteCodeUses]);
 
   useEffect(() => {
     showApplicantModal &&
@@ -151,7 +151,7 @@ const ManageGroupMemberScreen = () => {
             (selectedInviteCodeUse) => selectedInviteCodeUse.inviteCodeUsesId
           );
 
-          rejectApplied(inviteCodeUseIdList);
+          rejectApplied(inviteCodeUseIdList, setInviteCodeUses);
         }}
       />
     </View>

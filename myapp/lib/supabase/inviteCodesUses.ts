@@ -37,8 +37,7 @@ export const rejectAppliedRequests = async (inviteCodeUsesIdList: string[]) => {
   const { data, error } = await supabase
     .from("invite_code_uses")
     .update({ status: "rejected" })
-    .in("id", inviteCodeUsesIdList) // 配列で指定
-    .select(); // 更新されたデータを返す
+    .in("id", inviteCodeUsesIdList); // 配列で指定
 
   if (error) {
     console.error("Failed to reject invites:", {
@@ -48,5 +47,6 @@ export const rejectAppliedRequests = async (inviteCodeUsesIdList: string[]) => {
     });
     throw error; // エラーをスローして呼び出し元で処理できるように
   }
+
   return data;
 };

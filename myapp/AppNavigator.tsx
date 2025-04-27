@@ -1,11 +1,7 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { View, ActivityIndicator } from "react-native";
 import { useSession } from "./contexts/SessionContext";
-import { useInviteNotification } from "./hooks/useInviteNotification";
-import HomeScreen from "./screens/HomeScreen";
 import LoginScreen from "./screens/LoginScreen";
-import SettingsStack from "./screens/SettingsStack";
-import ShoppingListScreen from "./screens/ShoppingListScreen";
 import SignUpScreen from "./screens/SignUpScreen";
 import { BottomNavigator } from "./components/BottomNavigator";
 

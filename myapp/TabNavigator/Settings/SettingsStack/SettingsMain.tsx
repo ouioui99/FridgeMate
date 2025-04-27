@@ -19,7 +19,7 @@ const SettingsMain = () => {
     setIsConfirmWhenAutoAddToShoppingList,
   } = useUserSettings();
 
-  const { hasPendingInvites, inviteCodeUses } = useInviteNotification();
+  const { inviteCodeUses } = useInviteNotification();
 
   return (
     <ScrollView
@@ -64,7 +64,7 @@ const SettingsMain = () => {
         <SettingLinkWithBadge
           label="グループメンバー管理"
           onPress={() => navigation.navigate("ManageGroupMember")}
-          showBadge={hasPendingInvites}
+          showBadge={0 < inviteCodeUses.length}
         />
       </Section>
     </ScrollView>
