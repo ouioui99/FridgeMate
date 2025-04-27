@@ -10,6 +10,7 @@ import {
   ScrollView,
   TouchableWithoutFeedback,
   Keyboard,
+  Share,
 } from "react-native";
 import { Snackbar } from "react-native-paper";
 import * as Clipboard from "expo-clipboard";
@@ -40,10 +41,17 @@ export default function ManageGroupScreen() {
     setGeneratedCode(code);
   };
 
-  const handleCopyCode = () => {
-    if (generatedCode) {
-      Clipboard.setStringAsync(generatedCode);
-      alert("コピーしました: " + generatedCode);
+  const handleShareCode = async () => {
+    if (!generatedCode) return;
+
+    try {
+      await Share.share({
+        message: `招待コード: ${generatedCode}\nこのコードを招待したい人にシェアしよう！`,
+        title: "招待コードを共有", // Android で表示されるタイトル
+      });
+    } catch (error) {
+      console.error("共有に失敗しました", error);
+      alert("共有に失敗しました");
     }
   };
 
@@ -86,7 +94,7 @@ export default function ManageGroupScreen() {
             {/* 招待する側 */}
             <View style={styles.section}>
               <Text style={styles.title}>🔑 あなたが招待する場合</Text>
-              <TouchableOpacity onPress={handleCopyCode}>
+              <TouchableOpacity onPress={handleShareCode}>
                 <View style={styles.codeBox}>
                   <Text style={styles.codeText}>
                     {generatedCode || "まだ作成されていません"}
