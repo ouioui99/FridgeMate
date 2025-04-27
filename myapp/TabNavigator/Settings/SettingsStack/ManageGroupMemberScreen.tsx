@@ -139,7 +139,7 @@ const ManageGroupMemberScreen = () => {
           inviteeUid: inviteCodeUse.invitee_Profile.id,
           username: inviteCodeUse.invitee_Profile.username,
           groupInvitesId: inviteCodeUse.group_invites.id,
-          groupId: inviteCodeUse.invite_code_id,
+          groupId: inviteCodeUse.group_invites.group_id,
         }))}
         onClose={() => setShowApplicantModal(false)}
         onApprove={(selected) => {
@@ -151,7 +151,7 @@ const ManageGroupMemberScreen = () => {
             (selectedInviteCodeUse) => selectedInviteCodeUse.inviteCodeUsesId
           );
 
-          rejectApplied(inviteCodeUseIdList, setInviteCodeUses);
+          rejectApplied(inviteCodeUseIdList);
         }}
       />
     </View>

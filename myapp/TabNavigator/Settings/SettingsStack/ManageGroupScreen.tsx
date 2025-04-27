@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -16,6 +16,7 @@ import * as Clipboard from "expo-clipboard";
 import {
   appliedGroupFromInvite,
   createGroupInviteCode,
+  getValidGroupInvite,
   revokedGroupInviteCode,
 } from "../../../lib/supabase/groupInvites";
 import { useSession } from "../../../contexts/SessionContext";
@@ -62,6 +63,17 @@ export default function ManageGroupScreen() {
     await revokedGroupInviteCode(generatedCode);
     setGeneratedCode("");
   };
+
+  useEffect(() => {
+    const getValidGroupInvitesData = async () => {
+      const validGroupInviteData = await getValidGroupInvite();
+
+      if (validGroupInviteData) {
+        setGeneratedCode(validGroupInviteData.invite_code);
+      }
+    };
+    getValidGroupInvitesData();
+  }, []);
 
   return (
     <KeyboardAvoidingView

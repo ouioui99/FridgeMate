@@ -21,7 +21,6 @@ export const InviteNotificationProvider = ({
   useEffect(() => {
     const fetchPendingInvites = async () => {
       const data = await fetchPendingInviteRequests();
-
       setInviteCodeUses(data);
     };
 

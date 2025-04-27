@@ -15,6 +15,7 @@ export const fetchPendingInviteRequests = async () => {
       used_at,
       invite_code_id,
       group_invites (
+        id,
         group_id,
         inviter_id,
         invite_code

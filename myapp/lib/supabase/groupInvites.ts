@@ -18,6 +18,9 @@ export const createGroupInviteCode = async (
   const inviterId = await getLoginUserId();
   const inviteCode = generateHashed8DigitNumber(); // UUIDで招待コードを生成
 
+  const oneYearLater = new Date();
+  oneYearLater.setFullYear(oneYearLater.getFullYear() + 1);
+
   const { error } = await supabase.from("group_invites").insert([
     {
       group_id: groupId,
@@ -25,7 +28,7 @@ export const createGroupInviteCode = async (
       invitee_email: inviteeEmail, // 指定されていない場合は NULL
       invite_code: inviteCode,
       status: "pending", // 初期状態
-      expires_at: new Date(Date.now() + 10 * 60 * 6000).toISOString(), // 60分後
+      expires_at: oneYearLater.toISOString(), // １年後(現状不要)
     },
   ]);
 
@@ -158,6 +161,22 @@ export const getInviteeGroupMember = async (
     `
     )
     .eq("inviter_id", inviterId);
+  if (error) {
+    throw new Error("Invalid or expired invite code.");
+  }
+
+  return invite;
+};
+
+export const getValidGroupInvite = async (): Promise<GroupInvite> => {
+  const userId = await getLoginUserId();
+  const { data: invite, error } = await supabase
+    .from("group_invites")
+    .select("id, group_id, inviter_id, invitee_email ,invite_code ,status")
+    .eq("inviter_id", userId)
+    .eq("status", "pending")
+    .maybeSingle<GroupInvite>();
+
   if (error) {
     throw new Error("Invalid or expired invite code.");
   }
