@@ -25,6 +25,7 @@ import { useGetProfile } from "../../../hooks/useGetProfile";
 import { useSnackbar } from "../../../hooks/useSnackbar";
 import { handleSupabaseError } from "../../../lib/supabase/util";
 import { MESSAGES } from "../../../constants/messages";
+import { getGroupsEqId } from "../../../lib/supabase/groups";
 
 export default function ManageGroupScreen() {
   const { session, loading } = useSession();
@@ -35,6 +36,7 @@ export default function ManageGroupScreen() {
   const { data: profile, isLoading, error } = useGetProfile(userId);
   const [inviteCode, setInviteCode] = useState("");
   const [generatedCode, setGeneratedCode] = useState("");
+  const [isGroupAdmin, setIsGroupAdmin] = useState(false);
 
   const handleGenerateCode = async () => {
     const code = await createGroupInviteCode(profile.current_group_id);
@@ -80,8 +82,15 @@ export default function ManageGroupScreen() {
         setGeneratedCode(validGroupInviteData.invite_code);
       }
     };
+    const isAdminCheck = async () => {
+      if (profile) {
+        const currentGroupData = await getGroupsEqId(profile.current_group_id);
+        setIsGroupAdmin(currentGroupData.owner_id === userId);
+      }
+    };
     getValidGroupInvitesData();
-  }, []);
+    isAdminCheck();
+  }, [profile]);
 
   return (
     <KeyboardAvoidingView
@@ -92,27 +101,31 @@ export default function ManageGroupScreen() {
         <ScrollView contentContainerStyle={styles.container}>
           <View style={styles.inner}>
             {/* 招待する側 */}
-            <View style={styles.section}>
-              <Text style={styles.title}>🔑 あなたが招待する場合</Text>
-              <TouchableOpacity onPress={handleShareCode}>
-                <View style={styles.codeBox}>
-                  <Text style={styles.codeText}>
-                    {generatedCode || "まだ作成されていません"}
+            {isGroupAdmin && (
+              <View style={styles.section}>
+                <Text style={styles.title}>🔑 あなたが招待する場合</Text>
+                <TouchableOpacity onPress={handleShareCode}>
+                  <View style={styles.codeBox}>
+                    <Text style={styles.codeText}>
+                      {generatedCode || "まだ作成されていません"}
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[
+                    styles.button,
+                    generatedCode ? styles.buttonDanger : styles.buttonPrimary,
+                  ]}
+                  onPress={
+                    generatedCode ? handleRevokeCode : handleGenerateCode
+                  }
+                >
+                  <Text style={styles.buttonText}>
+                    {generatedCode ? "招待コード無効化" : "招待コード作成"}
                   </Text>
-                </View>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[
-                  styles.button,
-                  generatedCode ? styles.buttonDanger : styles.buttonPrimary,
-                ]}
-                onPress={generatedCode ? handleRevokeCode : handleGenerateCode}
-              >
-                <Text style={styles.buttonText}>
-                  {generatedCode ? "招待コード無効化" : "招待コード作成"}
-                </Text>
-              </TouchableOpacity>
-            </View>
+                </TouchableOpacity>
+              </View>
+            )}
 
             {/* 招待される側 */}
             <View style={styles.section}>
