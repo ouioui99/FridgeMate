@@ -51,3 +51,21 @@ export const rejectAppliedRequests = async (inviteCodeUsesIdList: string[]) => {
 
   return data;
 };
+
+export const acceptAppliedRequests = async (inviteCodeUsesIdList: string[]) => {
+  const { data, error } = await supabase
+    .from("invite_code_uses")
+    .update({ status: "accepted" })
+    .in("id", inviteCodeUsesIdList); // 配列で指定
+
+  if (error) {
+    console.error("Failed to reject invites:", {
+      message: error.message,
+      details: error.details,
+      code: error.code,
+    });
+    throw error; // エラーをスローして呼び出し元で処理できるように
+  }
+
+  return data;
+};

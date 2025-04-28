@@ -15,17 +15,17 @@ export const getProfile = async () => {
   return data;
 };
 
-export const changeCurrentGroup = async (
-  userId: string,
-  invite: GroupInvite
-) => {
+export const changeCurrentGroup = async (userId: string, group_id: string) => {
+  console.log(userId);
+  console.log(group_id);
+
   const { error: changeError } = await supabase
     .from("profiles")
-    .update([{ current_group_id: invite.group_id }])
+    .update({ current_group_id: group_id })
     .eq("id", userId);
 
-  if (joinError) {
-    console.error("Error joining group:", joinError.message);
-    throw joinError;
+  if (changeError) {
+    console.error("Error joining group:", changeError.message);
+    throw changeError;
   }
 };

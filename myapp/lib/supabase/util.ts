@@ -1,4 +1,7 @@
-import { InviteCodeUses } from "./../../types/daoTypes";
+import {
+  InviteCodeUses,
+  SeclectedInviteCodeUses,
+} from "./../../types/daoTypes";
 import { Group, GroupInvite, stocks } from "../../types/daoTypes";
 import { SupabaseError } from "@supabase/supabase-js";
 import { getGroupInvite } from "./groupInvites";
@@ -7,9 +10,12 @@ import { fetchStocks } from "./stocks";
 import { supabase } from "./supabase";
 import { v4 as uuidv4 } from "uuid";
 import {
+  acceptAppliedRequests,
   fetchPendingInviteRequests,
   rejectAppliedRequests,
 } from "./inviteCodesUses";
+import { changeCurrentGroup } from "./profiles";
+import { joinGroupMembers } from "./groupMembers";
 
 export const getLoginUserId = async () => {
   const { data: userData, error: userError } = await supabase.auth.getUser();
@@ -66,4 +72,27 @@ export const handleSupabaseError = (
 export const rejectApplied = async (inviteCodeUseIdList: string[]) => {
   await rejectAppliedRequests(inviteCodeUseIdList);
   fetchPendingInviteRequests();
+};
+
+export const acceptApplied = async (
+  selectedInviteCodeUsesList: SeclectedInviteCodeUses[]
+) => {
+  acceptAppliedRequests(
+    selectedInviteCodeUsesList.map(
+      (selectedInviteCodeUses) => selectedInviteCodeUses.inviteCodeUsesId
+    )
+  );
+  for (let i = 0; i < selectedInviteCodeUsesList.length; i++) {
+    console.log("ss");
+
+    const selectedInviteCodeUses = selectedInviteCodeUsesList[i];
+    await joinGroupMembers(
+      selectedInviteCodeUses.inviteeUid,
+      selectedInviteCodeUses.groupId
+    );
+    await changeCurrentGroup(
+      selectedInviteCodeUses.inviteeUid,
+      selectedInviteCodeUses.groupId
+    );
+  }
 };

@@ -17,9 +17,17 @@ import {
   getInviteeGroupMember,
 } from "../../../lib/supabase/groupInvites";
 import { getProfile } from "../../../lib/supabase/profiles";
-import { getLoginUserId, rejectApplied } from "../../../lib/supabase/util";
+import {
+  acceptApplied,
+  getLoginUserId,
+  rejectApplied,
+} from "../../../lib/supabase/util";
 import { useSession } from "../../../contexts/SessionContext";
-import { InviteeGroupMember, Profile } from "../../../types/daoTypes";
+import {
+  InviteeGroupMember,
+  Profile,
+  SeclectedInviteCodeUses,
+} from "../../../types/daoTypes";
 import ApplicantModal from "../../../components/ApplicantModal";
 import { useInviteNotification } from "../../../hooks/useInviteNotification";
 import { useNavigation } from "@react-navigation/native";
@@ -56,7 +64,7 @@ const ManageGroupMemberScreen = () => {
   }, [inviteCodeUses]);
 
   useEffect(() => {
-    showApplicantModal &&
+    if (showApplicantModal) {
       navigation.setOptions({
         headerRight: () => (
           <TouchableOpacity
@@ -71,6 +79,11 @@ const ManageGroupMemberScreen = () => {
           </TouchableOpacity>
         ),
       });
+    } else {
+      navigation.setOptions({
+        headerRight: () => <></>,
+      });
+    }
   }, [navigation, showApplicantModal]);
 
   const userId = session?.user?.id;
@@ -109,6 +122,44 @@ const ManageGroupMemberScreen = () => {
     // ]);
   };
 
+  const handleAccept = async (
+    selectedInviteCodeUsesList: SeclectedInviteCodeUses[]
+  ) => {
+    await acceptApplied(selectedInviteCodeUsesList);
+  };
+
+  const handleReject = async (
+    selectedInviteCodeUsesList: SeclectedInviteCodeUses[]
+  ) => {
+    const inviteCodeUseIdList = selectedInviteCodeUsesList.map(
+      (selectedInviteCodeUse) => selectedInviteCodeUse.inviteCodeUsesId
+    );
+
+    // 選択されたユーザー名のリストを作成
+    const selectedUsers = selectedInviteCodeUsesList
+      .map((item) => item.username)
+      .join("\n");
+
+    Alert.alert(
+      "申請を拒否",
+      `以下のユーザーの申請を拒否しますか？\n${selectedUsers}`,
+      [
+        {
+          text: "キャンセル",
+          style: "cancel",
+        },
+        {
+          text: "拒否",
+          style: "destructive",
+          onPress: () => {
+            rejectApplied(inviteCodeUseIdList);
+            setShowApplicantModal(false);
+          },
+        },
+      ]
+    );
+  };
+
   return (
     <View style={styles.container}>
       {/* 加入済みメンバー */}
@@ -142,16 +193,11 @@ const ManageGroupMemberScreen = () => {
           groupId: inviteCodeUse.group_invites.group_id,
         }))}
         onClose={() => setShowApplicantModal(false)}
-        onApprove={(selected) => {
-          console.log("承認する:", selected);
-          // supabaseでstatus更新処理など
+        onAccept={(selected) => {
+          handleAccept(selected);
         }}
         onReject={(selectedInviteCodeUse) => {
-          const inviteCodeUseIdList = selectedInviteCodeUse.map(
-            (selectedInviteCodeUse) => selectedInviteCodeUse.inviteCodeUsesId
-          );
-
-          rejectApplied(inviteCodeUseIdList);
+          handleReject(selectedInviteCodeUse);
         }}
       />
     </View>
@@ -187,7 +233,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 10,
   },
-  actionButtonApprove: {
+  actionButtonAccept: {
     backgroundColor: "#4CAF50", // 緑
     paddingVertical: 6,
     paddingHorizontal: 12,

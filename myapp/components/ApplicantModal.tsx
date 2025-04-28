@@ -23,7 +23,7 @@ type Props = {
   visible: boolean;
   applicants: Applicant[];
   onClose: () => void;
-  onApprove: (selected: Applicant[]) => void;
+  onAccept: (selected: Applicant[]) => void;
   onReject: (selected: Applicant[]) => void;
 };
 
@@ -31,7 +31,7 @@ const ApplicantModal = ({
   visible,
   applicants,
   onClose,
-  onApprove,
+  onAccept,
   onReject,
 }: Props) => {
   const [selectedApplicants, setSelectedApplicants] = useState<Applicant[]>([]);
@@ -89,7 +89,7 @@ const ApplicantModal = ({
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={[styles.actionButton, { backgroundColor: "#4CAF50" }]}
-                  onPress={() => onApprove(selectedApplicants)}
+                  onPress={() => onAccept(selectedApplicants)}
                 >
                   <Text style={styles.actionText}>承認</Text>
                 </TouchableOpacity>

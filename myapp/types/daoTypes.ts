@@ -91,3 +91,11 @@ export type InviteCodeUses = {
   invite_code_id: string;
   group_invites: GroupInvite;
 };
+
+export type SeclectedInviteCodeUses = {
+  inviteCodeUsesId: string;
+  inviteeUid: string;
+  username: string;
+  groupInvitesId: string;
+  groupId: string;
+};

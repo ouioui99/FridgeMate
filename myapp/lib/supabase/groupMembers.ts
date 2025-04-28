@@ -16,11 +16,11 @@ export const getGroupsEqId = async (id: string): Promise<GroupMember> => {
 
 export const joinGroupMembers = async (
   userId: string,
-  invite: GroupInvite
+  group_id: string
 ): Promise<void> => {
   const { error: joinError } = await supabase
     .from("group_members")
-    .insert([{ group_id: invite.group_id, member_uid: userId }]);
+    .insert([{ group_id: group_id, member_uid: userId }]);
 
   if (joinError) {
     console.error("Error joining group:", joinError.message);
