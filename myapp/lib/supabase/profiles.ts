@@ -16,9 +16,6 @@ export const getProfile = async () => {
 };
 
 export const changeCurrentGroup = async (userId: string, group_id: string) => {
-  console.log(userId);
-  console.log(group_id);
-
   const { error: changeError } = await supabase
     .from("profiles")
     .update({ current_group_id: group_id })

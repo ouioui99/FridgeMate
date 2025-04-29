@@ -38,3 +38,18 @@ export const getGroupMembers = async (
   }
   return groupMemberData;
 };
+
+export const deleteGroupMember = async (
+  group_id: string,
+  member_uid: string
+) => {
+  const { error } = await supabase
+    .from("group_members")
+    .delete()
+    .match({ group_id, member_uid });
+
+  if (error) {
+    console.error("Failed to delete group member:", error);
+    throw error;
+  }
+};

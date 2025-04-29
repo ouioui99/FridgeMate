@@ -21,6 +21,7 @@ import {
   acceptApplied,
   getLoginUserId,
   rejectApplied,
+  removeMember,
 } from "../../../lib/supabase/util";
 import { useSession } from "../../../contexts/SessionContext";
 import {
@@ -118,7 +119,8 @@ const ManageGroupMemberScreen = () => {
         {
           text: "削除",
           style: "destructive",
-          onPress: () => {
+          onPress: async () => {
+            await removeMember(member);
             // 実際の削除処理を書く
           },
         },

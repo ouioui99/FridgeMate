@@ -1,21 +1,23 @@
 import {
+  GroupMember,
   InviteCodeUses,
   SeclectedInviteCodeUses,
 } from "./../../types/daoTypes";
 import { Group, GroupInvite, stocks } from "../../types/daoTypes";
 import { SupabaseError } from "@supabase/supabase-js";
 import { getGroupInvite } from "./groupInvites";
-import { getGroupsEqId } from "./groups";
+import { getGroupsEqId, getOwnerGroup } from "./groups";
 import { fetchStocks } from "./stocks";
 import { supabase } from "./supabase";
 import { v4 as uuidv4 } from "uuid";
 import {
   acceptAppliedRequests,
+  deleteInviteCodeUsesByGroupIdAndInviteeId,
   fetchPendingInviteRequests,
   rejectAppliedRequests,
 } from "./inviteCodesUses";
 import { changeCurrentGroup } from "./profiles";
-import { joinGroupMembers } from "./groupMembers";
+import { deleteGroupMember, joinGroupMembers } from "./groupMembers";
 
 export const getLoginUserId = async () => {
   const { data: userData, error: userError } = await supabase.auth.getUser();
@@ -93,4 +95,19 @@ export const acceptApplied = async (
       selectedInviteCodeUses.groupId
     );
   }
+};
+
+export const removeMember = async (groupMember: GroupMember) => {
+  const targetUid = groupMember.memberProfileData.id;
+  //自身がadminのgroupを取得する
+  const ownerGroup = await getOwnerGroup(targetUid);
+  //profileのcurrentGroupIdを元々自動作成していたものに戻す
+  await changeCurrentGroup(targetUid, ownerGroup.id);
+  //groupMembersから消す
+  await deleteGroupMember(groupMember.group_id, targetUid);
+  //inviteCodeUsesから消す
+  await deleteInviteCodeUsesByGroupIdAndInviteeId(
+    groupMember.group_id,
+    targetUid
+  );
 };
