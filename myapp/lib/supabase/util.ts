@@ -83,8 +83,6 @@ export const acceptApplied = async (
     )
   );
   for (let i = 0; i < selectedInviteCodeUsesList.length; i++) {
-    console.log("ss");
-
     const selectedInviteCodeUses = selectedInviteCodeUsesList[i];
     await joinGroupMembers(
       selectedInviteCodeUses.inviteeUid,

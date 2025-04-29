@@ -24,6 +24,7 @@ import {
 } from "../../../lib/supabase/util";
 import { useSession } from "../../../contexts/SessionContext";
 import {
+  GroupMember,
   InviteeGroupMember,
   Profile,
   SeclectedInviteCodeUses,
@@ -32,6 +33,8 @@ import ApplicantModal from "../../../components/ApplicantModal";
 import { useInviteNotification } from "../../../hooks/useInviteNotification";
 import { useNavigation } from "@react-navigation/native";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
+import { getGroupMembers } from "../../../lib/supabase/groupMembers";
+import { useGetProfile } from "../../../hooks/useGetProfile";
 
 type Member = {
   uid: string;
@@ -58,6 +61,14 @@ const ManageGroupMemberScreen = () => {
   const { inviteCodeUses } = useInviteNotification();
   const navigation = useNavigation();
   const [showApplicantModal, setShowApplicantModal] = useState(false);
+  const userId = session?.user?.id;
+  // プロフィール取得
+  const { data: profile, isLoading, error } = useGetProfile(userId);
+  const [groupMembers, setGroupMembers] = useState<GroupMember[]>([]);
+
+  const isAdmin =
+    groupMembers.find((member) => member.memberProfileData.id === userId)
+      ?.admin ?? false;
 
   useEffect(() => {
     setShowApplicantModal(0 < inviteCodeUses.length);
@@ -86,40 +97,33 @@ const ManageGroupMemberScreen = () => {
     }
   }, [navigation, showApplicantModal]);
 
-  const userId = session?.user?.id;
-  const group = {
-    id: "1",
-    name: "家族",
-    adminUid: "u1",
-    members: [
-      { uid: "u1", name: "自分", status: "accepted" },
-      { uid: "u2", name: "お母さん", status: "applied" },
-      { uid: "u3", name: "お父さん", status: "pending" },
-      { uid: "u4", name: "弟", status: "rejected" },
-      { uid: "u5", name: "姉", status: "accepted" },
-      { uid: "u6", name: "叔父さん", status: "revoked" },
-    ],
-  };
+  useEffect(() => {
+    const fetchGroupMembers = async () => {
+      if (profile) {
+        const groupMembers = await getGroupMembers(profile.current_group_id);
 
-  const joinedMembers = group.members.filter((m) => m.status === "accepted");
-  const invitedMembers = group.members.filter(
-    (m) => m.status === "pending" || m.status === "applied"
-  );
+        setGroupMembers(groupMembers);
+      }
+    };
+    fetchGroupMembers();
+  }, [profile]);
 
-  const isAdmin = true;
-
-  const handleRemove = async (memberProfile: Profile) => {
-    await getInviteeGroupMember(userId);
-    // Alert.alert("メンバー削除", `${member.name} をグループから削除しますか？`, [
-    //   { text: "キャンセル", style: "cancel" },
-    //   {
-    //     text: "削除",
-    //     style: "destructive",
-    //     onPress: () => {
-    //       //onRemoveMember(member.uid);
-    //     },
-    //   },
-    // ]);
+  const handleRemove = async (member: GroupMember) => {
+    // member.memberProfileData.username とか使える
+    Alert.alert(
+      "メンバー削除",
+      `${member.memberProfileData.username} をグループから削除しますか？`,
+      [
+        { text: "キャンセル", style: "cancel" },
+        {
+          text: "削除",
+          style: "destructive",
+          onPress: () => {
+            // 実際の削除処理を書く
+          },
+        },
+      ]
+    );
   };
 
   const handleAccept = async (
@@ -163,25 +167,27 @@ const ManageGroupMemberScreen = () => {
   return (
     <View style={styles.container}>
       {/* 加入済みメンバー */}
-      <View style={styles.joinedContainer}>
-        <FlatList
-          data={joinedMembers}
-          keyExtractor={(item) => item.uid}
-          renderItem={({ item }) => (
-            <View style={styles.memberRow}>
-              <Text style={styles.memberText}>{item.name}</Text>
-              {isAdmin && item.uid !== userId && (
-                <Pressable
-                  style={styles.actionButtonRemove}
-                  onPress={() => handleRemove(item)}
-                >
-                  <Text style={styles.actionButtonText}>削除</Text>
-                </Pressable>
-              )}
-            </View>
-          )}
-        />
-      </View>
+      <FlatList
+        data={groupMembers
+          .slice()
+          .sort((a, b) => (a.admin === b.admin ? 0 : a.admin ? -1 : 1))}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => (
+          <View style={styles.memberRow}>
+            <Text style={styles.memberText}>
+              {item.memberProfileData.username}
+            </Text>
+            {isAdmin && item.memberProfileData.id !== userId && (
+              <Pressable
+                style={styles.actionButtonRemove}
+                onPress={() => handleRemove(item)}
+              >
+                <Text style={styles.actionButtonText}>削除</Text>
+              </Pressable>
+            )}
+          </View>
+        )}
+      />
 
       <ApplicantModal
         visible={showApplicantModal}

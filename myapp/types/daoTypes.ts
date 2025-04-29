@@ -58,9 +58,10 @@ export type ShoppingListInput = ShoppingList;
 export type GroupMember = {
   id: string;
   group_id: string;
-  member_uid: string;
+  memberProfileData: Profile;
   created_at: Date;
   updated_at: Date;
+  admin: boolean;
 };
 
 export type Profile = {
