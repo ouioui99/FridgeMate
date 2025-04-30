@@ -13,7 +13,6 @@ import {
   Share,
 } from "react-native";
 import { Snackbar } from "react-native-paper";
-import * as Clipboard from "expo-clipboard";
 import {
   appliedGroupFromInvite,
   createGroupInviteCode,

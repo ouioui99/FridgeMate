@@ -14,22 +14,41 @@ import {
 import { useNavigation } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { supabase } from "../lib/supabase/supabase";
+import { Snackbar } from "react-native-paper";
+import { useSnackbar } from "../hooks/useSnackbar";
+import { MESSAGES } from "../constants/messages";
 
 export default function SignUpScreen() {
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({
+    username: "",
     email: "",
     password: "",
     confirmPassword: "",
   });
   const navigation = useNavigation();
+  const { visible, message, showMessage, hideSnackbar } = useSnackbar();
 
   async function signUpWithEmail() {
-    let newErrors = { email: "", password: "", confirmPassword: "" };
+    let newErrors = {
+      username: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+    };
     let hasError = false;
+
+    if (!username) {
+      newErrors.username = "ユーザー名を入力してください。";
+      hasError = true;
+    } else if (username.length < 3) {
+      newErrors.username = "ユーザ名は3文字以上で入力してください";
+      hasError = true;
+    }
 
     if (!email) {
       newErrors.email = "メールアドレスを入力してください。";
@@ -58,6 +77,11 @@ export default function SignUpScreen() {
     } = await supabase.auth.signUp({
       email: email,
       password: password,
+      options: {
+        data: {
+          username: username,
+        },
+      },
     });
 
     if (error) {
@@ -65,10 +89,7 @@ export default function SignUpScreen() {
 
       setErrors((prev) => ({ ...prev, email: error.message }));
     } else if (!session) {
-      setErrors((prev) => ({
-        ...prev,
-        email: "メール認証を確認してください。",
-      }));
+      showMessage(MESSAGES.OK.completeSendCertificationMail);
     }
 
     setLoading(false);
@@ -91,6 +112,24 @@ export default function SignUpScreen() {
           </View>
 
           <View style={styles.form}>
+            <View style={styles.inputContainer}>
+              <Text style={styles.label}>ユーザ名</Text>
+              <TextInput
+                style={[
+                  styles.input,
+                  errors.username ? styles.inputError : null,
+                ]}
+                placeholder="表示用の名前を入力"
+                value={username}
+                onChangeText={setUsername}
+                autoCapitalize="none"
+                keyboardType="default"
+              />
+              {errors.email ? (
+                <Text style={styles.errorText}>{errors.username}</Text>
+              ) : null}
+            </View>
+
             <View style={styles.inputContainer}>
               <Text style={styles.label}>メールアドレス</Text>
               <TextInput
@@ -164,6 +203,14 @@ export default function SignUpScreen() {
             </TouchableOpacity>
           </View>
         </ScrollView>
+        <Snackbar
+          visible={visible}
+          onDismiss={hideSnackbar}
+          duration={5000}
+          action={{ label: "閉じる", onPress: hideSnackbar }}
+        >
+          {message}
+        </Snackbar>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
