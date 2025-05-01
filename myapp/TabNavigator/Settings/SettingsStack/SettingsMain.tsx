@@ -40,9 +40,7 @@ const SettingsMain = () => {
         />
         <SettingLink
           label="最小個数の設定"
-          onPress={async () => {
-            await signOut();
-          }}
+          onPress={() => navigation.navigate("SettingMinimumNumber")}
         />
       </Section>
 

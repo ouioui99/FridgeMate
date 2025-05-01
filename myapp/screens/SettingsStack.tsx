@@ -6,6 +6,7 @@ import ChangeEmailScreen from "../TabNavigator/Settings/SettingsStack/ChangeEmai
 import ChangePasswordScreen from "../TabNavigator/Settings/SettingsStack/ChangePasswordScreen";
 import ManageGroupScreen from "../TabNavigator/Settings/SettingsStack/ManageGroupScreen";
 import ManageGroupMemberScreen from "../TabNavigator/Settings/SettingsStack/ManageGroupMemberScreen";
+import SettingMinimumNumberScreen from "../TabNavigator/Settings/SettingsStack/SettingMinimumNumberScreen";
 
 export type SettingsStackParamList = {
   SettingsMain: undefined;
@@ -13,6 +14,7 @@ export type SettingsStackParamList = {
   ChangePassword: undefined;
   ManageGroupMember: undefined;
   ManageGroup: undefined;
+  SettingMinimumNumber: undefined;
 };
 
 const Stack = createNativeStackNavigator<SettingsStackParamList>();
@@ -24,6 +26,11 @@ export default function SettingsStack() {
         name="SettingsMain"
         component={SettingsScreen}
         options={{ title: "設定" }}
+      />
+      <Stack.Screen
+        name="SettingMinimumNumber"
+        component={SettingMinimumNumberScreen}
+        options={{ title: "最小個数単位の設定" }}
       />
       <Stack.Screen
         name="ChangeEmail"
