@@ -100,3 +100,16 @@ export type SeclectedInviteCodeUses = {
   groupInvitesId: string;
   groupId: string;
 };
+
+export type StockReplenishmentSetting = {
+  id: string;
+  group_id: string;
+  stock_id: string;
+  replenishment_amount: number;
+  created_at: string;
+  updated_at: string;
+};
+
+export type StockWithReplenishmentSetting = StockReplenishmentSetting & {
+  stock: Stock;
+};

@@ -39,7 +39,7 @@ const SettingsMain = () => {
           onValueChange={setIsConfirmWhenAutoAddToShoppingList}
         />
         <SettingLink
-          label="最小個数の設定"
+          label="在庫の最小単位の設定"
           onPress={() => navigation.navigate("SettingMinimumNumber")}
         />
       </Section>
