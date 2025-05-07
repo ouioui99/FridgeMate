@@ -34,8 +34,6 @@ export const fetchPendingInviteRequests = async () => {
 };
 
 export const rejectAppliedRequests = async (inviteCodeUsesIdList: string[]) => {
-  console.log(inviteCodeUsesIdList);
-
   const { data, error } = await supabase
     .from("invite_code_uses")
     .update({ status: "rejected" })

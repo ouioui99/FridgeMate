@@ -73,3 +73,26 @@ export const fetchReplenishmentSettingsByGroup = async (
     },
   }));
 };
+
+export const fetchReplenishmentSettingsByStockId = async (
+  stockId: string
+): Promise<StockReplenishmentSetting> => {
+  const { data, error } = await supabase
+    .from("stock_replenishment_settings")
+    .select(
+      `
+      id,
+      group_id,
+      stock_id,
+      replenishment_amount,
+      created_at,
+      updated_at
+    `
+    )
+    .eq("stock_id", stockId)
+    .single();
+
+  if (error) throw error;
+
+  return data;
+};

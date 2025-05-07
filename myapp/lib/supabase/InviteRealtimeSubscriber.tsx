@@ -23,8 +23,6 @@ export const InviteRealtimeSubscriber = () => {
             table: "invite_code_uses",
           },
           (payload) => {
-            console.log({ payload });
-
             const data = payload.new;
             if (data.status === "applied" && data.inviter_id === userId) {
               setRequest({

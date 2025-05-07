@@ -10,7 +10,6 @@ import * as Linking from "expo-linking";
 const UserScreen = () => {
   const [inviteeEmail, setInviteeEmail] = useState("");
   const testDeepLink = () => {
-    console.log("ddd");
     //Linking.openSettings();
     Linking.openURL("myapp://ShoppingList").catch((err) =>
       console.error("URLを開けませんでした。", err)

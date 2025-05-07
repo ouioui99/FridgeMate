@@ -36,6 +36,7 @@ import {
 } from "../lib/supabase/stocks";
 import dayjs from "dayjs";
 import { fetchItems } from "../lib/supabase/util";
+import { fetchReplenishmentSettingsByStockId } from "../lib/supabase/stockReplenishmentSetting";
 
 export default function ShoppingListScreen() {
   const navigation = useNavigation();
@@ -48,17 +49,18 @@ export default function ShoppingListScreen() {
 
   useFocusEffect(
     useCallback(() => {
-      if (!isLoading) {
+      if (!isLoading && profile) {
         fetchItems<ShoppingList[]>(
           setShoppingLists,
           profile.current_group_id,
           getShoppingLists
         );
       }
-    }, [isLoading])
+    }, [isLoading, profile])
   );
 
   const onClose = async () => {
+    if (!profile) return;
     const data = await getShoppingLists(profile.current_group_id);
     setShoppingLists(data);
     setShoppingItemFormModalVisibleVisible(false);
@@ -147,6 +149,7 @@ export default function ShoppingListScreen() {
   //   setShoppingLists(data);
   // };
   const handleShoppingComplete = async () => {
+    if (!profile) return;
     const checkedNameList = shoppingLists
       .filter((item) => item.checked)
       .map((item) => item.name);
@@ -186,26 +189,31 @@ export default function ShoppingListScreen() {
         toUpdateStocksName.has(item.name)
       );
       const updateShoppingListId = updateShoppingList.map((item) => item.id);
-      const updatedStocks = toUpdateStocks.map((stock) => {
-        const matchedItem = updateShoppingList.find(
-          (item) => item.name === stock.name
-        )!;
 
-        return {
-          ...stock,
-          amount: matchedItem.amount + stock.amount,
-        };
-      });
+      const updatedStocks = await Promise.all(
+        toUpdateStocks.map(async (stock) => {
+          const matchedItem = updateShoppingList.find(
+            (item) => item.name === stock.name
+          )!;
+          const setting = await fetchReplenishmentSettingsByStockId(stock.id);
 
-      updatedStocks.forEach(async (stock) => {
+          const minimumNumber = setting?.replenishment_amount ?? 1;
+
+          return {
+            ...stock,
+            amount: stock.amount + matchedItem.amount * minimumNumber,
+          };
+        })
+      );
+
+      for (const stock of updatedStocks) {
         await updateStock(stock.id, stock as StockInput);
-      });
+      }
 
       await deleteShoppingList(updateShoppingListId);
     }
 
     const data = await getShoppingLists(profile.current_group_id);
-    console.log(data);
 
     setShoppingLists([...data]);
   };
@@ -227,18 +235,18 @@ export default function ShoppingListScreen() {
   // ヘッダー右側の「在庫追加ボタン」をナビゲーションにセット
   useEffect(() => {
     const loadShoppingLists = async () => {
+      if (!profile) return;
       try {
         const data = await getShoppingLists(profile.current_group_id);
-
         setShoppingLists(data);
       } catch (error) {
         console.error(error);
       }
     };
-    if (!isLoading) {
+    if (!isLoading && profile) {
       loadShoppingLists();
     }
-  }, [isLoading]);
+  }, [isLoading, profile]);
 
   return (
     <View style={styles.container}>
