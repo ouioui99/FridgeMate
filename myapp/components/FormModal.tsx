@@ -52,6 +52,7 @@ const FormModal = <T extends Record<string, any>>({
 
   useEffect(() => {
     const fetch = async () => {
+      if (!profile) return;
       const data = await fetchStocks(profile.current_group_id);
       setStocks(data);
     };
@@ -118,34 +119,35 @@ const FormModal = <T extends Record<string, any>>({
       alert(isEditMode ? "更新に失敗しました" : "登録に失敗しました");
     }
   };
-  const handleOnPressImage = async (key: string) => {
-    const timestamp = new Date().toISOString().replace(/[-:.]/g, "");
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaType,
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 1,
-    });
+  //画像保存時に使用
+  // const handleOnPressImage = async (key: string) => {
+  //   const timestamp = new Date().toISOString().replace(/[-:.]/g, "");
+  //   const result = await ImagePicker.launchImageLibraryAsync({
+  //     mediaTypes: ImagePicker.MediaType,
+  //     allowsEditing: true,
+  //     aspect: [1, 1],
+  //     quality: 1,
+  //   });
 
-    if (!result.canceled) {
-      // ファイルシステムに保存する際、拡張子を追加
-      const fileExtension = result.assets[0].uri.split(".").pop();
-      const to = tempDir + "thumbnail_" + timestamp + "." + fileExtension;
+  //   if (!result.canceled) {
+  //     // ファイルシステムに保存する際、拡張子を追加
+  //     const fileExtension = result.assets[0].uri.split(".").pop();
+  //     const to = tempDir + "thumbnail_" + timestamp + "." + fileExtension;
 
-      try {
-        // ファイルをコピーする
-        await FileSystem.copyAsync({
-          from: result.assets[0].uri,
-          to,
-        });
+  //     try {
+  //       // ファイルをコピーする
+  //       await FileSystem.copyAsync({
+  //         from: result.assets[0].uri,
+  //         to,
+  //       });
 
-        // 保存した画像のパスを設定
-        setFormData((prev) => ({ ...prev, [key]: to }));
-      } catch (error) {
-        console.error("Error copying file:", error);
-      }
-    }
-  };
+  //       // 保存した画像のパスを設定
+  //       setFormData((prev) => ({ ...prev, [key]: to }));
+  //     } catch (error) {
+  //       console.error("Error copying file:", error);
+  //     }
+  //   }
+  // };
 
   const handleChange = (key: string, value: string, label?: string) => {
     setFormData((prev) => ({ ...prev, [key]: value }));
@@ -173,13 +175,12 @@ const FormModal = <T extends Record<string, any>>({
           <Text style={styles.title}>データを登録</Text>
 
           {fields.map(({ key, label, placeholder, type }) => {
-            if (label === "画像URL") {
+            if (label === "image") {
               return (
                 <TouchableOpacity
                   key={key}
                   style={styles.imageInput}
                   onPress={() => {
-                    setCurrentEmojiField(key);
                     setIsEmojiPickerOpen(true);
                   }}
                 >
@@ -190,37 +191,23 @@ const FormModal = <T extends Record<string, any>>({
                       <>
                         <Icon name="emoticon-outline" size={30} color="#999" />
                         <Text style={styles.imagePlaceholderText}>
-                          絵文字を追加
+                          {placeholder}
                         </Text>
                       </>
                     )}
                   </View>
                   <EmojiKeyboard
                     onEmojiSelected={(emoji) => {
-                      if (currentEmojiField) {
-                        setFormData((prev) => ({
-                          ...prev,
-                          [currentEmojiField]: emoji.emoji,
-                        }));
-                      }
+                      setFormData((prev) => ({
+                        ...prev,
+                        [key]: emoji.emoji,
+                      }));
                       setIsEmojiPickerOpen(false);
                     }}
                     open={isEmojiPickerOpen}
                     onClose={() => setIsEmojiPickerOpen(false)}
                     translation={ja}
-                    defaultCategory="foods" // 最初に開くカテゴリ
-                    categoryOrder={[
-                      "foods",
-                      "smileys_emotion",
-                      "animals_nature",
-                      "people_body",
-                      "travel_places",
-                      "activities",
-                      "objects",
-                      "symbols",
-                      "flags",
-                      "recent", // 必要なら recent を最後や最初にも
-                    ]}
+                    categoryOrder={["food_drink"]}
                     enableSearchBar
                   />
                 </TouchableOpacity>

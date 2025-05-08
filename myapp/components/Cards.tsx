@@ -46,7 +46,7 @@ const Cards: React.FunctionComponent<CardsComponentsProps> = ({
           <Card.Divider />
 
           <View style={styles.cardContent}>
-            <Text style={styles.emoji}>{item.emoji || "🍽️"}</Text>
+            <Text style={styles.emoji}>{item.image || "📦"}</Text>
 
             {/* テキスト部分 */}
             <View style={styles.textContainer}>
