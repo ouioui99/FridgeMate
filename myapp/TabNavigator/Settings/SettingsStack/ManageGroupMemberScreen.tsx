@@ -6,30 +6,15 @@ import {
   StyleSheet,
   Alert,
   Pressable,
-  KeyboardAvoidingView,
-  Platform,
-  Share,
-  SectionList,
   TouchableOpacity,
 } from "react-native";
 import {
-  createGroupInviteCode,
-  getInviteeGroupMember,
-} from "../../../lib/supabase/groupInvites";
-import { getProfile } from "../../../lib/supabase/profiles";
-import {
   acceptApplied,
-  getLoginUserId,
   rejectApplied,
   removeMember,
 } from "../../../lib/supabase/util";
 import { useSession } from "../../../contexts/SessionContext";
-import {
-  GroupMember,
-  InviteeGroupMember,
-  Profile,
-  SeclectedInviteCodeUses,
-} from "../../../types/daoTypes";
+import { GroupMember, SeclectedInviteCodeUses } from "../../../types/daoTypes";
 import ApplicantModal from "../../../components/ApplicantModal";
 import { useInviteNotification } from "../../../hooks/useInviteNotification";
 import { useNavigation } from "@react-navigation/native";

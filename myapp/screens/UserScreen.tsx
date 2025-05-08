@@ -1,9 +1,6 @@
 import { useState } from "react";
 import { View, Text, Alert, Button, TextInput } from "react-native";
 import { signOut } from "../lib/supabase/users";
-import { createGroupInvite } from "../lib/supabase/groupInvites";
-import { useGetProfile } from "../hooks/useGetProfile";
-import { getLoginUserId } from "../lib/supabase/util";
 import { getProfile } from "../lib/supabase/profiles";
 import * as Linking from "expo-linking";
 
@@ -26,11 +23,6 @@ const UserScreen = () => {
     //   return;
     // }
     //console.log(profile.currentGroupId);
-
-    const groupInviteCode = await createGroupInvite(
-      profileData.current_group_id,
-      inviteeEmail
-    );
 
     Alert.alert("Success", "Invite sent successfully");
 

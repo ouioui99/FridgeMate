@@ -14,7 +14,7 @@ import {
 import { stocks } from "../types/daoTypes";
 import { FormModalProps } from "../types/formModalTypes";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
-import Autocomplete from "react-native-autocomplete-input";
+import EmojiKeyboard, { ja } from "rn-emoji-keyboard";
 import * as FileSystem from "expo-file-system";
 import * as ImagePicker from "expo-image-picker";
 import { useSession } from "../contexts/SessionContext";
@@ -41,6 +41,10 @@ const FormModal = <T extends Record<string, any>>({
   const [stocks, setStocks] = useState<stocks>([]);
   const opacity = useRef(new Animated.Value(0)).current;
   const translateY = useRef(new Animated.Value(-10)).current;
+  const [isEmojiPickerOpen, setIsEmojiPickerOpen] = useState(false);
+  const [currentEmojiField, setCurrentEmojiField] = useState<string | null>(
+    null
+  );
 
   // 編集モードかどうか判定（id の有無 or initialData が空かどうか）
   const isEditMode: boolean =
@@ -172,25 +176,53 @@ const FormModal = <T extends Record<string, any>>({
             if (label === "画像URL") {
               return (
                 <TouchableOpacity
-                  onPress={() => handleOnPressImage(key)}
                   key={key}
                   style={styles.imageInput}
+                  onPress={() => {
+                    setCurrentEmojiField(key);
+                    setIsEmojiPickerOpen(true);
+                  }}
                 >
                   <View style={styles.imagePreviewContainer}>
                     {formData[key]?.toString() ? (
-                      <Image
-                        style={styles.Photo}
-                        source={{ uri: formData[key]?.toString() }}
-                      />
+                      <Text style={{ fontSize: 40 }}>{formData[key]}</Text>
                     ) : (
                       <>
-                        <Icon name="camera-plus" size={30} color="#999" />
+                        <Icon name="emoticon-outline" size={30} color="#999" />
                         <Text style={styles.imagePlaceholderText}>
-                          画像を追加
+                          絵文字を追加
                         </Text>
                       </>
                     )}
                   </View>
+                  <EmojiKeyboard
+                    onEmojiSelected={(emoji) => {
+                      if (currentEmojiField) {
+                        setFormData((prev) => ({
+                          ...prev,
+                          [currentEmojiField]: emoji.emoji,
+                        }));
+                      }
+                      setIsEmojiPickerOpen(false);
+                    }}
+                    open={isEmojiPickerOpen}
+                    onClose={() => setIsEmojiPickerOpen(false)}
+                    translation={ja}
+                    defaultCategory="foods" // 最初に開くカテゴリ
+                    categoryOrder={[
+                      "foods",
+                      "smileys_emotion",
+                      "animals_nature",
+                      "people_body",
+                      "travel_places",
+                      "activities",
+                      "objects",
+                      "symbols",
+                      "flags",
+                      "recent", // 必要なら recent を最後や最初にも
+                    ]}
+                    enableSearchBar
+                  />
                 </TouchableOpacity>
               );
             } else if (label === "買い物アイテム") {

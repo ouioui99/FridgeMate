@@ -38,6 +38,7 @@ export default function ManageGroupScreen() {
   const [isGroupAdmin, setIsGroupAdmin] = useState(false);
 
   const handleGenerateCode = async () => {
+    if (!profile) return;
     const code = await createGroupInviteCode(profile.current_group_id);
     setGeneratedCode(code);
   };

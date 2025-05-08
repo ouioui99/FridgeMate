@@ -32,7 +32,7 @@ const Cards: React.FunctionComponent<CardsComponentsProps> = ({
   // カードの幅を計算（画面幅から余白を引いて列数で割る）
   const cardWidth = (screenWidth - 30) / numColumns;
 
-  const renderItem = ({ item }) => (
+  const renderItem = ({ item }: { item: Stock }) => (
     <View style={{ width: cardWidth, padding: 2 }}>
       <TouchableOpacity
         onPress={() => {
@@ -46,12 +46,7 @@ const Cards: React.FunctionComponent<CardsComponentsProps> = ({
           <Card.Divider />
 
           <View style={styles.cardContent}>
-            {/* 画像 */}
-            <Image
-              style={styles.image}
-              resizeMode="cover"
-              source={{ uri: item.image }}
-            />
+            <Text style={styles.emoji}>{item.emoji || "🍽️"}</Text>
 
             {/* テキスト部分 */}
             <View style={styles.textContainer}>
@@ -173,6 +168,10 @@ const styles = StyleSheet.create({
     color: "#333",
     fontSize: 18,
     fontWeight: "bold",
+  },
+  emoji: {
+    fontSize: 36,
+    marginRight: 12,
   },
 });
 

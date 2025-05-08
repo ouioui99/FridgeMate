@@ -54,13 +54,14 @@ const HomeScreen = () => {
 
   useFocusEffect(
     useCallback(() => {
-      if (!isLoading) {
+      if (!isLoading && profile) {
         fetchItems<stocks>(setStocks, profile.current_group_id, fetchStocks);
       }
     }, [isLoading])
   );
 
   const autoAddShoppingList = async (targetStock: Stock) => {
+    if (!profile) return;
     const shoppingListItem = await getShoppingListItem(
       targetStock.name,
       profile.current_group_id
@@ -95,6 +96,7 @@ const HomeScreen = () => {
   }, [navigation]);
 
   const onClose = async () => {
+    if (!profile) return;
     const data = await fetchStocks(profile.current_group_id);
     setStocks(data);
     setStockModalVisible(false);
@@ -102,6 +104,7 @@ const HomeScreen = () => {
   };
 
   const handleDelete = async () => {
+    if (!profile) return;
     if (updateData && "id" in updateData) {
       await deleteStock(updateData.id);
     }
