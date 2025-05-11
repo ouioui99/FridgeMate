@@ -37,6 +37,7 @@ import {
 import dayjs from "dayjs";
 import { fetchItems } from "../lib/supabase/util";
 import { fetchReplenishmentSettingsByStockId } from "../lib/supabase/stockReplenishmentSetting";
+import { CommonStyles } from "../styles/CommonStyles";
 
 export default function ShoppingListScreen() {
   const navigation = useNavigation();
@@ -255,14 +256,14 @@ export default function ShoppingListScreen() {
         setShoppingLists={setShoppingLists}
       />
 
-      <TouchableOpacity
-        style={styles.completeButton}
-        onPress={() => {
-          handleShoppingComplete();
-        }}
-      >
-        <Text style={styles.completeButtonText}>買い物完了</Text>
-      </TouchableOpacity>
+      <View style={{ paddingHorizontal: 20, marginTop: 16, marginBottom: 18 }}>
+        <TouchableOpacity
+          style={CommonStyles.completeButton}
+          onPress={handleShoppingComplete}
+        >
+          <Text style={CommonStyles.completeButtonText}>買い物完了</Text>
+        </TouchableOpacity>
+      </View>
 
       {/* モーダル */}
       <FormModal<ShoppingListInput>

@@ -16,6 +16,7 @@ import {
   upsertReplenishmentSetting,
 } from "../../../lib/supabase/stockReplenishmentSetting";
 import { Stock, StockReplenishmentSetting } from "../../../types/daoTypes";
+import { CommonStyles } from "../../../styles/CommonStyles";
 
 type StockWithReplenishmentSetting = StockReplenishmentSetting & {
   stock: Stock;
@@ -83,9 +84,14 @@ export default function SettingMinimumNumberScreen() {
           </View>
         ))}
       </ScrollView>
-      <TouchableOpacity style={styles.completeButton} onPress={handleSave}>
-        <Text style={styles.completeButtonText}>保存する</Text>
-      </TouchableOpacity>
+      <View style={{ marginTop: 16, marginBottom: 18 }}>
+        <TouchableOpacity
+          style={CommonStyles.completeButton}
+          onPress={handleSave}
+        >
+          <Text style={CommonStyles.completeButtonText}>保存する</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }

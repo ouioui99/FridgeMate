@@ -49,10 +49,8 @@ const SettingsMain = () => {
           label="メールアドレス変更"
           onPress={() => navigation.navigate("ChangeEmail")}
         />
-        <SettingLink
-          label="パスワード変更"
-          onPress={() => navigation.navigate("ChangePassword")}
-        />
+
+        <SettingLink label="ログアウト" onPress={async () => await signOut()} />
       </Section>
       <Section title="グループ">
         <SettingLink
@@ -65,6 +63,31 @@ const SettingsMain = () => {
           showBadge={0 < inviteCodeUses.length}
         />
       </Section>
+
+      <View
+        style={{
+          borderTopWidth: 0.5,
+          borderColor: "#ccc",
+          padding: 16,
+          backgroundColor: "#fff",
+          alignItems: "center",
+        }}
+      >
+        <TouchableOpacity
+          onPress={async () => await signOut()}
+          style={{
+            backgroundColor: "#f44336", // 赤色
+            paddingVertical: 12,
+            paddingHorizontal: 32,
+            borderRadius: 8,
+            minWidth: "10%",
+          }}
+        >
+          <Text style={{ color: "white", fontSize: 16, textAlign: "center" }}>
+            ログアウト
+          </Text>
+        </TouchableOpacity>
+      </View>
     </ScrollView>
   );
 };

@@ -25,6 +25,7 @@ import { useSnackbar } from "../../../hooks/useSnackbar";
 import { handleSupabaseError } from "../../../lib/supabase/util";
 import { MESSAGES } from "../../../constants/messages";
 import { getGroupsEqId } from "../../../lib/supabase/groups";
+import { CommonStyles } from "../../../styles/CommonStyles";
 
 export default function ManageGroupScreen() {
   const { session, loading } = useSession();
@@ -113,8 +114,8 @@ export default function ManageGroupScreen() {
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={[
-                    styles.button,
-                    generatedCode ? styles.buttonDanger : styles.buttonPrimary,
+                    CommonStyles.completeButton,
+                    generatedCode && styles.buttonDanger,
                   ]}
                   onPress={
                     generatedCode ? handleRevokeCode : handleGenerateCode
@@ -144,7 +145,7 @@ export default function ManageGroupScreen() {
 
               <TouchableOpacity
                 style={[
-                  styles.button,
+                  CommonStyles.completeButton,
                   generatedCode && styles.buttonDisabled, // 無効時にスタイルを追加（任意）
                 ]}
                 onPress={handleAppliedGroup}
