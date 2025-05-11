@@ -7,6 +7,11 @@ import { SettingsStackParamList } from "../../../screens/SettingsStack";
 import { useUserSettings } from "../../../contexts/UserSettingsContext";
 import { useInviteNotification } from "../../../hooks/useInviteNotification";
 import { signOut } from "../../../lib/supabase/users";
+import { SettingToggle } from "../../../components/SettingToggle";
+import {
+  SettingLink,
+  SettingLinkWithBadge,
+} from "../../../components/SettingLink";
 
 const SettingsMain = () => {
   const navigation =
@@ -105,58 +110,6 @@ const Section = ({
     </Text>
     {children}
   </View>
-);
-
-const SettingToggle = ({
-  label,
-  value,
-  disabled,
-  onValueChange,
-}: {
-  label: string;
-  value: boolean;
-  disabled: boolean;
-  onValueChange: (val: boolean) => void;
-}) => (
-  <View style={styles.item}>
-    <Text style={styles.label}>{label}</Text>
-    <Switch value={value} onValueChange={onValueChange} disabled={disabled} />
-  </View>
-);
-
-const SettingLink = ({
-  label,
-  onPress,
-}: {
-  label: string;
-  onPress: () => void;
-}) => (
-  <TouchableOpacity style={styles.item} onPress={onPress}>
-    <Text style={styles.label}>{label}</Text>
-    <Icon name="chevron-forward" size={20} />
-  </TouchableOpacity>
-);
-
-const SettingLinkWithBadge = ({
-  label,
-  onPress,
-  showBadge,
-}: {
-  label: string;
-  onPress: () => void;
-  showBadge?: boolean;
-}) => (
-  <TouchableOpacity style={styles.item} onPress={onPress}>
-    <Text style={styles.label}>{label}</Text>
-    <View style={{ flexDirection: "row", alignItems: "center" }}>
-      {showBadge && (
-        <View style={styles.rightBadge}>
-          <Text style={styles.rightBadgeText}>申請あり</Text>
-        </View>
-      )}
-      <Icon name="chevron-forward" size={20} />
-    </View>
-  </TouchableOpacity>
 );
 
 const styles = {

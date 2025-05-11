@@ -181,7 +181,7 @@ export default function ShoppingListScreen() {
         };
       });
 
-      await addStocks(insertStocks as StockInput[]);
+      await addStocks(insertStocks as StockInput[], profile.current_group_id);
       await deleteShoppingList(insertShoppingListId);
     }
 
@@ -272,7 +272,8 @@ export default function ShoppingListScreen() {
         fields={shoppingListFields}
         handleDelete={async () => {}}
         onSubmit={async (data) => {
-          await addShoppingList(data);
+          if (!profile) return;
+          await addShoppingList(data, profile.current_group_id);
         }}
         initialData={{}}
       />

@@ -36,7 +36,7 @@ export const getGroupMembers = async (
     console.error("Error joining group:", joinError.message);
     throw joinError;
   }
-  return groupMemberData;
+  return groupMemberData as any;
 };
 
 export const deleteGroupMember = async (

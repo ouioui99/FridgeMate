@@ -1,4 +1,8 @@
-import { ShoppingList, ShoppingListInput } from "./../../types/daoTypes";
+import {
+  Profile,
+  ShoppingList,
+  ShoppingListInput,
+} from "./../../types/daoTypes";
 import { supabase } from "./supabase";
 import { getLoginUserId } from "./util";
 import { getProfile } from "./profiles";
@@ -49,9 +53,9 @@ export const getShoppingListItem = async (
  * @returns {Promise<void>}
  */
 export const addShoppingList = async (
-  shoppingList: ShoppingListInput
+  shoppingList: ShoppingListInput,
+  profile: Profile
 ): Promise<void> => {
-  const profile = await getProfile();
   const loginUserId = await getLoginUserId();
 
   const { error } = await supabase.from("shopping_lists").insert([

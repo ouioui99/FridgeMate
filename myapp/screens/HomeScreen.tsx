@@ -74,7 +74,7 @@ const HomeScreen = () => {
         creater_id: userId,
         group_id: profile.current_group_id,
       } as ShoppingListInput;
-      await addShoppingList(addShoppingListData);
+      await addShoppingList(addShoppingListData, profile.current_group_id);
       Alert.alert("買い物リストに登録しました");
     } else {
       Alert.alert("すでに登録済みです");
@@ -179,12 +179,13 @@ const HomeScreen = () => {
         onClose={() => onClose()}
         fields={stockFields}
         onSubmit={async (data) => {
+          if (!profile) return;
           if ("id" in updateData && updateData.id) {
             // idがある＝編集とみなす
             await updateStock(updateData.id, data);
           } else {
             // 新規登録
-            await addStock(data);
+            await addStock(data, profile.current_group_id);
           }
         }}
         handleDelete={handleDelete}

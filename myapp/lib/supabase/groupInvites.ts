@@ -161,11 +161,11 @@ export const getInviteeGroupMember = async (
     `
     )
     .eq("inviter_id", inviterId);
-  if (error) {
+  if (error || invite == null) {
     throw new Error("Invalid or expired invite code.");
   }
 
-  return invite;
+  return invite as any;
 };
 
 export const getValidGroupInvite = async (): Promise<GroupInvite> => {
@@ -177,7 +177,7 @@ export const getValidGroupInvite = async (): Promise<GroupInvite> => {
     .eq("status", "pending")
     .maybeSingle<GroupInvite>();
 
-  if (error) {
+  if (error || invite == null) {
     throw new Error("Invalid or expired invite code.");
   }
 

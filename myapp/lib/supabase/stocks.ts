@@ -1,4 +1,4 @@
-import { Group, GroupShare, StockInput } from "./../../types/daoTypes";
+import { Group, GroupShare, Profile, StockInput } from "./../../types/daoTypes";
 import { getProfile } from "./profiles";
 import { supabase } from "./supabase";
 import { getLoginUserId } from "./util";
@@ -52,8 +52,10 @@ export const fetchSomeStocks = async (
  * @param {StockInput} stock 在庫データ
  * @returns {Promise<void>}
  */
-export const addStock = async (stock: StockInput): Promise<void> => {
-  const profile = await getProfile();
+export const addStock = async (
+  stock: StockInput,
+  profile: Profile
+): Promise<void> => {
   const loginUserId = await getLoginUserId();
 
   const { error } = await supabase.from("stocks").insert([
@@ -77,9 +79,9 @@ export const addStock = async (stock: StockInput): Promise<void> => {
  * @returns {Promise<void>}
  */
 export const addStocks = async (
-  stockInputList: StockInput[]
+  stockInputList: StockInput[],
+  profile: Profile
 ): Promise<void> => {
-  const profile = await getProfile();
   const loginUserId = await getLoginUserId();
 
   const rows = stockInputList.map((stockInput) => ({
