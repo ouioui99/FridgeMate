@@ -44,7 +44,7 @@ export function AppNavigator() {
   }
 
   if (true) {
-    return <OnboardingScreen onFinish={() => setIsFirstLaunch(false)} />;
+    return <OnboardingScreen />;
   }
 
   return (
