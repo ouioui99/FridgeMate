@@ -6,11 +6,12 @@ import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { SessionProvider } from "./contexts/SessionContext";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { UserSettingsProvider } from "./contexts/UserSettingsContext";
-import { InviteRequestPopup } from "./components/InviteRequestPopup";
+
 import { InviteRequestProvider } from "./contexts/InviteRequestContext";
 import { InviteRealtimeSubscriber } from "./lib/supabase/InviteRealtimeSubscriber";
 import { AppNavigator } from "./AppNavigator";
 import { InviteNotificationProvider } from "./contexts/InviteNotificationContext";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 export default function App() {
   const queryClient = new QueryClient();
@@ -34,9 +35,11 @@ export default function App() {
           <UserSettingsProvider>
             <InviteRequestProvider>
               <InviteNotificationProvider>
-                <NavigationContainer>
-                  <AppNavigator />
-                </NavigationContainer>
+                <GestureHandlerRootView style={{ flex: 1 }}>
+                  <NavigationContainer>
+                    <AppNavigator />
+                  </NavigationContainer>
+                </GestureHandlerRootView>
               </InviteNotificationProvider>
             </InviteRequestProvider>
           </UserSettingsProvider>

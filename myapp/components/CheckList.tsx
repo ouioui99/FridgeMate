@@ -86,19 +86,17 @@ export default function CheckList({
 
   return (
     <View style={{ flex: 1, padding: 20 }}>
-      <GestureHandlerRootView>
-        <FlatList
-          data={shoppingLists}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <CheckListItem
-              item={item}
-              toggleCheck={toggleCheck}
-              updateAmount={updateAmount}
-            />
-          )}
-        />
-      </GestureHandlerRootView>
+      <FlatList
+        data={shoppingLists}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => (
+          <CheckListItem
+            item={item}
+            toggleCheck={toggleCheck}
+            updateAmount={updateAmount}
+          />
+        )}
+      />
     </View>
   );
 }
