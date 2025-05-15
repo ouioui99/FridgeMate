@@ -43,7 +43,7 @@ export const fetchItems = async <T>(
 };
 
 export const generateHashed8DigitNumber = () => {
-  const uuid = uuidv4(); // 例: "de305d54-75b4-431b-adb2-eb6b9e546014"
+  const uuid = uuidv4();
   let hash = 0;
   for (let i = 0; i < uuid.length; i++) {
     hash = (hash << 5) - hash + uuid.charCodeAt(i);

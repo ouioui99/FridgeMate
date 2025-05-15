@@ -4,7 +4,11 @@
     "slug": "myapp",
     "scheme": "myapp",
     "version": "1.0.0",
-    "platform": ["ios", "android", "web"],
+    "platform": [
+      "ios",
+      "android",
+      "web"
+    ],
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -27,6 +31,9 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": [
+      "expo-secure-store"
+    ]
   }
 }

@@ -7,6 +7,10 @@ import { BottomNavigator } from "./components/BottomNavigator";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useEffect, useState } from "react";
 import OnboardingScreen from "./screens/OnboardingScreen";
+import { USER_KEY } from "./constants/settings";
+import * as SecureStore from "expo-secure-store";
+import { supabase } from "./lib/supabase/supabase";
+import { initializeUser } from "./lib/supabase/users";
 
 const Stack = createNativeStackNavigator();
 
@@ -24,12 +28,16 @@ export function AppNavigator() {
   useEffect(() => {
     const checkFirstLaunch = async () => {
       const hasLaunched = await AsyncStorage.getItem("hasLaunched");
-
       if (hasLaunched === null) {
+        await SecureStore.deleteItemAsync(USER_KEY);
         await AsyncStorage.setItem("hasLaunched", "true");
         setIsFirstLaunch(false);
       } else {
         setIsFirstLaunch(false);
+
+        if (!loading && !session) {
+          initializeUser();
+        }
       }
     };
     checkFirstLaunch();
@@ -43,20 +51,20 @@ export function AppNavigator() {
     );
   }
 
-  if (true) {
+  if (isFirstLaunch) {
     return <OnboardingScreen />;
+  } else {
+    return (
+      <>
+        {session ? (
+          <BottomNavigator />
+        ) : (
+          <Stack.Navigator screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="Login" component={LoginScreen} />
+            <Stack.Screen name="SignUp" component={SignUpScreen} />
+          </Stack.Navigator>
+        )}
+      </>
+    );
   }
-
-  return (
-    <>
-      {session ? (
-        <BottomNavigator />
-      ) : (
-        <Stack.Navigator screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="Login" component={LoginScreen} />
-          <Stack.Screen name="SignUp" component={SignUpScreen} />
-        </Stack.Navigator>
-      )}
-    </>
-  );
 }

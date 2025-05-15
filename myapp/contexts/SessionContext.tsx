@@ -22,6 +22,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const fetchSession = async () => {
       const { data } = await supabase.auth.getSession();
+
       setSession(data.session);
       setLoading(false);
     };

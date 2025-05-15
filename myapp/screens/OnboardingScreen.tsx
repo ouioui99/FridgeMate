@@ -14,6 +14,7 @@ import {
   SafeAreaView,
 } from "react-native-safe-area-context";
 import { CommonStyles } from "../styles/CommonStyles";
+import { initializeUser } from "../lib/supabase/users";
 
 const { width, height } = Dimensions.get("window");
 
@@ -52,6 +53,10 @@ export default function OnboardingScreen() {
       count: onboardingData.length - 1 - currentIndex,
       animated: true,
     });
+  };
+
+  const handleStart = async () => {
+    await initializeUser();
   };
 
   return (
@@ -113,7 +118,7 @@ export default function OnboardingScreen() {
         <TouchableOpacity
           style={styles.completeButton}
           onPress={() => {
-            ref?.current?.next();
+            handleStart();
           }}
         >
           <Text style={styles.completeButtonText}>はじめる</Text>
