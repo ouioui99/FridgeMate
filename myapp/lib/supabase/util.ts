@@ -36,6 +36,7 @@ export const fetchItems = async <T>(
 ) => {
   try {
     const data = await fetchItemMethod(current_group_id);
+
     setStocks(data);
   } catch (error) {
     console.error(error);

@@ -80,14 +80,14 @@ export const addStock = async (
  */
 export const addStocks = async (
   stockInputList: StockInput[],
-  profile: Profile
+  currentGroupId: string
 ): Promise<void> => {
   const loginUserId = await getLoginUserId();
 
   const rows = stockInputList.map((stockInput) => ({
     ...stockInput,
     creater_id: loginUserId,
-    group_id: profile.current_group_id, // ユーザーIDを設定
+    group_id: currentGroupId, // ユーザーIDを設定
   }));
 
   const { error } = await supabase.from("stocks").insert(rows);

@@ -12,6 +12,7 @@ import { InviteRealtimeSubscriber } from "./lib/supabase/InviteRealtimeSubscribe
 import { AppNavigator } from "./AppNavigator";
 import { InviteNotificationProvider } from "./contexts/InviteNotificationContext";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { Snackbar } from "react-native-paper";
 
 export default function App() {
   const queryClient = new QueryClient();
@@ -29,8 +30,8 @@ export default function App() {
     };
   }, []);
   return (
-    <QueryClientProvider client={queryClient}>
-      <SafeAreaProvider>
+    <SafeAreaProvider>
+      <QueryClientProvider client={queryClient}>
         {/* <SafeAreaView style={{ flex: 1, backgroundColor: "#ffffff" }}> */}
         <SessionProvider>
           <UserSettingsProvider>
@@ -46,7 +47,7 @@ export default function App() {
           </UserSettingsProvider>
         </SessionProvider>
         {/* </SafeAreaView> */}
-      </SafeAreaProvider>
-    </QueryClientProvider>
+      </QueryClientProvider>
+    </SafeAreaProvider>
   );
 }

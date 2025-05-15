@@ -58,14 +58,6 @@ const SettingsMain = () => {
         />
       </Section>
 
-      <Section title="ユーザー">
-        <SettingLink
-          label="メールアドレス変更"
-          onPress={() => navigation.navigate("ChangeEmail")}
-        />
-        <SettingLink label="ログアウト" onPress={async () => await signOut()} />
-      </Section>
-
       <Section title="グループ">
         <SettingLink
           label="グループ管理"
@@ -78,6 +70,9 @@ const SettingsMain = () => {
         />
       </Section>
 
+      <Section title="ユーザー">
+        <SettingLink label="ログアウト" onPress={async () => await signOut()} />
+      </Section>
       <View
         style={{
           borderTopWidth: 0.5,

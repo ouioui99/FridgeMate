@@ -26,3 +26,16 @@ export const changeCurrentGroup = async (userId: string, group_id: string) => {
     throw changeError;
   }
 };
+
+export const changeUsername = async (userId: string, username: string) => {
+  const { error: changeError } = await supabase
+    .from("profiles")
+    .update({ username: username })
+    .eq("id", userId);
+
+  if (changeError) {
+    console.error("Error joining group:", changeError.message);
+    throw changeError;
+  }
+  console.log("comp");
+};

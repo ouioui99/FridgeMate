@@ -15,6 +15,7 @@ import {
 } from "react-native-safe-area-context";
 import { CommonStyles } from "../styles/CommonStyles";
 import { initializeUser } from "../lib/supabase/users";
+import { useSession } from "../contexts/SessionContext";
 
 const { width, height } = Dimensions.get("window");
 
@@ -42,6 +43,7 @@ const onboardingData = [
 ];
 
 export default function OnboardingScreen() {
+  const { session, loading } = useSession();
   const [currentIndex, setCurrentIndex] = useState(0);
   const ref = useRef<ICarouselInstance>(null);
 

@@ -26,6 +26,7 @@ import { handleSupabaseError } from "../../../lib/supabase/util";
 import { MESSAGES } from "../../../constants/messages";
 import { getGroupsEqId } from "../../../lib/supabase/groups";
 import { CommonStyles } from "../../../styles/CommonStyles";
+import { changeUsername, getProfile } from "../../../lib/supabase/profiles";
 
 export default function ManageGroupScreen() {
   const { session, loading } = useSession();
@@ -37,6 +38,13 @@ export default function ManageGroupScreen() {
   const [inviteCode, setInviteCode] = useState("");
   const [generatedCode, setGeneratedCode] = useState("");
   const [isGroupAdmin, setIsGroupAdmin] = useState(false);
+  const [displayName, setDisplayName] = useState("");
+
+  const handleChangeDisplayName = async () => {
+    if (!userId) return;
+    await changeUsername(userId, displayName);
+    showMessage(MESSAGES.OK.completeChangeDisplayName);
+  };
 
   const handleGenerateCode = async () => {
     if (!profile) return;
@@ -89,8 +97,15 @@ export default function ManageGroupScreen() {
         setIsGroupAdmin(currentGroupData.owner_id === userId);
       }
     };
+
+    const initDisplayname = async () => {
+      const profileData = await getProfile();
+      if (!profileData) return;
+      setDisplayName(profileData.username);
+    };
     getValidGroupInvitesData();
     isAdminCheck();
+    initDisplayname();
   }, [profile]);
 
   return (
@@ -101,6 +116,21 @@ export default function ManageGroupScreen() {
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <ScrollView contentContainerStyle={styles.container}>
           <View style={styles.inner}>
+            <View style={styles.section}>
+              <Text style={styles.title}>グループ内で表示する自分の表示名</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="例: 母"
+                value={displayName}
+                onChangeText={setDisplayName}
+              />
+              <TouchableOpacity
+                style={[CommonStyles.completeButton]}
+                onPress={handleChangeDisplayName}
+              >
+                <Text style={styles.buttonText}>表示名変更</Text>
+              </TouchableOpacity>
+            </View>
             {/* 招待する側 */}
             {isGroupAdmin && (
               <View style={styles.section}>
@@ -160,6 +190,7 @@ export default function ManageGroupScreen() {
             onDismiss={hideSnackbar}
             duration={3000}
             action={{ label: "閉じる", onPress: hideSnackbar }}
+            style={CommonStyles.bottomSnackbar}
           >
             {message}
           </Snackbar>

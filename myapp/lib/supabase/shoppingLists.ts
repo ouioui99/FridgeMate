@@ -54,7 +54,7 @@ export const getShoppingListItem = async (
  */
 export const addShoppingList = async (
   shoppingList: ShoppingListInput,
-  profile: Profile
+  currentGroupId: string
 ): Promise<void> => {
   const loginUserId = await getLoginUserId();
 
@@ -63,7 +63,7 @@ export const addShoppingList = async (
       ...shoppingList,
       amount: Number(shoppingList.amount),
       creater_id: loginUserId,
-      group_id: profile.current_group_id, // ユーザーIDを設定
+      group_id: currentGroupId, // ユーザーIDを設定
     },
   ]);
 

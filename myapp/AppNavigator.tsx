@@ -35,8 +35,7 @@ export function AppNavigator() {
         setIsFirstLaunch(true);
       } else {
         setIsFirstLaunch(false);
-
-        if (!loading && !session) {
+        if (!session) {
           initializeUser();
         }
       }
@@ -52,21 +51,19 @@ export function AppNavigator() {
     );
   }
 
-  if (isFirstLaunch) {
-    return <OnboardingScreen />;
-  } else {
-    return (
-      <>
-        {session ? (
-          <BottomNavigator />
-        ) : (
-          <Stack.Navigator screenOptions={{ headerShown: false }}>
+  return (
+    <>
+      {session ? (
+        <BottomNavigator />
+      ) : (
+        <Stack.Navigator screenOptions={{ headerShown: false }}>
+          {isFirstLaunch && (
             <Stack.Screen name="Onboarding" component={OnboardingScreen} />
-            <Stack.Screen name="Login" component={LoginScreen} />
-            <Stack.Screen name="SignUp" component={SignUpScreen} />
-          </Stack.Navigator>
-        )}
-      </>
-    );
-  }
+          )}
+          <Stack.Screen name="Login" component={LoginScreen} />
+          <Stack.Screen name="SignUp" component={SignUpScreen} />
+        </Stack.Navigator>
+      )}
+    </>
+  );
 }

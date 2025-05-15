@@ -36,6 +36,7 @@ import {
 } from "../lib/supabase/shoppingLists";
 import { fetchItems } from "../lib/supabase/util";
 import { useUserSettings } from "../contexts/UserSettingsContext";
+import { Snackbar } from "react-native-paper";
 
 const HomeScreen = () => {
   const { session, loading } = useSession();
@@ -184,8 +185,6 @@ const HomeScreen = () => {
             // idがある＝編集とみなす
             await updateStock(updateData.id, data);
           } else {
-            console.log(profile);
-
             // 新規登録
             await addStock(data, profile.current_group_id);
           }
@@ -205,7 +204,6 @@ export default HomeScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
   },
   header: {
     backgroundColor: "#4CAF50",

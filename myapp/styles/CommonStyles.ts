@@ -14,4 +14,11 @@ export const CommonStyles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
   },
+  bottomSnackbar: {
+    position: "absolute",
+    bottom: 0,
+    left: 5,
+    right: 5,
+    borderRadius: 8,
+  },
 });
