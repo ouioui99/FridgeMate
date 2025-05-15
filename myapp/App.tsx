@@ -31,21 +31,21 @@ export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <SafeAreaProvider>
-        <SafeAreaView style={{ flex: 1, backgroundColor: "#ffffff" }}>
-          <SessionProvider>
-            <UserSettingsProvider>
-              <InviteRequestProvider>
-                <InviteNotificationProvider>
-                  <GestureHandlerRootView style={{ flex: 1 }}>
-                    <NavigationContainer>
-                      <AppNavigator />
-                    </NavigationContainer>
-                  </GestureHandlerRootView>
-                </InviteNotificationProvider>
-              </InviteRequestProvider>
-            </UserSettingsProvider>
-          </SessionProvider>
-        </SafeAreaView>
+        {/* <SafeAreaView style={{ flex: 1, backgroundColor: "#ffffff" }}> */}
+        <SessionProvider>
+          <UserSettingsProvider>
+            <InviteRequestProvider>
+              <InviteNotificationProvider>
+                <GestureHandlerRootView style={{ flex: 1 }}>
+                  <NavigationContainer>
+                    <AppNavigator />
+                  </NavigationContainer>
+                </GestureHandlerRootView>
+              </InviteNotificationProvider>
+            </InviteRequestProvider>
+          </UserSettingsProvider>
+        </SessionProvider>
+        {/* </SafeAreaView> */}
       </SafeAreaProvider>
     </QueryClientProvider>
   );

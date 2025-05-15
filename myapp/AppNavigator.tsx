@@ -28,10 +28,11 @@ export function AppNavigator() {
   useEffect(() => {
     const checkFirstLaunch = async () => {
       const hasLaunched = await AsyncStorage.getItem("hasLaunched");
+
       if (hasLaunched === null) {
         await SecureStore.deleteItemAsync(USER_KEY);
         await AsyncStorage.setItem("hasLaunched", "true");
-        setIsFirstLaunch(false);
+        setIsFirstLaunch(true);
       } else {
         setIsFirstLaunch(false);
 
@@ -60,6 +61,7 @@ export function AppNavigator() {
           <BottomNavigator />
         ) : (
           <Stack.Navigator screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="Onboarding" component={OnboardingScreen} />
             <Stack.Screen name="Login" component={LoginScreen} />
             <Stack.Screen name="SignUp" component={SignUpScreen} />
           </Stack.Navigator>

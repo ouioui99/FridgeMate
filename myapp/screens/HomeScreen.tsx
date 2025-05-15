@@ -184,6 +184,8 @@ const HomeScreen = () => {
             // idがある＝編集とみなす
             await updateStock(updateData.id, data);
           } else {
+            console.log(profile);
+
             // 新規登録
             await addStock(data, profile.current_group_id);
           }

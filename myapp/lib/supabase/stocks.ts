@@ -54,7 +54,7 @@ export const fetchSomeStocks = async (
  */
 export const addStock = async (
   stock: StockInput,
-  profile: Profile
+  currentGroupId: string
 ): Promise<void> => {
   const loginUserId = await getLoginUserId();
 
@@ -63,7 +63,7 @@ export const addStock = async (
       ...stock,
       amount: Number(stock.amount),
       creater_id: loginUserId,
-      group_id: profile.current_group_id, // ユーザーIDを設定
+      group_id: currentGroupId, // ユーザーIDを設定
     },
   ]);
 

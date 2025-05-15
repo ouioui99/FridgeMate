@@ -60,7 +60,7 @@ export default function OnboardingScreen() {
   };
 
   return (
-    <View>
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#ffffff" }}>
       <View
         style={{
           flexDirection: "row",
@@ -124,7 +124,7 @@ export default function OnboardingScreen() {
           <Text style={styles.completeButtonText}>はじめる</Text>
         </TouchableOpacity>
       )}
-    </View>
+    </SafeAreaView>
   );
 }
 

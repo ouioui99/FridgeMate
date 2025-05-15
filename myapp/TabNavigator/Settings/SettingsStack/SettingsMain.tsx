@@ -8,10 +8,13 @@ import { useUserSettings } from "../../../contexts/UserSettingsContext";
 import { useInviteNotification } from "../../../hooks/useInviteNotification";
 import { signOut } from "../../../lib/supabase/users";
 import { SettingToggle } from "../../../components/SettingToggle";
+import * as SecureStore from "expo-secure-store";
 import {
   SettingLink,
   SettingLinkWithBadge,
 } from "../../../components/SettingLink";
+import { USER_KEY } from "../../../constants/settings";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const SettingsMain = () => {
   const navigation =
@@ -25,6 +28,12 @@ const SettingsMain = () => {
   } = useUserSettings();
 
   const { inviteCodeUses } = useInviteNotification();
+
+  const handleDeleteUser = async () => {
+    await SecureStore.deleteItemAsync(USER_KEY);
+    await AsyncStorage.removeItem("hasLaunched");
+    console.log("complete");
+  };
 
   return (
     <ScrollView
@@ -54,9 +63,9 @@ const SettingsMain = () => {
           label="メールアドレス変更"
           onPress={() => navigation.navigate("ChangeEmail")}
         />
-
         <SettingLink label="ログアウト" onPress={async () => await signOut()} />
       </Section>
+
       <Section title="グループ">
         <SettingLink
           label="グループ管理"
@@ -79,7 +88,7 @@ const SettingsMain = () => {
         }}
       >
         <TouchableOpacity
-          onPress={async () => await signOut()}
+          onPress={() => handleDeleteUser()}
           style={{
             backgroundColor: "#f44336", // 赤色
             paddingVertical: 12,
@@ -89,7 +98,7 @@ const SettingsMain = () => {
           }}
         >
           <Text style={{ color: "white", fontSize: 16, textAlign: "center" }}>
-            ログアウト
+            ユーザ削除
           </Text>
         </TouchableOpacity>
       </View>
