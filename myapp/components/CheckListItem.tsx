@@ -4,13 +4,6 @@ import { View, Text, TouchableOpacity, Animated } from "react-native";
 import { PanGestureHandler, State } from "react-native-gesture-handler";
 import { ShoppingList } from "../types/daoTypes";
 
-type Item = {
-  id: string;
-  name: string;
-  amount: number;
-  checked: boolean;
-};
-
 type Props = {
   item: ShoppingList;
   toggleCheck: (id: string) => void;

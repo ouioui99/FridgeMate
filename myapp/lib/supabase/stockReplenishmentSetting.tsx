@@ -49,7 +49,8 @@ export const fetchReplenishmentSettingsByGroup = async (
       )
     `
     )
-    .eq("group_id", groupId);
+    .eq("group_id", groupId)
+    .order("created_at", { ascending: true });
 
   if (error) throw error;
 

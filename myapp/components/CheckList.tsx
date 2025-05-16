@@ -5,11 +5,15 @@ import {
   UIManager,
   LayoutAnimation,
   Platform,
+  Alert,
 } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import CheckListItem from "./CheckListItem";
 import { ShoppingList } from "../types/daoTypes";
-import { updateShoppingList } from "../lib/supabase/shoppingLists";
+import {
+  deleteShoppingList,
+  updateShoppingList,
+} from "../lib/supabase/shoppingLists";
 
 type CheckListProps = {
   shoppingLists: ShoppingList[];
@@ -75,7 +79,36 @@ export default function CheckList({
       if (!targetItem) return;
 
       const newAmount = Math.max(0, targetItem.amount + change);
-      await updateShoppingList(id, { amount: newAmount });
+
+      if (newAmount === 0) {
+        Alert.alert(
+          "アイテム削除",
+          `${targetItem.name} を買い物リストから削除しますか？`,
+          [
+            {
+              text: "キャンセル",
+              style: "cancel",
+              onPress: async () => {
+                await updateShoppingList(id, { amount: newAmount });
+                return;
+              },
+            },
+            {
+              text: "削除",
+              style: "destructive",
+              onPress: async () => {
+                await deleteShoppingList(targetItem.id);
+                setShoppingLists(
+                  shoppingLists.filter((item) => item.id !== id)
+                );
+                return;
+              },
+            },
+          ]
+        );
+      } else {
+        await updateShoppingList(id, { amount: newAmount });
+      }
     } catch (error) {
       // エラー発生時は元の状態に戻す
       setShoppingLists(shoppingLists);

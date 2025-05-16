@@ -129,7 +129,7 @@ export default function ManageGroupScreen() {
               style={[CommonStyles.completeButton]}
               onPress={handleChangeDisplayName}
             >
-              <Text style={styles.buttonText}>表示名変更</Text>
+              <Text style={CommonStyles.buttonText}>表示名変更</Text>
             </TouchableOpacity>
           </View>
           {/* 招待する側 */}
@@ -150,7 +150,7 @@ export default function ManageGroupScreen() {
                 ]}
                 onPress={generatedCode ? handleRevokeCode : handleGenerateCode}
               >
-                <Text style={styles.buttonText}>
+                <Text style={CommonStyles.buttonText}>
                   {generatedCode ? "招待コード無効化" : "招待コード作成"}
                 </Text>
               </TouchableOpacity>
@@ -164,7 +164,7 @@ export default function ManageGroupScreen() {
             <TextInput
               style={[
                 styles.input,
-                generatedCode && styles.inputDisabled, // 無効時にスタイルを追加（任意）
+                generatedCode && CommonStyles.inputDisabled, // 無効時にスタイルを追加（任意）
               ]}
               placeholder="例: 123456789"
               value={inviteCode}
@@ -175,12 +175,12 @@ export default function ManageGroupScreen() {
             <TouchableOpacity
               style={[
                 CommonStyles.completeButton,
-                generatedCode || !inviteCode ? styles.buttonDisabled : "", // 無効時にスタイルを追加（任意）
+                generatedCode || !inviteCode ? CommonStyles.buttonDisabled : "", // 無効時にスタイルを追加（任意）
               ]}
               onPress={handleAppliedGroup}
               disabled={!!generatedCode || !inviteCode}
             >
-              <Text style={styles.buttonText}>グループに参加</Text>
+              <Text style={CommonStyles.buttonText}>グループに参加</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -252,23 +252,10 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignItems: "center",
   },
-  buttonText: {
-    color: "white",
-    fontWeight: "600",
-    fontSize: 16,
-  },
   buttonPrimary: {
     backgroundColor: "#007aff", // 青
   },
   buttonDanger: {
     backgroundColor: "#ff3b30", // 赤（iOS風）
-  },
-  inputDisabled: {
-    backgroundColor: "#f0f0f0",
-    color: "#aaa",
-  },
-
-  buttonDisabled: {
-    backgroundColor: "#ccc",
   },
 });

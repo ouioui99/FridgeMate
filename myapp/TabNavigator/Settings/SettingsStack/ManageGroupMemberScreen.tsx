@@ -106,7 +106,6 @@ const ManageGroupMemberScreen = () => {
           style: "destructive",
           onPress: async () => {
             await removeMember(member);
-            // 実際の削除処理を書く
           },
         },
       ]
@@ -162,7 +161,9 @@ const ManageGroupMemberScreen = () => {
         renderItem={({ item }) => (
           <View style={styles.memberRow}>
             <Text style={styles.memberText}>
-              {item.memberProfileData.username}
+              {item.memberProfileData.id === userId
+                ? "自分"
+                : item.memberProfileData.username}
             </Text>
             {isAdmin && item.memberProfileData.id !== userId && (
               <Pressable

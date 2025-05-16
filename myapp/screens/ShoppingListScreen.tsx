@@ -34,7 +34,6 @@ import {
   fetchSomeStocks,
   updateStock,
 } from "../lib/supabase/stocks";
-import dayjs from "dayjs";
 import { fetchItems } from "../lib/supabase/util";
 import { fetchReplenishmentSettingsByStockId } from "../lib/supabase/stockReplenishmentSetting";
 import { CommonStyles } from "../styles/CommonStyles";
@@ -47,6 +46,7 @@ export default function ShoppingListScreen() {
   const [shoppingItemFormModalVisible, setShoppingItemFormModalVisibleVisible] =
     useState(false);
   const [shoppingLists, setShoppingLists] = useState<ShoppingList[]>([]);
+  const hasCheckedItem = shoppingLists.some((item) => item.checked);
 
   useFocusEffect(
     useCallback(() => {
@@ -233,7 +233,6 @@ export default function ShoppingListScreen() {
     });
   }, [navigation]);
 
-  // ヘッダー右側の「在庫追加ボタン」をナビゲーションにセット
   useEffect(() => {
     const loadShoppingLists = async () => {
       if (!profile) return;
@@ -258,10 +257,14 @@ export default function ShoppingListScreen() {
 
       <View style={{ paddingHorizontal: 20, marginTop: 16, marginBottom: 18 }}>
         <TouchableOpacity
-          style={CommonStyles.completeButton}
+          style={[
+            CommonStyles.completeButton,
+            !hasCheckedItem && CommonStyles.buttonDisabled,
+          ]}
           onPress={handleShoppingComplete}
+          disabled={!hasCheckedItem}
         >
-          <Text style={CommonStyles.completeButtonText}>買い物完了</Text>
+          <Text style={CommonStyles.buttonText}>買い物完了</Text>
         </TouchableOpacity>
       </View>
 
@@ -303,19 +306,5 @@ const styles = StyleSheet.create({
   },
   loading: {
     marginTop: 20,
-  },
-  completeButton: {
-    backgroundColor: "#4CAF50", // 緑色
-    padding: 15,
-    borderRadius: 8,
-    alignItems: "center",
-    width: "90%",
-    alignSelf: "center",
-    marginBottom: 20,
-  },
-  completeButtonText: {
-    color: "white",
-    fontSize: 16,
-    fontWeight: "bold",
   },
 });
