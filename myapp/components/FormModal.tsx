@@ -10,6 +10,8 @@ import {
   Platform,
   FlatList,
   Animated,
+  TouchableWithoutFeedback,
+  Keyboard,
 } from "react-native";
 import { stocks } from "../types/daoTypes";
 import { FormModalProps } from "../types/formModalTypes";
@@ -170,52 +172,102 @@ const FormModal = <T extends Record<string, any>>({
 
   return (
     <Modal visible={visible} transparent animationType="slide">
-      <View style={styles.modalContainer}>
-        <View style={styles.modalContent}>
-          <Text style={styles.title}>データを登録</Text>
+      <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.title}>データを登録</Text>
 
-          {fields.map(({ key, label, placeholder, type }) => {
-            if (label === "image") {
-              return (
-                <TouchableOpacity
-                  key={key}
-                  style={styles.imageInput}
-                  onPress={() => {
-                    setIsEmojiPickerOpen(true);
-                  }}
-                >
-                  <View style={styles.imagePreviewContainer}>
-                    {formData[key]?.toString() ? (
-                      <Text style={{ fontSize: 40 }}>{formData[key]}</Text>
-                    ) : (
-                      <>
-                        <Icon name="emoticon-outline" size={30} color="#999" />
-                        <Text style={styles.imagePlaceholderText}>
-                          {placeholder}
-                        </Text>
-                      </>
-                    )}
-                  </View>
-                  <EmojiKeyboard
-                    onEmojiSelected={(emoji) => {
-                      setFormData((prev) => ({
-                        ...prev,
-                        [key]: emoji.emoji,
-                      }));
-                      setIsEmojiPickerOpen(false);
+            {fields.map(({ key, label, placeholder, type }) => {
+              if (label === "image") {
+                return (
+                  <TouchableOpacity
+                    key={key}
+                    style={styles.imageInput}
+                    onPress={() => {
+                      setIsEmojiPickerOpen(true);
                     }}
-                    open={isEmojiPickerOpen}
-                    onClose={() => setIsEmojiPickerOpen(false)}
-                    translation={ja}
-                    categoryOrder={["food_drink"]}
-                    enableSearchBar
-                  />
-                </TouchableOpacity>
-              );
-            } else if (label === "買い物アイテム") {
-              const suggestions = ["肉", "野菜", "調味料", "飲み物"];
-              return (
-                <React.Fragment key={key}>
+                  >
+                    <View style={styles.imagePreviewContainer}>
+                      {formData[key]?.toString() ? (
+                        <Text style={{ fontSize: 40 }}>{formData[key]}</Text>
+                      ) : (
+                        <>
+                          <Icon
+                            name="emoticon-outline"
+                            size={30}
+                            color="#999"
+                          />
+                          <Text style={styles.imagePlaceholderText}>
+                            {placeholder}
+                          </Text>
+                        </>
+                      )}
+                    </View>
+                    <EmojiKeyboard
+                      onEmojiSelected={(emoji) => {
+                        setFormData((prev) => ({
+                          ...prev,
+                          [key]: emoji.emoji,
+                        }));
+                        setIsEmojiPickerOpen(false);
+                      }}
+                      open={isEmojiPickerOpen}
+                      onClose={() => setIsEmojiPickerOpen(false)}
+                      translation={ja}
+                      categoryOrder={["food_drink"]}
+                      enableSearchBar
+                    />
+                  </TouchableOpacity>
+                );
+              } else if (label === "買い物アイテム") {
+                const suggestions = ["肉", "野菜", "調味料", "飲み物"];
+                return (
+                  <React.Fragment key={key}>
+                    <TextInput
+                      key={key}
+                      style={styles.input}
+                      placeholder={placeholder}
+                      placeholderTextColor="#888"
+                      value={formData[key]?.toString() || ""}
+                      keyboardType={type === "number" ? "numeric" : "default"}
+                      onChangeText={(text) => handleChange(key, text, label)}
+                      onFocus={() => setIsInputFocused(true)}
+                      onBlur={() => {
+                        setIsInputFocused(false);
+                      }}
+                    />
+                    {isInputFocused &&
+                      filteredSuggestions.length > 0 &&
+                      formData[key]?.length > 0 && (
+                        <Animated.View
+                          style={[
+                            styles.suggestionList,
+                            {
+                              opacity,
+                              transform: [{ translateY }],
+                            },
+                          ]}
+                        >
+                          <FlatList
+                            key={key}
+                            data={filteredSuggestions}
+                            keyExtractor={(item, index) => index.toString()}
+                            renderItem={({ item }) => (
+                              <TouchableOpacity
+                                onPress={() => handleSuggestionPress(key, item)}
+                                style={styles.suggestionItem}
+                              >
+                                <Text>{item}</Text>
+                              </TouchableOpacity>
+                            )}
+                            keyboardShouldPersistTaps="handled"
+                          />
+                        </Animated.View>
+                      )}
+                  </React.Fragment>
+                );
+              } else {
+                return (
                   <TextInput
                     key={key}
                     style={styles.input}
@@ -223,77 +275,33 @@ const FormModal = <T extends Record<string, any>>({
                     placeholderTextColor="#888"
                     value={formData[key]?.toString() || ""}
                     keyboardType={type === "number" ? "numeric" : "default"}
-                    onChangeText={(text) => handleChange(key, text, label)}
-                    onFocus={() => setIsInputFocused(true)}
-                    onBlur={() => {
-                      setIsInputFocused(false);
-                    }}
+                    onChangeText={(text) => handleChange(key, text)}
                   />
-                  {isInputFocused &&
-                    filteredSuggestions.length > 0 &&
-                    formData[key]?.length > 0 && (
-                      <Animated.View
-                        style={[
-                          styles.suggestionList,
-                          {
-                            opacity,
-                            transform: [{ translateY }],
-                          },
-                        ]}
-                      >
-                        <FlatList
-                          key={key}
-                          data={filteredSuggestions}
-                          keyExtractor={(item, index) => index.toString()}
-                          renderItem={({ item }) => (
-                            <TouchableOpacity
-                              onPress={() => handleSuggestionPress(key, item)}
-                              style={styles.suggestionItem}
-                            >
-                              <Text>{item}</Text>
-                            </TouchableOpacity>
-                          )}
-                          keyboardShouldPersistTaps="handled"
-                        />
-                      </Animated.View>
-                    )}
-                </React.Fragment>
-              );
-            } else {
-              return (
-                <TextInput
-                  key={key}
-                  style={styles.input}
-                  placeholder={placeholder}
-                  placeholderTextColor="#888"
-                  value={formData[key]?.toString() || ""}
-                  keyboardType={type === "number" ? "numeric" : "default"}
-                  onChangeText={(text) => handleChange(key, text)}
-                />
-              );
-            }
-          })}
+                );
+              }
+            })}
 
-          <TouchableOpacity style={styles.addButton} onPress={handleConfirm}>
-            <Text style={styles.addButtonText}>
-              {isEditMode ? "更新" : "登録"}
-            </Text>
-          </TouchableOpacity>
-
-          {isEditMode && (
-            <TouchableOpacity
-              style={styles.deleteButton}
-              onPress={handleDelete}
-            >
-              <Text style={styles.deleteButtonText}>削除</Text>
+            <TouchableOpacity style={styles.addButton} onPress={handleConfirm}>
+              <Text style={styles.addButtonText}>
+                {isEditMode ? "更新" : "登録"}
+              </Text>
             </TouchableOpacity>
-          )}
 
-          <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-            <Text style={styles.closeButtonText}>キャンセル</Text>
-          </TouchableOpacity>
+            {isEditMode && (
+              <TouchableOpacity
+                style={styles.deleteButton}
+                onPress={handleDelete}
+              >
+                <Text style={styles.deleteButtonText}>削除</Text>
+              </TouchableOpacity>
+            )}
+
+            <TouchableOpacity style={styles.closeButton} onPress={onClose}>
+              <Text style={styles.closeButtonText}>キャンセル</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-      </View>
+      </TouchableWithoutFeedback>
     </Modal>
   );
 };
