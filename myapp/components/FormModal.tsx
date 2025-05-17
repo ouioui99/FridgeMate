@@ -30,6 +30,7 @@ const FormModal = <T extends Record<string, any>>({
   onSubmit,
   handleDelete,
   initialData = {},
+  validation,
 }: FormModalProps<T>) => {
   const [formData, setFormData] = useState<Partial<T>>(initialData);
   const tempDir = FileSystem.cacheDirectory + "fridgemate/";
@@ -44,9 +45,8 @@ const FormModal = <T extends Record<string, any>>({
   const opacity = useRef(new Animated.Value(0)).current;
   const translateY = useRef(new Animated.Value(-10)).current;
   const [isEmojiPickerOpen, setIsEmojiPickerOpen] = useState(false);
-  const [currentEmojiField, setCurrentEmojiField] = useState<string | null>(
-    null
-  );
+  const [validationError, setValidationError] =
+    useState<Partial<Record<keyof T, string>>>();
 
   // 編集モードかどうか判定（id の有無 or initialData が空かどうか）
   const isEditMode: boolean =
@@ -113,8 +113,16 @@ const FormModal = <T extends Record<string, any>>({
 
   const handleConfirm = async () => {
     try {
+      if (validation) {
+        const errors = validation(formData);
+        if (errors && Object.keys(errors).length > 0) {
+          setValidationError(errors);
+          return; // エラーがあれば処理中断
+        }
+      }
       await onSubmit(formData as T);
       setFormData({});
+
       onClose();
     } catch (error) {
       console.error(error);
@@ -178,6 +186,7 @@ const FormModal = <T extends Record<string, any>>({
             <Text style={styles.title}>データを登録</Text>
 
             {fields.map(({ key, label, placeholder, type }) => {
+              const errorMsg = validationError?.[key];
               if (label === "image") {
                 return (
                   <TouchableOpacity
@@ -220,12 +229,16 @@ const FormModal = <T extends Record<string, any>>({
                   </TouchableOpacity>
                 );
               } else if (label === "買い物アイテム") {
-                const suggestions = ["肉", "野菜", "調味料", "飲み物"];
                 return (
                   <React.Fragment key={key}>
                     <TextInput
                       key={key}
-                      style={styles.input}
+                      style={[
+                        styles.input,
+                        validationError?.hasOwnProperty(key)
+                          ? styles.inputError
+                          : null,
+                      ]}
                       placeholder={placeholder}
                       placeholderTextColor="#888"
                       value={formData[key]?.toString() || ""}
@@ -264,19 +277,31 @@ const FormModal = <T extends Record<string, any>>({
                           />
                         </Animated.View>
                       )}
+                    {errorMsg && (
+                      <Text style={styles.errorText}>{errorMsg}</Text>
+                    )}
                   </React.Fragment>
                 );
               } else {
                 return (
-                  <TextInput
-                    key={key}
-                    style={styles.input}
-                    placeholder={placeholder}
-                    placeholderTextColor="#888"
-                    value={formData[key]?.toString() || ""}
-                    keyboardType={type === "number" ? "numeric" : "default"}
-                    onChangeText={(text) => handleChange(key, text)}
-                  />
+                  <React.Fragment key={key}>
+                    <TextInput
+                      style={[
+                        styles.input,
+                        validationError?.hasOwnProperty(key)
+                          ? styles.inputError
+                          : null,
+                      ]}
+                      placeholder={placeholder}
+                      placeholderTextColor="#888"
+                      value={formData[key]?.toString() || ""}
+                      keyboardType={type === "number" ? "numeric" : "default"}
+                      onChangeText={(text) => handleChange(key, text)}
+                    />
+                    {errorMsg && (
+                      <Text style={styles.errorText}>{errorMsg}</Text>
+                    )}
+                  </React.Fragment>
                 );
               }
             })}
@@ -430,6 +455,16 @@ const styles = StyleSheet.create({
     padding: 10,
     borderBottomWidth: 1,
     borderBottomColor: "#eee",
+  },
+  inputError: {
+    borderColor: "red",
+  },
+  errorText: {
+    width: "100%",
+    color: "red",
+    fontSize: 12,
+    marginBottom: 8,
+    marginLeft: 4,
   },
 });
 
