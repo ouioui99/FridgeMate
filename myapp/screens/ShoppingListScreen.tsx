@@ -37,7 +37,7 @@ import {
 import { fetchItems } from "../lib/supabase/util";
 import { fetchReplenishmentSettingsByStockId } from "../lib/supabase/stockReplenishmentSetting";
 import { CommonStyles } from "../styles/CommonStyles";
-import { vaildateShoppingListInput } from "../utils/validation";
+import { validateShoppingListInput } from "../utils/validation";
 
 const validationErrorInitVal = {
   name: "",
@@ -54,7 +54,6 @@ export default function ShoppingListScreen() {
   const [shoppingLists, setShoppingLists] = useState<ShoppingList[]>([]);
 
   const hasCheckedItem = shoppingLists.some((item) => item.checked);
-  let hasValidationError = false;
 
   useFocusEffect(
     useCallback(() => {
@@ -284,9 +283,9 @@ export default function ShoppingListScreen() {
         handleDelete={async () => {}}
         onSubmit={async (data) => {
           if (!profile) return;
-          //await addShoppingList(data, profile.current_group_id);
+          await addShoppingList(data, profile.current_group_id);
         }}
-        validation={vaildateShoppingListInput}
+        validation={validateShoppingListInput}
         initialData={{}}
       />
     </View>

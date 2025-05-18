@@ -37,6 +37,8 @@ import {
 import { fetchItems } from "../lib/supabase/util";
 import { useUserSettings } from "../contexts/UserSettingsContext";
 import { Snackbar } from "react-native-paper";
+import { ShoppingListInputForm } from "../types/formModalTypes";
+import { validateStockInput } from "../utils/validation";
 
 const HomeScreen = () => {
   const { session, loading } = useSession();
@@ -190,6 +192,7 @@ const HomeScreen = () => {
           }
         }}
         handleDelete={handleDelete}
+        validation={validateStockInput}
         initialData={updateData}
       />
 

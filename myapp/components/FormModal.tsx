@@ -122,12 +122,17 @@ const FormModal = <T extends Record<string, any>>({
       }
       await onSubmit(formData as T);
       setFormData({});
-
+      setValidationError({});
       onClose();
     } catch (error) {
       console.error(error);
       alert(isEditMode ? "更新に失敗しました" : "登録に失敗しました");
     }
+  };
+
+  const handleClose = () => {
+    onClose();
+    setValidationError({});
   };
   //画像保存時に使用
   // const handleOnPressImage = async (key: string) => {
@@ -161,6 +166,11 @@ const FormModal = <T extends Record<string, any>>({
 
   const handleChange = (key: string, value: string, label?: string) => {
     setFormData((prev) => ({ ...prev, [key]: value }));
+    if (validationError) {
+      const omitedValidationError: any =
+        omitValidationError(validationError)(key);
+      setValidationError(omitedValidationError);
+    }
 
     if (label === "買い物アイテム") {
       const stockNameList = stocks.map((stock) => stock.name);
@@ -172,6 +182,11 @@ const FormModal = <T extends Record<string, any>>({
       setFilteredSuggestions([]);
     }
   };
+
+  const omitValidationError =
+    (obj: Partial<Record<keyof T, string>>) => (key: string) => {
+      return (({ [key]: undefined, ...newObjct }) => newObjct)(obj);
+    };
 
   const handleSuggestionPress = (key: string, item: string) => {
     setFormData((prev) => ({ ...prev, [key]: item }));
@@ -321,7 +336,7 @@ const FormModal = <T extends Record<string, any>>({
               </TouchableOpacity>
             )}
 
-            <TouchableOpacity style={styles.closeButton} onPress={onClose}>
+            <TouchableOpacity style={styles.closeButton} onPress={handleClose}>
               <Text style={styles.closeButtonText}>キャンセル</Text>
             </TouchableOpacity>
           </View>

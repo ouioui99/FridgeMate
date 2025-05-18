@@ -17,3 +17,12 @@ export type Field = {
 };
 
 type ValidationErrors<T> = Partial<Record<keyof T, string>>;
+
+export type StockInputForm = {
+  name: string;
+  amount: string;
+  //expiration_date: string;
+  image?: string;
+};
+
+export type ShoppingListInputForm = { name: string; amount: string };
