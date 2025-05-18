@@ -22,15 +22,24 @@ type StockWithReplenishmentSetting = StockReplenishmentSetting & {
   stock: Stock;
 };
 
+type ValidationErrors = Record<string, string | undefined>;
+
 export default function SettingMinimumNumberScreen() {
   const [settings, setSettings] = useState<StockWithReplenishmentSetting[]>([]);
   const [replenishmentValues, setReplenishmentValues] = useState<
     Record<string, string>
   >({});
+  const [replenishmentSelections, setReplenishmentSelections] = useState<
+    Record<string, { start: number; end: number } | undefined>
+  >({});
+  const [validationError, setValidationError] = useState<ValidationErrors>({});
   const { session } = useSession();
   const userId = session?.user?.id;
   const { data: profile } = useGetProfile(userId);
   const groupId = profile?.current_group_id;
+  const [initialValues, setInitialValues] = useState<Record<string, string>>(
+    {}
+  );
 
   useEffect(() => {
     const fetchData = async () => {
@@ -45,18 +54,70 @@ export default function SettingMinimumNumberScreen() {
           setting.replenishment_amount?.toString() || "0";
       });
       setReplenishmentValues(initialValues);
+      setInitialValues(initialValues); // 初期値を保存
     };
 
     fetchData();
   }, []);
 
+  // 「変更があるかどうか」の判定関数
+  const isChanged = () => {
+    // stockId ごとに初期値と現在値が違うかを判定
+    for (const stockId of Object.keys(initialValues)) {
+      if (
+        (replenishmentValues[stockId] ?? "") !== (initialValues[stockId] ?? "")
+      ) {
+        return true; // どれか1つでも違えば変更あり
+      }
+    }
+    return false; // すべて同じなら変更なし
+  };
+
+  // バリデーションにエラーがあるかどうかを判定
+  const hasValidationError = Object.values(validationError).some(
+    (v) => v !== undefined
+  );
+
+  // ボタンを押せる条件：変更ありかつエラーなし
+  const canSave = isChanged() && !hasValidationError;
+
   const handleChange = (stockId: string, value: string) => {
     setReplenishmentValues((prev) => ({ ...prev, [stockId]: value }));
+
+    // バリデーションチェック
+    let errorMsg: string | undefined;
+    if (value.trim() === "") {
+      errorMsg = "必須入力です";
+    } else if (!/^\d+$/.test(value)) {
+      errorMsg = "数字のみ入力してください";
+    } else if (parseInt(value, 10) <= 0) {
+      errorMsg = "1以上の値を入力してください";
+    }
+
+    setValidationError((prev) => ({ ...prev, [stockId]: errorMsg }));
   };
 
   const handleSave = async () => {
     if (!groupId) return;
 
+    // 保存前にエラーがあれば止める
+    const hasError = Object.values(validationError).some(
+      (v) => v !== undefined
+    );
+    if (hasError) {
+      Alert.alert("エラー", "入力内容に誤りがあります。修正してください。");
+      return;
+    }
+
+    // バリデーションに引っかかる値がないか再チェック
+    for (const [stockId, value] of Object.entries(replenishmentValues)) {
+      if (value.trim() === "" || isNaN(Number(value)) || Number(value) <= 0) {
+        Alert.alert("エラー", "入力内容に誤りがあります。修正してください。");
+        return;
+      }
+    }
+
+    // 保存処理
     const promises = settings.map((setting) => {
       const stockId = setting.stock.id;
       const value = replenishmentValues[stockId] ?? "0";
@@ -66,28 +127,54 @@ export default function SettingMinimumNumberScreen() {
 
     await Promise.all(promises);
     Alert.alert("保存完了", "補充設定を保存しました。");
+    setInitialValues({ ...replenishmentValues });
   };
 
   return (
     <View style={styles.container}>
       <ScrollView>
-        {settings.map((setting) => (
-          <View key={setting.stock.id} style={styles.itemRow}>
-            <Text style={styles.stockName}>{setting.stock.name}</Text>
-            <TextInput
-              style={styles.input}
-              keyboardType="number-pad"
-              value={replenishmentValues[setting.stock.id]}
-              onChangeText={(text) => handleChange(setting.stock.id, text)}
-              placeholder="0"
-            />
-          </View>
-        ))}
+        {settings.map((setting) => {
+          const stockId = setting.stock.id;
+          return (
+            <View key={stockId} style={styles.itemRow}>
+              <Text style={styles.stockName}>{setting.stock.name}</Text>
+              <View style={{ flexDirection: "column", alignItems: "flex-end" }}>
+                <TextInput
+                  style={[
+                    styles.input,
+                    validationError[stockId] && { borderColor: "red" },
+                  ]}
+                  keyboardType="number-pad"
+                  value={replenishmentValues[stockId]}
+                  onChangeText={(text) => handleChange(stockId, text)}
+                  placeholder="1"
+                  onFocus={() => {
+                    const value = replenishmentValues[stockId] ?? "";
+                    setReplenishmentSelections((prev) => ({
+                      ...prev,
+                      [stockId]: { start: 0, end: value.length },
+                    }));
+                  }}
+                  selection={replenishmentSelections[stockId]}
+                />
+                {validationError[stockId] && (
+                  <Text style={{ color: "red", fontSize: 12, marginTop: 4 }}>
+                    {validationError[stockId]}
+                  </Text>
+                )}
+              </View>
+            </View>
+          );
+        })}
       </ScrollView>
       <View style={{ marginTop: 16, marginBottom: 18 }}>
         <TouchableOpacity
-          style={CommonStyles.completeButton}
+          style={[
+            CommonStyles.completeButton,
+            !canSave && { backgroundColor: "#ccc" }, // 無効時は薄いグレーに変えるなど
+          ]}
           onPress={handleSave}
+          disabled={!canSave} // ここで無効化
         >
           <Text style={CommonStyles.completeButtonText}>保存する</Text>
         </TouchableOpacity>
