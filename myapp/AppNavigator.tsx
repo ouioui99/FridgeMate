@@ -31,7 +31,6 @@ export function AppNavigator() {
 
       if (hasLaunched === null) {
         await SecureStore.deleteItemAsync(USER_KEY);
-        await AsyncStorage.setItem("hasLaunched", "true");
         setIsFirstLaunch(true);
       } else {
         setIsFirstLaunch(false);

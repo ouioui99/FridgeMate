@@ -15,35 +15,34 @@ import {
 } from "react-native-safe-area-context";
 import { CommonStyles } from "../styles/CommonStyles";
 import { initializeUser } from "../lib/supabase/users";
-import { useSession } from "../contexts/SessionContext";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const { width, height } = Dimensions.get("window");
 
 const onboardingData = [
   {
     title: "食材のムダを減らそう",
-    description: "冷蔵庫の中身を簡単に管理して、腐らせない生活へ。",
-    image: require("../assets/img/carrot_leaf.png"),
+    description: "冷蔵庫の中身を簡単に管理して、\n腐らせない生活へ。",
+    image: require("../assets/img/onboarding/1.png"),
   },
   {
     title: "食材の残りをいつでも確認",
-    description: "スマホひとつで在庫チェック。買い忘れ・二重買いを防止！",
-    image: require("../assets/img/carrot_leaf.png"),
+    description: "スマホひとつで在庫チェック。\n買い忘れ・二重買いを防止！",
+    image: require("../assets/img/onboarding/2.png"),
   },
   {
     title: "家族とシェアして便利に",
     description: "家族みんなで使えるから、無駄がなくなる！",
-    image: require("../assets/img/carrot_leaf.png"),
+    image: require("../assets/img/onboarding/3.png"),
   },
   {
     title: "さあ、始めよう",
-    description: "1分で完了！今すぐ冷蔵庫をスッキリ管理しよう。",
-    image: require("../assets/img/carrot_leaf.png"),
+    description: "今すぐ冷蔵庫をスッキリ管理しよう。",
+    image: require("../assets/img/onboarding/4.png"),
   },
 ];
 
 export default function OnboardingScreen() {
-  const { session, loading } = useSession();
   const [currentIndex, setCurrentIndex] = useState(0);
   const ref = useRef<ICarouselInstance>(null);
 
@@ -59,6 +58,9 @@ export default function OnboardingScreen() {
 
   const handleStart = async () => {
     await initializeUser();
+    console.log("ddd");
+
+    await AsyncStorage.setItem("hasLaunched", "true");
   };
 
   return (
