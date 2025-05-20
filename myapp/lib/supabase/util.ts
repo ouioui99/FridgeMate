@@ -22,8 +22,7 @@ import { deleteGroupMember, joinGroupMembers } from "./groupMembers";
 export const getLoginUserId = async () => {
   const { data: userData, error: userError } = await supabase.auth.getUser();
   if (userError || !userData?.user) {
-    console.error("User not authenticated");
-    throw new Error("ログインが必要です");
+    return;
   }
 
   return userData.user.id;

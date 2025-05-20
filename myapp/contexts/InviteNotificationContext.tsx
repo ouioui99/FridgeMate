@@ -2,6 +2,9 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { supabase } from "../lib/supabase/supabase";
 import { fetchPendingInviteRequests } from "../lib/supabase/inviteCodesUses";
 import { InviteCodeUses } from "../types/daoTypes";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as SecureStore from "expo-secure-store";
+import { USER_KEY } from "../constants/settings";
 
 type InviteNotificationContextType = {
   inviteCodeUses: InviteCodeUses[];
@@ -20,7 +23,9 @@ export const InviteNotificationProvider = ({
 
   useEffect(() => {
     const fetchPendingInvites = async () => {
-      const data = await fetchPendingInviteRequests();
+      const isLaunched = await AsyncStorage.getItem("hasLaunched");
+      if (!isLaunched) return;
+      const data: any = await fetchPendingInviteRequests();
       setInviteCodeUses(data);
     };
 
