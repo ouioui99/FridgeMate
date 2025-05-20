@@ -56,6 +56,14 @@ const ManageGroupMemberScreen = () => {
     groupMembers.find((member) => member.memberProfileData.id === userId)
       ?.admin ?? false;
 
+  const fetchGroupMembers = async () => {
+    if (profile) {
+      const groupMembers = await getGroupMembers(profile.current_group_id);
+
+      setGroupMembers(groupMembers);
+    }
+  };
+
   useEffect(() => {
     setShowApplicantModal(0 < inviteCodeUses.length);
   }, [inviteCodeUses]);
@@ -84,13 +92,6 @@ const ManageGroupMemberScreen = () => {
   }, [navigation, showApplicantModal]);
 
   useEffect(() => {
-    const fetchGroupMembers = async () => {
-      if (profile) {
-        const groupMembers = await getGroupMembers(profile.current_group_id);
-
-        setGroupMembers(groupMembers);
-      }
-    };
     fetchGroupMembers();
   }, [profile]);
 
@@ -106,6 +107,7 @@ const ManageGroupMemberScreen = () => {
           style: "destructive",
           onPress: async () => {
             await removeMember(member);
+            fetchGroupMembers();
           },
         },
       ]
@@ -116,6 +118,7 @@ const ManageGroupMemberScreen = () => {
     selectedInviteCodeUsesList: SeclectedInviteCodeUses[]
   ) => {
     await acceptApplied(selectedInviteCodeUsesList);
+    fetchGroupMembers();
   };
 
   const handleReject = async (
