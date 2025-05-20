@@ -11,6 +11,7 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
   Share,
+  Dimensions,
 } from "react-native";
 import { Snackbar } from "react-native-paper";
 import {
@@ -40,6 +41,12 @@ export default function ManageGroupScreen() {
   const [generatedCode, setGeneratedCode] = useState("");
   const [isGroupAdmin, setIsGroupAdmin] = useState(false);
   const [displayName, setDisplayName] = useState("");
+
+  // 画面の高さに基づいて値を変える（例：小さい画面なら多めにスクロール）
+  const screenHeight = Dimensions.get("window").height;
+
+  const dynamicScrollHeight =
+    Platform.OS === "android" ? (screenHeight < 700 ? 250 : 200) : 80; // iOSのとき
 
   const handleChangeDisplayName = async () => {
     if (!userId) return;
@@ -114,7 +121,8 @@ export default function ManageGroupScreen() {
       <KeyboardAwareScrollView
         contentContainerStyle={styles.container}
         keyboardShouldPersistTaps="handled"
-        extraScrollHeight={100} // 入力欄を被らないように余白を確保
+        extraScrollHeight={dynamicScrollHeight}
+        enableOnAndroid={true}
       >
         <View style={styles.inner}>
           <View style={styles.section}>
