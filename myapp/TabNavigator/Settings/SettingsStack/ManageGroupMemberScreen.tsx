@@ -21,6 +21,10 @@ import { useNavigation } from "@react-navigation/native";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import { getGroupMembers } from "../../../lib/supabase/groupMembers";
 import { useGetProfile } from "../../../hooks/useGetProfile";
+import { useSnackbar } from "../../../hooks/useSnackbar";
+import { Snackbar } from "react-native-paper";
+import { CommonStyles } from "../../../styles/CommonStyles";
+import { MESSAGES } from "../../../constants/messages";
 
 type Member = {
   uid: string;
@@ -51,6 +55,8 @@ const ManageGroupMemberScreen = () => {
   // プロフィール取得
   const { data: profile, isLoading, error } = useGetProfile(userId);
   const [groupMembers, setGroupMembers] = useState<GroupMember[]>([]);
+
+  const { visible, message, showMessage, hideSnackbar } = useSnackbar();
 
   const isAdmin =
     groupMembers.find((member) => member.memberProfileData.id === userId)
@@ -108,6 +114,7 @@ const ManageGroupMemberScreen = () => {
           onPress: async () => {
             await removeMember(member);
             fetchGroupMembers();
+            showMessage(MESSAGES.OK.completeDeleteGroupMember);
           },
         },
       ]
@@ -119,6 +126,7 @@ const ManageGroupMemberScreen = () => {
   ) => {
     await acceptApplied(selectedInviteCodeUsesList);
     fetchGroupMembers();
+    showMessage(MESSAGES.OK.completeAddGroupMember);
   };
 
   const handleReject = async (
@@ -147,6 +155,7 @@ const ManageGroupMemberScreen = () => {
           onPress: () => {
             rejectApplied(inviteCodeUseIdList);
             setShowApplicantModal(false);
+            showMessage(MESSAGES.OK.completeDenyAppliedGroup);
           },
         },
       ]
@@ -154,49 +163,60 @@ const ManageGroupMemberScreen = () => {
   };
 
   return (
-    <View style={styles.container}>
-      {/* 加入済みメンバー */}
-      <FlatList
-        data={groupMembers
-          .slice()
-          .sort((a, b) => (a.admin === b.admin ? 0 : a.admin ? -1 : 1))}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <View style={styles.memberRow}>
-            <Text style={styles.memberText}>
-              {item.memberProfileData.id === userId
-                ? "自分"
-                : item.memberProfileData.username}
-            </Text>
-            {isAdmin && item.memberProfileData.id !== userId && (
-              <Pressable
-                style={styles.actionButtonRemove}
-                onPress={() => handleRemove(item)}
-              >
-                <Text style={styles.actionButtonText}>削除</Text>
-              </Pressable>
-            )}
-          </View>
-        )}
-      />
+    <View style={{ flex: 1 }}>
+      <View style={styles.container}>
+        {/* 加入済みメンバー */}
+        <FlatList
+          data={groupMembers
+            .slice()
+            .sort((a, b) => (a.admin === b.admin ? 0 : a.admin ? -1 : 1))}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <View style={styles.memberRow}>
+              <Text style={styles.memberText}>
+                {item.memberProfileData.id === userId
+                  ? "自分"
+                  : item.memberProfileData.username}
+              </Text>
+              {isAdmin && item.memberProfileData.id !== userId && (
+                <Pressable
+                  style={styles.actionButtonRemove}
+                  onPress={() => handleRemove(item)}
+                >
+                  <Text style={styles.actionButtonText}>削除</Text>
+                </Pressable>
+              )}
+            </View>
+          )}
+        />
 
-      <ApplicantModal
-        visible={showApplicantModal}
-        applicants={inviteCodeUses.map((inviteCodeUse) => ({
-          inviteCodeUsesId: inviteCodeUse.id,
-          inviteeUid: inviteCodeUse.invitee_Profile.id,
-          username: inviteCodeUse.invitee_Profile.username,
-          groupInvitesId: inviteCodeUse.group_invites.id,
-          groupId: inviteCodeUse.group_invites.group_id,
-        }))}
-        onClose={() => setShowApplicantModal(false)}
-        onAccept={(selected) => {
-          handleAccept(selected);
-        }}
-        onReject={(selectedInviteCodeUse) => {
-          handleReject(selectedInviteCodeUse);
-        }}
-      />
+        <ApplicantModal
+          visible={showApplicantModal}
+          applicants={inviteCodeUses.map((inviteCodeUse) => ({
+            inviteCodeUsesId: inviteCodeUse.id,
+            inviteeUid: inviteCodeUse.invitee_Profile.id,
+            username: inviteCodeUse.invitee_Profile.username,
+            groupInvitesId: inviteCodeUse.group_invites.id,
+            groupId: inviteCodeUse.group_invites.group_id,
+          }))}
+          onClose={() => setShowApplicantModal(false)}
+          onAccept={(selected) => {
+            handleAccept(selected);
+          }}
+          onReject={(selectedInviteCodeUse) => {
+            handleReject(selectedInviteCodeUse);
+          }}
+        />
+      </View>
+      <Snackbar
+        visible={visible}
+        onDismiss={hideSnackbar}
+        duration={3000}
+        action={{ label: "閉じる", onPress: hideSnackbar }}
+        style={CommonStyles.bottomSnackbar}
+      >
+        {message}
+      </Snackbar>
     </View>
   );
 };
