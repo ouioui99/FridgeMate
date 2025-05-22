@@ -72,14 +72,14 @@ const FormModal = <T extends Record<string, any>>({
       }
     });
 
-    // モバイルプラットフォームでのみ、カメラロールの権限をリクエスト
-    if (Platform.OS !== "web") {
-      ImagePicker.requestMediaLibraryPermissionsAsync().then((status) => {
-        if (!status.granted) {
-          alert("Sorry, we need camera roll permissions to make this work!");
-        }
-      });
-    }
+    // // モバイルプラットフォームでのみ、カメラロールの権限をリクエスト
+    // if (Platform.OS !== "web") {
+    //   ImagePicker.requestMediaLibraryPermissionsAsync().then((status) => {
+    //     if (!status.granted) {
+    //       alert("Sorry, we need camera roll permissions to make this work!");
+    //     }
+    //   });
+    // }
   }, []);
 
   useEffect(() => {
