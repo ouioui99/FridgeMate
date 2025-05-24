@@ -1,16 +1,11 @@
 import {
   View,
-  Text,
-  Button,
   StyleSheet,
   ActivityIndicator,
-  Animated,
   TouchableOpacity,
-  PanResponder,
   Alert,
 } from "react-native";
-import { useNav } from "../hooks/useNav";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useSession } from "../contexts/SessionContext";
 import { useGetProfile } from "../hooks/useGetProfile";
 import Cards from "../components/Cards";
@@ -36,8 +31,6 @@ import {
 } from "../lib/supabase/shoppingLists";
 import { fetchItems } from "../lib/supabase/util";
 import { useUserSettings } from "../contexts/UserSettingsContext";
-import { Snackbar } from "react-native-paper";
-import { ShoppingListInputForm } from "../types/formModalTypes";
 import { validateStockInput } from "../utils/validation";
 
 const HomeScreen = () => {
@@ -46,7 +39,6 @@ const HomeScreen = () => {
   const [stocks, setStocks] = useState<stocks>([]);
   const [updateData, setUpdateData] = useState<Stock | {}>({});
   const userId = session?.user?.id;
-  const nav = useNav();
   const navigation = useNavigation();
 
   // プロフィール取得

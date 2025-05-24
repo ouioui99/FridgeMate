@@ -58,7 +58,6 @@ export default function OnboardingScreen() {
 
   const handleStart = async () => {
     await initializeUser();
-    console.log("ddd");
 
     await AsyncStorage.setItem("hasLaunched", "true");
   };
