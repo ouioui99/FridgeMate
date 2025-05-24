@@ -1,75 +1,118 @@
-import { useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
-  Image,
   TouchableOpacity,
   StyleSheet,
   Dimensions,
 } from "react-native";
-import Carousel, { ICarouselInstance } from "react-native-reanimated-carousel";
-import {
-  SafeAreaInsetsContext,
-  SafeAreaProvider,
-  SafeAreaView,
-} from "react-native-safe-area-context";
-import { CommonStyles } from "../styles/CommonStyles";
-import { initializeUser } from "../lib/supabase/users";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { SafeAreaView } from "react-native-safe-area-context";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
-import { Card, PaperProvider } from "react-native-paper";
+import { PaperProvider } from "react-native-paper";
+import Cards from "../components/Cards"; // ← your custom component
+import { Stock } from "../types/daoTypes";
+import {
+  CopilotProvider,
+  CopilotStep,
+  useCopilot,
+  walkthroughable,
+} from "react-native-copilot";
+import HowToUseCards from "../components/HowToUse/HowToUseCards";
 
-const { width, height } = Dimensions.get("window");
+const { width } = Dimensions.get("window");
+
+const dummyStocks: Stock[] = [
+  {
+    id: "1",
+    name: "ぶどう",
+    image: "🍇",
+    amount: 2,
+    expiration_date: "2025-06-01",
+  },
+  {
+    id: "2",
+    name: "みかん",
+    image: "🍊",
+    amount: 1,
+    expiration_date: "2025-06-02",
+  },
+  // 必要に応じて追加
+];
+
+const WalkthroughableText = walkthroughable(Text);
+const WalkthroughableView = walkthroughable(View);
+const WalkthroughableTouchableOpacity = walkthroughable(TouchableOpacity);
 
 export default function HowToUseScreen() {
+  const [stocks, setStocks] = useState<Stock[]>(dummyStocks);
+  const { start, copilotEvents, currentStepNumber } = useCopilot();
+
+  // const isMounted = useIsMounted();
+
+  // useEffect(() => {
+  //   const startTutolial = async () => {
+  //     await start();
+  //   };
+  //   startTutolial().then(() => {});
+  // }, []);
+
+  const handleUpdateAmount = (stockId: string, newAmount: number) => {
+    setStocks((prev) =>
+      prev.map((stock) =>
+        stock.id === stockId ? { ...stock, amount: newAmount } : stock
+      )
+    );
+  };
+
+  const handleClickCard = (item: Stock) => {
+    start();
+    console.log("Clicked item:", item.name);
+  };
+
   return (
     <PaperProvider>
       <SafeAreaView style={styles.container}>
-        {/* ヘッダー */}
-        <View style={styles.header}>
-          <View style={styles.headerSpacer} /> {/* 左のスペース */}
-          <Text style={styles.headerTitle}>在庫リスト</Text>{" "}
-          {/* 中央タイトル */}
-          <TouchableOpacity>
-            <Text style={styles.plusButton}>＋</Text> {/* 右のボタン */}
-          </TouchableOpacity>
-        </View>
-        <View style={styles.container}>
-          {/* カード */}
-          <Card style={styles.card}>
-            <Card.Content>
-              <Text style={styles.itemTitle}>てすと</Text>
-              <View style={styles.separator} />
-
-              <View style={styles.itemRow}>
-                <Image
-                  source={{
-                    uri: "https://em-content.zobj.net/thumbs/120/apple/354/grapes_1f347.png",
-                  }}
-                  style={styles.emojiImage}
-                />
-                <View style={styles.counterBox}>
-                  <TouchableOpacity style={styles.counterButton}>
-                    <Text style={styles.counterText}>－</Text>
-                  </TouchableOpacity>
-                  <Text style={styles.quantityText}>2</Text>
-                  <TouchableOpacity style={styles.counterButton}>
-                    <Text style={styles.counterText}>＋</Text>
-                  </TouchableOpacity>
-                </View>
+        <View style={styles.container} onLayout={() => start()}>
+          <CopilotStep
+            text="この画面では、在庫の一覧を確認・編集できます"
+            order={1}
+            name="entireScreen"
+          >
+            <WalkthroughableView style={styles.halfContainer}>
+              {/* ヘッダー */}
+              <View style={styles.header}>
+                <Text style={styles.headerTitle}>在庫リスト</Text>
+                <CopilotStep
+                  text="このボタンで在庫を追加できます"
+                  order={2}
+                  name="stockAddButton"
+                >
+                  <WalkthroughableTouchableOpacity style={styles.plusButton}>
+                    <Text style={styles.plusText}>＋</Text>
+                  </WalkthroughableTouchableOpacity>
+                </CopilotStep>
               </View>
-            </Card.Content>
-          </Card>
-        </View>
 
-        {/* Bottom Navigation（ダミー） */}
-        <View style={styles.bottomNav}>
-          <View style={styles.navItem}>
+              {/* カード一覧 */}
+              <View style={{ flex: 1 }}>
+                <HowToUseCards
+                  stocks={stocks}
+                  handleUpdateAmount={handleUpdateAmount}
+                  handleClickCard={handleClickCard}
+                />
+              </View>
+            </WalkthroughableView>
+          </CopilotStep>
+        </View>
+        {/* Bottom Navigation */}
+        <WalkthroughableView style={styles.bottomNav}>
+          <WalkthroughableView style={styles.navItem}>
             <MaterialCommunityIcons name="fridge" size={24} color="#007AFF" />
             <Text style={[styles.navLabel, { color: "#007AFF" }]}>
               在庫リスト
             </Text>
-          </View>
+          </WalkthroughableView>
+
           <View style={styles.navItem}>
             <MaterialCommunityIcons
               name="cart-outline"
@@ -82,7 +125,7 @@ export default function HowToUseScreen() {
             <MaterialCommunityIcons name="cog-outline" size={24} color="#999" />
             <Text style={styles.navLabel}>設定</Text>
           </View>
-        </View>
+        </WalkthroughableView>
       </SafeAreaView>
     </PaperProvider>
   );
@@ -93,67 +136,32 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#f2f2f2",
   },
+  halfContainer: {
+    flex: 0.8,
+    backgroundColor: "#f2f2f2",
+  },
   header: {
-    flexDirection: "row",
+    height: 56,
+    justifyContent: "center",
     alignItems: "center",
-    justifyContent: "space-between", // ← これがポイント
-    paddingHorizontal: 16,
-    paddingTop: 12,
-    paddingBottom: 6,
     borderBottomWidth: 0.5,
     borderBottomColor: "#ccc",
     backgroundColor: "#fff",
+    position: "relative",
   },
   headerTitle: {
     fontSize: 20,
     fontWeight: "600",
-    textAlign: "center",
-    flex: 1, // ← これで中央に配置されやすくなる
   },
   plusButton: {
+    position: "absolute",
+    right: 16,
+    top: "50%",
+    transform: [{ translateY: -12 }],
+  },
+  plusText: {
     fontSize: 24,
     color: "#007AFF",
-  },
-  card: {
-    margin: 16,
-    borderRadius: 16,
-    elevation: 3,
-  },
-  itemTitle: {
-    fontSize: 18,
-    marginBottom: 8,
-  },
-  separator: {
-    height: 1,
-    backgroundColor: "#ccc",
-    marginBottom: 8,
-  },
-  itemRow: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  emojiImage: {
-    width: 40,
-    height: 40,
-    marginRight: 16,
-  },
-  counterBox: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  counterButton: {
-    backgroundColor: "#eee",
-    paddingVertical: 4,
-    paddingHorizontal: 12,
-    borderRadius: 8,
-  },
-  counterText: {
-    fontSize: 20,
-  },
-  quantityText: {
-    marginHorizontal: 12,
-    fontSize: 20,
-    fontWeight: "600",
   },
   bottomNav: {
     flexDirection: "row",

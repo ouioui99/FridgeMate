@@ -40,7 +40,15 @@ export default function App() {
               <InviteNotificationProvider>
                 <GestureHandlerRootView style={{ flex: 1 }}>
                   <NavigationContainer>
-                    <CopilotProvider>
+                    <CopilotProvider
+                      labels={{
+                        previous: "戻る",
+                        next: "次へ",
+                        skip: "スキップ",
+                        finish: "終了",
+                      }}
+                      tooltipStyle={style}
+                    >
                       <AppNavigator />
                     </CopilotProvider>
                   </NavigationContainer>
@@ -54,3 +62,7 @@ export default function App() {
     </SafeAreaProvider>
   );
 }
+const style = {
+  borderRadius: 10,
+  paddingTop: 5,
+};
