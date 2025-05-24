@@ -4,6 +4,7 @@ import {
   ActivityIndicator,
   TouchableOpacity,
   Alert,
+  Modal,
 } from "react-native";
 import React, { useCallback, useEffect, useState } from "react";
 import { useSession } from "../contexts/SessionContext";
@@ -32,12 +33,16 @@ import {
 import { fetchItems } from "../lib/supabase/util";
 import { useUserSettings } from "../contexts/UserSettingsContext";
 import { validateStockInput } from "../utils/validation";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import WelcomeModal from "../components/WelcomeModal";
 
 const HomeScreen = () => {
   const { session, loading } = useSession();
   const [stockModalVisible, setStockModalVisible] = useState(false);
   const [stocks, setStocks] = useState<stocks>([]);
   const [updateData, setUpdateData] = useState<Stock | {}>({});
+  const [firstLaunchModalVisible, setFirstLaunchModalVisible] = useState(false);
+
   const userId = session?.user?.id;
   const navigation = useNavigation();
 
@@ -89,6 +94,23 @@ const HomeScreen = () => {
       ),
     });
   }, [navigation]);
+
+  useEffect(() => {
+    const checkFirstLaunch = async () => {
+      try {
+        //const hasLaunched = await AsyncStorage.getItem("hasLaunchedHome");
+        if (true) {
+          // 初回起動なのでモーダル表示
+          setFirstLaunchModalVisible(true);
+          //await AsyncStorage.setItem("hasLaunchedHome", "true");
+        }
+      } catch (error) {
+        console.error("Failed to check first launch:", error);
+      }
+    };
+
+    checkFirstLaunch();
+  }, []);
 
   const onClose = async () => {
     if (!profile) return;
@@ -187,7 +209,14 @@ const HomeScreen = () => {
         validation={validateStockInput}
         initialData={updateData}
       />
-
+      <WelcomeModal
+        visible={firstLaunchModalVisible}
+        onClose={() => setFirstLaunchModalVisible(false)}
+        onPressHowToUse={() => {
+          setFirstLaunchModalVisible(false);
+          navigation.navigate("HowToUse" as never);
+        }}
+      />
       {/* ロード中のインジケーター */}
       {isLoading && <ActivityIndicator style={styles.loading} />}
     </View>

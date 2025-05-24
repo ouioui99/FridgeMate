@@ -4,11 +4,6 @@
     "slug": "myapp",
     "scheme": "myapp",
     "version": "1.0.0",
-    "platform": [
-      "ios",
-      "android",
-      "web"
-    ],
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -28,17 +23,14 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff",
-        "package": "com.ouioui99.fridgeMate"
+        "backgroundColor": "#ffffff"
       },
       "package": "com.ouioui99.fridgeMate"
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "plugins": [
-      "expo-secure-store"
-    ],
+    "plugins": ["expo-secure-store"],
     "extra": {
       "eas": {
         "projectId": "f0f4c20f-39ce-4b39-8978-bcd2c1d425f6"

@@ -11,6 +11,8 @@ import { USER_KEY } from "./constants/settings";
 import * as SecureStore from "expo-secure-store";
 import { supabase } from "./lib/supabase/supabase";
 import { initializeUser } from "./lib/supabase/users";
+import HowToUseScreen from "./screens/HowToUseScreen";
+import MainStack from "./screens/MainStack";
 
 const Stack = createNativeStackNavigator();
 
@@ -53,7 +55,7 @@ export function AppNavigator() {
   return (
     <>
       {session ? (
-        <BottomNavigator />
+        <MainStack />
       ) : (
         <Stack.Navigator screenOptions={{ headerShown: false }}>
           {isFirstLaunch && (
@@ -61,6 +63,7 @@ export function AppNavigator() {
           )}
           <Stack.Screen name="Login" component={LoginScreen} />
           <Stack.Screen name="SignUp" component={SignUpScreen} />
+          <Stack.Screen name="HowToUse" component={HowToUseScreen} />
         </Stack.Navigator>
       )}
     </>

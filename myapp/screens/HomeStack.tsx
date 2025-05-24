@@ -8,9 +8,10 @@ import ManageGroupScreen from "../TabNavigator/Settings/SettingsStack/ManageGrou
 import ManageGroupMemberScreen from "../TabNavigator/Settings/SettingsStack/ManageGroupMemberScreen";
 import SettingMinimumNumberScreen from "../TabNavigator/Settings/SettingsStack/SettingMinimumNumberScreen";
 import HowToUseScreen from "./HowToUseScreen";
+import HomeScreen from "./HomeScreen";
 
 export type SettingsStackParamList = {
-  SettingsMain: undefined;
+  Home: undefined;
   ChangeEmail: undefined;
   ChangePassword: undefined;
   ManageGroupMember: undefined;
@@ -21,40 +22,21 @@ export type SettingsStackParamList = {
 
 const Stack = createNativeStackNavigator<SettingsStackParamList>();
 
-export default function SettingsStack() {
+export default function HomeStack() {
   return (
     <Stack.Navigator>
       <Stack.Screen
-        name="SettingsMain"
-        component={SettingsScreen}
-        options={{ title: "設定" }}
+        name="Home"
+        component={HomeScreen}
+        options={{ title: "在庫リスト" }}
       />
       <Stack.Screen
-        name="SettingMinimumNumber"
-        component={SettingMinimumNumberScreen}
-        options={{ title: "最小個数単位の設定" }}
+        name="HowToUse"
+        component={HowToUseScreen}
+        options={{
+          headerShown: false,
+        }}
       />
-      <Stack.Screen
-        name="ChangeEmail"
-        component={ChangeEmailScreen}
-        options={{ title: "メールアドレス変更" }}
-      />
-      <Stack.Screen
-        name="ChangePassword"
-        component={ChangePasswordScreen}
-        options={{ title: "パスワード変更" }}
-      />
-      <Stack.Screen
-        name="ManageGroup"
-        component={ManageGroupScreen}
-        options={{ title: "グループ管理" }}
-      />
-      <Stack.Screen
-        name="ManageGroupMember"
-        component={ManageGroupMemberScreen}
-        options={{ title: "グループメンバー管理" }}
-      />
-      <Stack.Screen name="HowToUse" component={HowToUseScreen} />
     </Stack.Navigator>
   );
 }

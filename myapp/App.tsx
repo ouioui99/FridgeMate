@@ -12,7 +12,8 @@ import { InviteRealtimeSubscriber } from "./lib/supabase/InviteRealtimeSubscribe
 import { AppNavigator } from "./AppNavigator";
 import { InviteNotificationProvider } from "./contexts/InviteNotificationContext";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { Snackbar } from "react-native-paper";
+
+import { CopilotProvider } from "react-native-copilot";
 
 export default function App() {
   const queryClient = new QueryClient();
@@ -39,7 +40,9 @@ export default function App() {
               <InviteNotificationProvider>
                 <GestureHandlerRootView style={{ flex: 1 }}>
                   <NavigationContainer>
-                    <AppNavigator />
+                    <CopilotProvider>
+                      <AppNavigator />
+                    </CopilotProvider>
                   </NavigationContainer>
                 </GestureHandlerRootView>
               </InviteNotificationProvider>

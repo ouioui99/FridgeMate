@@ -5,6 +5,7 @@ import ShoppingListScreen from "../screens/ShoppingListScreen";
 import { useInviteNotification } from "../hooks/useInviteNotification";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import { SettingsIconWithBadge } from "./SettingsIconWithBadge";
+import HomeStack from "../screens/HomeStack";
 
 const Tab = createBottomTabNavigator();
 
