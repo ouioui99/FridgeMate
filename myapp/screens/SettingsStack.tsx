@@ -7,7 +7,6 @@ import ChangePasswordScreen from "../TabNavigator/Settings/SettingsStack/ChangeP
 import ManageGroupScreen from "../TabNavigator/Settings/SettingsStack/ManageGroupScreen";
 import ManageGroupMemberScreen from "../TabNavigator/Settings/SettingsStack/ManageGroupMemberScreen";
 import SettingMinimumNumberScreen from "../TabNavigator/Settings/SettingsStack/SettingMinimumNumberScreen";
-import HowToUseScreen from "./HowToUseScreen";
 
 export type SettingsStackParamList = {
   SettingsMain: undefined;
@@ -16,7 +15,6 @@ export type SettingsStackParamList = {
   ManageGroupMember: undefined;
   ManageGroup: undefined;
   SettingMinimumNumber: undefined;
-  HowToUse: undefined;
 };
 
 const Stack = createNativeStackNavigator<SettingsStackParamList>();
@@ -54,7 +52,6 @@ export default function SettingsStack() {
         component={ManageGroupMemberScreen}
         options={{ title: "グループメンバー管理" }}
       />
-      <Stack.Screen name="HowToUse" component={HowToUseScreen} />
     </Stack.Navigator>
   );
 }

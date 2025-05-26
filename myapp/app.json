@@ -4,6 +4,7 @@
     "slug": "myapp",
     "scheme": "myapp",
     "version": "1.0.0",
+    "platform": ["ios", "android", "web"],
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -15,15 +16,13 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.ouioui99.fridgeMate",
-      "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
-      }
+      "bundleIdentifier": "com.ouioui99.fridgeMate"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#ffffff",
+        "package": "com.ouioui99.fridgeMate"
       },
       "package": "com.ouioui99.fridgeMate"
     },

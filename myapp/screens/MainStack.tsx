@@ -2,6 +2,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import React from "react";
 import { BottomNavigator } from "../components/BottomNavigator";
 import HowToUseScreen from "./HowToUseScreen";
+import HowToUseShoppingListScreen from "./HowToUseShoppingListScreen";
 
 export type SettingsStackParamList = {
   Home: undefined;
@@ -11,6 +12,7 @@ export type SettingsStackParamList = {
   ManageGroup: undefined;
   SettingMinimumNumber: undefined;
   HowToUse: undefined;
+  HowToUseShoppingList: undefined;
 };
 
 const Stack = createNativeStackNavigator<SettingsStackParamList>();
@@ -28,6 +30,13 @@ export default function MainStack() {
       <Stack.Screen
         name="HowToUse"
         component={HowToUseScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="HowToUseShoppingList"
+        component={HowToUseShoppingListScreen}
         options={{
           headerShown: false,
         }}

@@ -18,7 +18,7 @@ import { color } from "@rneui/base";
 type CardsComponentsProps = {
   stocks: stocks;
   handleUpdateAmount: (stockId: string, newAmount: number) => void;
-  handleClickCard: (item: Stock) => void;
+  //handleClickCard: (item: Stock) => void;
 };
 
 const numColumns = 2; // 列数を指定
@@ -32,7 +32,7 @@ const WalkthroughableCard = walkthroughable(Card as any);
 const HowToUseCards: React.FunctionComponent<CardsComponentsProps> = ({
   stocks,
   handleUpdateAmount,
-  handleClickCard,
+  //handleClickCard,
 }) => {
   // 個数を管理する状態
   const [itemAmounts, setItemAmounts] = useState<{ [key: string]: number }>({});
@@ -44,7 +44,7 @@ const HowToUseCards: React.FunctionComponent<CardsComponentsProps> = ({
     const tutolialCard = (
       <View style={{ width: cardWidth, padding: 2 }}>
         <TouchableOpacity
-          onPress={() => handleClickCard(item)}
+          //onPress={() => handleClickCard(item)}
           activeOpacity={0.9}
         >
           <CopilotStep

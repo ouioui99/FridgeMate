@@ -1,133 +1,118 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   View,
   Text,
   TouchableOpacity,
   StyleSheet,
+  Animated,
   Dimensions,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
-import { PaperProvider } from "react-native-paper";
-import Cards from "../components/Cards"; // ← your custom component
-import { Stock } from "../types/daoTypes";
 import {
   CopilotProvider,
-  CopilotStep,
   useCopilot,
   walkthroughable,
 } from "react-native-copilot";
-import HowToUseCards from "../components/HowToUse/HowToUseCards";
+import Home from "../components/HowToUse/Home";
+import ShoppingList from "../components/HowToUse/ShoppingList";
 
 const { width } = Dimensions.get("window");
-
-const dummyStocks: Stock[] = [
-  {
-    id: "1",
-    name: "ぶどう",
-    image: "🍇",
-    amount: 2,
-    expiration_date: "2025-06-01",
-  },
-  {
-    id: "2",
-    name: "みかん",
-    image: "🍊",
-    amount: 1,
-    expiration_date: "2025-06-02",
-  },
-  // 必要に応じて追加
-];
 
 const WalkthroughableText = walkthroughable(Text);
 const WalkthroughableView = walkthroughable(View);
 const WalkthroughableTouchableOpacity = walkthroughable(TouchableOpacity);
 
 export default function HowToUseScreen() {
-  const [stocks, setStocks] = useState<Stock[]>(dummyStocks);
-  const { start, copilotEvents, currentStepNumber } = useCopilot();
+  const { start, copilotEvents } = useCopilot();
+  const [showShoppingList, setShowShoppingList] = useState(false);
+  const [lastStepName, setLastStepName] = useState("");
 
-  // const isMounted = useIsMounted();
+  // 2つのコンポーネントのopacityを管理
+  const homeOpacity = useRef(new Animated.Value(1)).current;
+  const shoppingListOpacity = useRef(new Animated.Value(0)).current;
 
-  // useEffect(() => {
-  //   const startTutolial = async () => {
-  //     await start();
-  //   };
-  //   startTutolial().then(() => {});
-  // }, []);
+  useEffect(() => {
+    copilotEvents.on("stepChange", handleStepChange);
 
-  const handleUpdateAmount = (stockId: string, newAmount: number) => {
-    setStocks((prev) =>
-      prev.map((stock) =>
-        stock.id === stockId ? { ...stock, amount: newAmount } : stock
-      )
-    );
+    return () => {
+      copilotEvents.off("stepChange", handleStepChange);
+    };
+  }, [copilotEvents]);
+  const handleStepChange = (step: any) => {
+    console.log("Prev step:", lastStepName, "Current step:", step.name);
+    // 通常のステップ変更処理
+    setLastStepName(step.name);
+    // 「ShoppingListから来てMinusButtonに行った」場合、Homeに戻す
+    if (lastStepName === "shoppingListBtn" && step.name === "MinusButton") {
+      toggleScreen();
+    }
+
+    // 「ShoppingList」への遷移指示がきたら遅延して切り替え
+    if (step.name === "shoppingListBtn") {
+      setTimeout(() => {
+        toggleScreen();
+        setLastStepName("shoppingListBtn"); // 画面が切り替わった後に更新
+      }, 700);
+      return; // 他の処理をスキップ
+    }
   };
 
-  const handleClickCard = (item: Stock) => {
-    start();
-    console.log("Clicked item:", item.name);
+  const toggleScreen = () => {
+    if (showShoppingList) {
+      // ShoppingList → Home に戻す
+      Animated.parallel([
+        Animated.timing(shoppingListOpacity, {
+          toValue: 0,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+        Animated.timing(homeOpacity, {
+          toValue: 1,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+      ]).start(() => setShowShoppingList(false));
+    } else {
+      setShowShoppingList(true); // 表示状態を先にtrueにしてからアニメーション
+      Animated.parallel([
+        Animated.timing(homeOpacity, {
+          toValue: 0,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+        Animated.timing(shoppingListOpacity, {
+          toValue: 1,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    }
   };
 
   return (
-    <PaperProvider>
-      <SafeAreaView style={styles.container}>
-        <View style={styles.container} onLayout={() => start()}>
-          <CopilotStep
-            text="この画面では、在庫の一覧を確認・編集できます"
-            order={1}
-            name="entireScreen"
-          >
-            <WalkthroughableView style={styles.halfContainer}>
-              {/* ヘッダー */}
-              <View style={styles.header}>
-                <Text style={styles.headerTitle}>在庫リスト</Text>
-                <CopilotStep
-                  text="このボタンで在庫を追加できます"
-                  order={2}
-                  name="stockAddButton"
-                >
-                  <WalkthroughableTouchableOpacity style={styles.plusButton}>
-                    <Text style={styles.plusText}>＋</Text>
-                  </WalkthroughableTouchableOpacity>
-                </CopilotStep>
-              </View>
+    <View style={{ flex: 1 }} onLayout={() => start()}>
+      <Animated.View
+        style={[StyleSheet.absoluteFillObject, { opacity: homeOpacity }]}
+        pointerEvents={showShoppingList ? "none" : "auto"}
+      >
+        <Home
+          WalkthroughableView={WalkthroughableView}
+          WalkthroughableTouchableOpacity={WalkthroughableTouchableOpacity}
+        />
+      </Animated.View>
 
-              {/* カード一覧 */}
-              <View style={{ flex: 1 }}>
-                <HowToUseCards
-                  stocks={stocks}
-                  handleUpdateAmount={handleUpdateAmount}
-                  handleClickCard={handleClickCard}
-                />
-              </View>
-            </WalkthroughableView>
-          </CopilotStep>
-        </View>
-        {/* Bottom Navigation */}
-        <WalkthroughableView style={styles.bottomNav}>
-          <WalkthroughableView style={styles.navItem}>
-            <MaterialCommunityIcons name="fridge" size={24} color="#007AFF" />
-            <Text style={[styles.navLabel, { color: "#007AFF" }]}>
-              在庫リスト
-            </Text>
-          </WalkthroughableView>
-
-          <View style={styles.navItem}>
-            <MaterialCommunityIcons
-              name="cart-outline"
-              size={24}
-              color="#999"
-            />
-            <Text style={styles.navLabel}>買い物リスト</Text>
-          </View>
-          <View style={styles.navItem}>
-            <MaterialCommunityIcons name="cog-outline" size={24} color="#999" />
-            <Text style={styles.navLabel}>設定</Text>
-          </View>
-        </WalkthroughableView>
-      </SafeAreaView>
-    </PaperProvider>
+      <Animated.View
+        style={[
+          StyleSheet.absoluteFillObject,
+          { opacity: shoppingListOpacity },
+        ]}
+        pointerEvents={showShoppingList ? "auto" : "none"}
+      >
+        <ShoppingList
+          WalkthroughableView={WalkthroughableView}
+          WalkthroughableTouchableOpacity={WalkthroughableTouchableOpacity}
+        />
+      </Animated.View>
+    </View>
   );
 }
 
