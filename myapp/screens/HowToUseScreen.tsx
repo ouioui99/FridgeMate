@@ -24,68 +24,66 @@ const WalkthroughableTouchableOpacity = walkthroughable(TouchableOpacity);
 export default function HowToUseScreen() {
   const { start, copilotEvents } = useCopilot();
   const [showShoppingList, setShowShoppingList] = useState(false);
-  const [lastStepName, setLastStepName] = useState("");
+  const lastStepNameRef = useRef("");
 
-  // 2つのコンポーネントのopacityを管理
   const homeOpacity = useRef(new Animated.Value(1)).current;
   const shoppingListOpacity = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     copilotEvents.on("stepChange", handleStepChange);
-
     return () => {
       copilotEvents.off("stepChange", handleStepChange);
     };
   }, [copilotEvents]);
+
   const handleStepChange = (step: any) => {
-    console.log("Prev step:", lastStepName, "Current step:", step.name);
-    // 通常のステップ変更処理
-    setLastStepName(step.name);
-    // 「ShoppingListから来てMinusButtonに行った」場合、Homeに戻す
-    if (lastStepName === "shoppingListBtn" && step.name === "MinusButton") {
-      toggleScreen();
+    if (
+      lastStepNameRef.current === "shoppingListBtn" &&
+      step.name === "MinusButton"
+    ) {
+      toggleToHome();
     }
 
-    // 「ShoppingList」への遷移指示がきたら遅延して切り替え
     if (step.name === "shoppingListBtn") {
       setTimeout(() => {
-        toggleScreen();
-        setLastStepName("shoppingListBtn"); // 画面が切り替わった後に更新
+        toggleToShoppingList();
+        lastStepNameRef.current = step.name;
       }, 700);
-      return; // 他の処理をスキップ
+      return;
     }
+
+    lastStepNameRef.current = step.name;
   };
 
-  const toggleScreen = () => {
-    if (showShoppingList) {
-      // ShoppingList → Home に戻す
-      Animated.parallel([
-        Animated.timing(shoppingListOpacity, {
-          toValue: 0,
-          duration: 300,
-          useNativeDriver: true,
-        }),
-        Animated.timing(homeOpacity, {
-          toValue: 1,
-          duration: 300,
-          useNativeDriver: true,
-        }),
-      ]).start(() => setShowShoppingList(false));
-    } else {
-      setShowShoppingList(true); // 表示状態を先にtrueにしてからアニメーション
-      Animated.parallel([
-        Animated.timing(homeOpacity, {
-          toValue: 0,
-          duration: 300,
-          useNativeDriver: true,
-        }),
-        Animated.timing(shoppingListOpacity, {
-          toValue: 1,
-          duration: 300,
-          useNativeDriver: true,
-        }),
-      ]).start();
-    }
+  const toggleToHome = () => {
+    Animated.parallel([
+      Animated.timing(shoppingListOpacity, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+      Animated.timing(homeOpacity, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+    ]).start(() => setShowShoppingList(false));
+  };
+
+  const toggleToShoppingList = () => {
+    setShowShoppingList(true);
+    Animated.parallel([
+      Animated.timing(homeOpacity, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+      Animated.timing(shoppingListOpacity, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+    ]).start();
   };
 
   return (
