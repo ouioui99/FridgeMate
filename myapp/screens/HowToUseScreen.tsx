@@ -15,6 +15,7 @@ import {
 import Home from "../components/HowToUse/Home";
 import HowToUseShoppingList from "../components/HowToUse/HowToUseShoppingList";
 import { HowToUseCheckListItemRef } from "../components/HowToUse/HowToUseCheckListItem";
+import HowToUseSettingsMain from "../components/HowToUse/HowToUseSettingsMain";
 
 const { width } = Dimensions.get("window");
 
@@ -25,10 +26,12 @@ const WalkthroughableTouchableOpacity = walkthroughable(TouchableOpacity);
 export default function HowToUseScreen() {
   const { start, copilotEvents } = useCopilot();
   const [showShoppingList, setShowShoppingList] = useState(false);
+  const [showSetting, setShowSetting] = useState(false);
   const lastStepNameRef = useRef("");
 
   const homeOpacity = useRef(new Animated.Value(1)).current;
   const shoppingListOpacity = useRef(new Animated.Value(0)).current;
+  const settingOpacity = useRef(new Animated.Value(0)).current;
 
   const itemRef = useRef<HowToUseCheckListItemRef>(null);
 
@@ -45,21 +48,40 @@ export default function HowToUseScreen() {
       step.name === "MinusButton"
     ) {
       toggleToHome();
+    } else if (
+      lastStepNameRef.current === "settingBtn" &&
+      step.name === "editShoppingListItemLot"
+    ) {
+      toggleToShoppingList();
     }
 
-    if (step.name === "shoppingListBtn") {
-      setTimeout(() => {
-        toggleToShoppingList();
-        lastStepNameRef.current = step.name;
-      }, 700);
-      return;
-    } else if (step.name === "editShoppingListItemLot") {
-      setTimeout(() => {
-        itemRef.current?.pseudoSwipe("left");
-      }, 500);
-      setTimeout(() => {
-        itemRef.current?.pseudoSwipe("right");
-      }, 1000);
+    switch (step.name) {
+      case "shoppingListBtn": {
+        setTimeout(() => {
+          toggleToShoppingList();
+          lastStepNameRef.current = step.name;
+        }, 700);
+
+        break;
+      }
+      case "editShoppingListItemLot": {
+        setTimeout(() => {
+          itemRef.current?.pseudoSwipe("right");
+        }, 500);
+        setTimeout(() => {
+          itemRef.current?.pseudoSwipe("left");
+        }, 1250);
+        break;
+      }
+      case "settingBtn": {
+        setTimeout(() => {
+          toggleToSetting();
+          lastStepNameRef.current = step.name;
+        }, 700);
+        break;
+      }
+      default:
+        break;
     }
 
     lastStepNameRef.current = step.name;
@@ -93,6 +115,32 @@ export default function HowToUseScreen() {
         duration: 300,
         useNativeDriver: true,
       }),
+      Animated.timing(settingOpacity, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  };
+
+  const toggleToSetting = () => {
+    setShowSetting(true);
+    Animated.parallel([
+      Animated.timing(homeOpacity, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+      Animated.timing(shoppingListOpacity, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+      Animated.timing(settingOpacity, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }),
     ]).start();
   };
 
@@ -119,6 +167,17 @@ export default function HowToUseScreen() {
           WalkthroughableView={WalkthroughableView}
           WalkthroughableTouchableOpacity={WalkthroughableTouchableOpacity}
           itemRef={itemRef}
+        />
+      </Animated.View>
+
+      <Animated.View
+        style={[StyleSheet.absoluteFillObject, { opacity: settingOpacity }]}
+        pointerEvents={showShoppingList ? "auto" : "none"}
+      >
+        <HowToUseSettingsMain
+        // WalkthroughableView={WalkthroughableView}
+        // WalkthroughableTouchableOpacity={WalkthroughableTouchableOpacity}
+        // itemRef={itemRef}
         />
       </Animated.View>
     </View>

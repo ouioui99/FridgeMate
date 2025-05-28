@@ -42,8 +42,8 @@ const HowToUseCheckListItem = forwardRef<HowToUseCheckListItemRef, Props>(
     const pseudoSwipe = (direction: "left" | "right") => {
       const offset = direction === "left" ? -60 : 60;
       direction === "left"
-        ? updateAmount(item.id, 1)
-        : updateAmount(item.id, -1);
+        ? updateAmount(item.id, -1)
+        : updateAmount(item.id, 1);
 
       translateX.value = withSequence(
         withTiming(offset, { duration: 150 }),

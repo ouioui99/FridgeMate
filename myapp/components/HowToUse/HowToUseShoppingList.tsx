@@ -137,10 +137,20 @@ export default function HowToUseShoppingList({
               買い物リスト
             </Text>
           </View>
-          <View style={styles.navItem}>
-            <MaterialCommunityIcons name="cog-outline" size={24} color="#999" />
-            <Text style={styles.navLabel}>設定</Text>
-          </View>
+          <CopilotStep
+            text="このボタンを押下すると設定画面へ遷移します"
+            order={13}
+            name="settingBtn"
+          >
+            <WalkthroughableView style={styles.navItem}>
+              <MaterialCommunityIcons
+                name="cog-outline"
+                size={24}
+                color="#999"
+              />
+              <Text style={styles.navLabel}>設定</Text>
+            </WalkthroughableView>
+          </CopilotStep>
         </WalkthroughableView>
       </SafeAreaView>
     </PaperProvider>
