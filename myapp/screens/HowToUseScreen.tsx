@@ -14,6 +14,7 @@ import {
 } from "react-native-copilot";
 import Home from "../components/HowToUse/Home";
 import HowToUseShoppingList from "../components/HowToUse/HowToUseShoppingList";
+import { HowToUseCheckListItemRef } from "../components/HowToUse/HowToUseCheckListItem";
 
 const { width } = Dimensions.get("window");
 
@@ -28,6 +29,8 @@ export default function HowToUseScreen() {
 
   const homeOpacity = useRef(new Animated.Value(1)).current;
   const shoppingListOpacity = useRef(new Animated.Value(0)).current;
+
+  const itemRef = useRef<HowToUseCheckListItemRef>(null);
 
   useEffect(() => {
     copilotEvents.on("stepChange", handleStepChange);
@@ -50,6 +53,13 @@ export default function HowToUseScreen() {
         lastStepNameRef.current = step.name;
       }, 700);
       return;
+    } else if (step.name === "editShoppingListItemLot") {
+      setTimeout(() => {
+        itemRef.current?.pseudoSwipe("left");
+      }, 500);
+      setTimeout(() => {
+        itemRef.current?.pseudoSwipe("right");
+      }, 1000);
     }
 
     lastStepNameRef.current = step.name;
@@ -108,6 +118,7 @@ export default function HowToUseScreen() {
         <HowToUseShoppingList
           WalkthroughableView={WalkthroughableView}
           WalkthroughableTouchableOpacity={WalkthroughableTouchableOpacity}
+          itemRef={itemRef}
         />
       </Animated.View>
     </View>

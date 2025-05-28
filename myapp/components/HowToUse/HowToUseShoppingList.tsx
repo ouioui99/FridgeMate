@@ -15,6 +15,7 @@ import { ShoppingList } from "../../types/daoTypes";
 import CheckList from "../CheckList";
 import { CommonStyles } from "../../styles/CommonStyles";
 import HowToUseCheckList from "./HowToUseCheckList";
+import { HowToUseCheckListItemRef } from "./HowToUseCheckListItem";
 
 export const dummyShoppingLists: ShoppingList[] = [
   {
@@ -54,11 +55,13 @@ type ShoppingListProps = {
   WalkthroughableTouchableOpacity: React.FunctionComponent<
     TouchableOpacityProps & React.RefAttributes<View>
   >;
+  itemRef: React.RefObject<HowToUseCheckListItemRef | null>;
 };
 
 export default function HowToUseShoppingList({
   WalkthroughableView,
   WalkthroughableTouchableOpacity,
+  itemRef,
 }: ShoppingListProps) {
   const [shoppingLists, setShoppingLists] =
     useState<ShoppingList[]>(dummyShoppingLists);
@@ -90,10 +93,12 @@ export default function HowToUseShoppingList({
               <HowToUseCheckList
                 shoppingLists={shoppingLists}
                 setShoppingLists={setShoppingLists}
+                itemRef={itemRef}
               />
             </WalkthroughableView>
           </CopilotStep>
         </View>
+
         <View
           style={{
             paddingHorizontal: 20,

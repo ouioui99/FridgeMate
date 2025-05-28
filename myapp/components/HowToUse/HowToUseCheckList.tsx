@@ -9,11 +9,14 @@ import {
 } from "react-native";
 import { ShoppingList } from "../../types/daoTypes";
 import CheckListItem from "../CheckListItem";
-import HowToUseCheckListItem from "./HowToUseCheckListItem";
+import HowToUseCheckListItem, {
+  HowToUseCheckListItemRef,
+} from "./HowToUseCheckListItem";
 
 type CheckListProps = {
   shoppingLists: ShoppingList[];
   setShoppingLists: React.Dispatch<React.SetStateAction<ShoppingList[]>>;
+  itemRef: React.RefObject<HowToUseCheckListItemRef | null>;
 };
 
 // Androidでレイアウトアニメーションを有効化
@@ -27,6 +30,7 @@ if (
 export default function HowToUseCheckList({
   shoppingLists,
   setShoppingLists,
+  itemRef,
 }: CheckListProps) {
   const toggleCheck = (id: string) => {
     setShoppingLists((prevItems) => {
@@ -68,11 +72,12 @@ export default function HowToUseCheckList({
       <FlatList
         data={shoppingLists}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
+        renderItem={({ item, index }) => (
           <HowToUseCheckListItem
             item={item}
             toggleCheck={toggleCheck}
             updateAmount={updateAmount}
+            ref={index === 2 ? itemRef : null}
           />
         )}
       />
