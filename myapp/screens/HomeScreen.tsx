@@ -35,6 +35,8 @@ import { useUserSettings } from "../contexts/UserSettingsContext";
 import { validateStockInput } from "../utils/validation";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import WelcomeModal from "../components/WelcomeModal";
+import { SettingsStackParamList } from "./MainStack";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
 const HomeScreen = () => {
   const { session, loading } = useSession();
@@ -44,7 +46,8 @@ const HomeScreen = () => {
   const [firstLaunchModalVisible, setFirstLaunchModalVisible] = useState(false);
 
   const userId = session?.user?.id;
-  const navigation = useNavigation();
+  const navigation =
+    useNavigation<NativeStackNavigationProp<SettingsStackParamList>>();
 
   // プロフィール取得
   const { data: profile, isLoading, error } = useGetProfile(userId);
@@ -98,11 +101,10 @@ const HomeScreen = () => {
   useEffect(() => {
     const checkFirstLaunch = async () => {
       try {
-        //const hasLaunched = await AsyncStorage.getItem("hasLaunchedHome");
-        if (true) {
+        const hasLaunched = await AsyncStorage.getItem("hasLaunchedHome");
+        if (!hasLaunched) {
           // 初回起動なのでモーダル表示
-          setFirstLaunchModalVisible(true);
-          //await AsyncStorage.setItem("hasLaunchedHome", "true");
+          await AsyncStorage.setItem("hasLaunchedHome", "true");
         }
       } catch (error) {
         console.error("Failed to check first launch:", error);
@@ -214,7 +216,9 @@ const HomeScreen = () => {
         onClose={() => setFirstLaunchModalVisible(false)}
         onPressHowToUse={() => {
           setFirstLaunchModalVisible(false);
-          navigation.navigate("HowToUse" as never);
+          navigation.navigate("HowToUse", {
+            previousScreenName: "Home",
+          });
         }}
       />
       {/* ロード中のインジケーター */}

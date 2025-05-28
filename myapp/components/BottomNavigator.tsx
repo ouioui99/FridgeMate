@@ -5,7 +5,6 @@ import ShoppingListScreen from "../screens/ShoppingListScreen";
 import { useInviteNotification } from "../hooks/useInviteNotification";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import { SettingsIconWithBadge } from "./SettingsIconWithBadge";
-import HomeStack from "../screens/HomeStack";
 
 const Tab = createBottomTabNavigator();
 
@@ -13,12 +12,7 @@ export function BottomNavigator() {
   const { inviteCodeUses } = useInviteNotification();
 
   return (
-    <Tab.Navigator
-      initialRouteName="Home"
-      activeColor="#f0edf6"
-      inactiveColor="#3e2465"
-      barStyle={{ backgroundColor: "#694fad" }}
-    >
+    <Tab.Navigator initialRouteName="Home">
       <Tab.Screen
         name="Home"
         component={HomeScreen}

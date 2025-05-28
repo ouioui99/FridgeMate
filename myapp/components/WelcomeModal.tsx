@@ -16,11 +16,15 @@ export default function WelcomeModal({
     <Modal visible={visible} transparent animationType="fade">
       <View style={styles.overlay}>
         <View style={styles.modalContainer}>
-          <Text style={styles.title}>ようこそ！！</Text>
-          <Text style={styles.message}>本アプリの使い方を見ますか？</Text>
+          <Text style={styles.title}>🎉はじめまして！ようこそ！🎉</Text>
+          <View style={styles.messageContainer}>
+            <Text
+              style={styles.message}
+            >{`本アプリの使い方を確認しますか？\n（あとからでも確認できます）`}</Text>
+          </View>
           <View style={styles.buttonContainer}>
             <TouchableOpacity style={styles.secondaryButton} onPress={onClose}>
-              <Text style={styles.secondaryButtonText}>あとで見る</Text>
+              <Text style={styles.secondaryButtonText}>今は見ない</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.primaryButton}
@@ -67,7 +71,7 @@ const styles = StyleSheet.create({
   },
   primaryButton: {
     flex: 1,
-    backgroundColor: "#007AFF",
+    backgroundColor: "#4CAF50",
     paddingVertical: 10,
     borderRadius: 8,
     marginLeft: 8,
@@ -88,5 +92,8 @@ const styles = StyleSheet.create({
     color: "#333",
     textAlign: "center",
     fontWeight: "600",
+  },
+  messageContainer: {
+    marginBottom: 10,
   },
 });

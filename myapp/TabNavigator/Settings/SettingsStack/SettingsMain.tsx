@@ -1,20 +1,16 @@
-import React, { useState } from "react";
-import { View, Text, Switch, TouchableOpacity, ScrollView } from "react-native";
+import React from "react";
+import { View, Text, TouchableOpacity, ScrollView } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import Icon from "react-native-vector-icons/Ionicons";
-import { SettingsStackParamList } from "../../../screens/SettingsStack";
+
 import { useUserSettings } from "../../../contexts/UserSettingsContext";
 import { useInviteNotification } from "../../../hooks/useInviteNotification";
-import { signOut } from "../../../lib/supabase/users";
 import { SettingToggle } from "../../../components/SettingToggle";
-import * as SecureStore from "expo-secure-store";
 import {
   SettingLink,
   SettingLinkWithBadge,
 } from "../../../components/SettingLink";
-import { USER_KEY } from "../../../constants/settings";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { SettingsStackParamList } from "../../../screens/MainStack";
 
 const SettingsMain = () => {
   const navigation =
@@ -29,10 +25,10 @@ const SettingsMain = () => {
 
   const { inviteCodeUses } = useInviteNotification();
 
-  const handleDeleteUser = async () => {
-    await SecureStore.deleteItemAsync(USER_KEY);
-    await AsyncStorage.removeItem("hasLaunched");
-    console.log("complete");
+  const handleSeeTutorial = () => {
+    navigation.navigate("HowToUse", {
+      previousScreenName: "SettingsMain",
+    });
   };
 
   return (
@@ -70,9 +66,6 @@ const SettingsMain = () => {
         />
       </Section>
 
-      <Section title="ユーザー">
-        <SettingLink label="ログアウト" onPress={async () => await signOut()} />
-      </Section>
       <View
         style={{
           borderTopWidth: 0.5,
@@ -83,17 +76,18 @@ const SettingsMain = () => {
         }}
       >
         <TouchableOpacity
-          onPress={() => handleDeleteUser()}
+          onPress={() => handleSeeTutorial()}
           style={{
-            backgroundColor: "#f44336", // 赤色
+            backgroundColor: "#4CAF50",
             paddingVertical: 12,
             paddingHorizontal: 32,
+            marginTop: 130,
             borderRadius: 8,
             minWidth: "10%",
           }}
         >
           <Text style={{ color: "white", fontSize: 16, textAlign: "center" }}>
-            ユーザ削除
+            使い方説明を見る
           </Text>
         </TouchableOpacity>
       </View>

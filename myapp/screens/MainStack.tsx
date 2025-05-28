@@ -4,17 +4,25 @@ import { BottomNavigator } from "../components/BottomNavigator";
 import HowToUseScreen from "./HowToUseScreen";
 
 export type SettingsStackParamList = {
-  Home: undefined;
   ChangeEmail: undefined;
   ChangePassword: undefined;
   ManageGroupMember: undefined;
   ManageGroup: undefined;
+  SettingsMain: undefined;
   SettingMinimumNumber: undefined;
-  HowToUse: undefined;
-  HowToUseShoppingList: undefined;
+  Settings: undefined;
+  HowToUse: { previousScreenName: string };
 };
 
-const Stack = createNativeStackNavigator<SettingsStackParamList>();
+export type RootStackParamList = {
+  Home: {
+    screen?: keyof SettingsStackParamList;
+    params?: SettingsStackParamList[keyof SettingsStackParamList];
+  };
+  HowToUse: { previousScreenName: string };
+};
+
+const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export default function MainStack() {
   return (

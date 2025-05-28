@@ -24,7 +24,6 @@ import { SettingLink, SettingLinkWithBadge } from "../SettingLink";
 import { SettingToggle } from "../SettingToggle";
 import { CopilotStep, walkthroughable } from "react-native-copilot";
 
-const WalkthroughableText = walkthroughable(Text);
 const WalkthroughableView = walkthroughable(View);
 const WalkthroughableTouchableOpacity = walkthroughable(TouchableOpacity);
 const WalkthroughableScrollView = walkthroughable(ScrollView);
@@ -40,12 +39,7 @@ const HowToUseSettingsMain = () => {
   } = useUserSettings();
 
   const { inviteCodeUses } = useInviteNotification();
-
-  const handleDeleteUser = async () => {
-    await SecureStore.deleteItemAsync(USER_KEY);
-    await AsyncStorage.removeItem("hasLaunched");
-    console.log("complete");
-  };
+  const WalkthroughableSection = walkthroughable(Section);
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -59,43 +53,73 @@ const HowToUseSettingsMain = () => {
         style={{ flex: 0.5, backgroundColor: "#fff", paddingHorizontal: 16 }}
       >
         <CopilotStep
-          text="このボタンを押下すると設定画面へ遷移します"
+          text="この画面で各種設定を行えます"
           order={15}
           name="settingBtna"
         >
           <WalkthroughableView style={styles.halfContainer}>
-            <Section title="在庫/買い物リスト">
-              <SettingToggle
-                disabled={false}
-                label="自動で買い物リストに追加"
-                value={autoAddToShoppingList}
-                onValueChange={setAutoAddToShoppingList}
-              />
-              <SettingToggle
-                disabled={!autoAddToShoppingList}
-                label="自動で買い物リストに追加時に確認"
-                value={isConfirmWhenAutoAddToShoppingList}
-                onValueChange={setIsConfirmWhenAutoAddToShoppingList}
-              />
-              <SettingLink
-                label="在庫の最小単位の設定"
-                onPress={() => navigation.navigate("SettingMinimumNumber")}
-              />
-            </Section>
+            <CopilotStep
+              text="このセクションでは在庫/買い物リストに関わる設定を編集できます"
+              order={16}
+              name="stockAndShoppingListSettingSection"
+            >
+              <WalkthroughableView>
+                <Section title="在庫/買い物リスト">
+                  <SettingToggle
+                    disabled={false}
+                    label="自動で買い物リストに追加"
+                    value={true}
+                    onValueChange={setAutoAddToShoppingList}
+                  />
+                  <SettingToggle
+                    disabled={!autoAddToShoppingList}
+                    label="自動で買い物リストに追加時に確認"
+                    value={false}
+                    onValueChange={setIsConfirmWhenAutoAddToShoppingList}
+                  />
+                  <SettingLink
+                    label="在庫の最小単位の設定"
+                    onPress={() => navigation.navigate("SettingMinimumNumber")}
+                  />
+                </Section>
+              </WalkthroughableView>
+            </CopilotStep>
 
-            <Section title="グループ">
-              <SettingLink
-                label="グループ管理"
-                onPress={() => navigation.navigate("ManageGroup")}
-              />
-              <SettingLinkWithBadge
-                label="グループメンバー管理"
-                onPress={() => navigation.navigate("ManageGroupMember")}
-                showBadge={0 < inviteCodeUses.length}
-              />
-            </Section>
+            <CopilotStep
+              text="このセクションではグループに関わる設定を編集できます"
+              order={17}
+              name="groupSettingSection"
+            >
+              <WalkthroughableView>
+                <Section title="グループ">
+                  <SettingLink
+                    label="グループ管理"
+                    onPress={() => navigation.navigate("ManageGroup")}
+                  />
+                  <SettingLinkWithBadge
+                    label="グループメンバー管理"
+                    onPress={() => navigation.navigate("ManageGroupMember")}
+                    showBadge={0 < inviteCodeUses.length}
+                  />
+                </Section>
+              </WalkthroughableView>
+            </CopilotStep>
           </WalkthroughableView>
         </CopilotStep>
+        <TouchableOpacity
+          style={{
+            backgroundColor: "#4CAF50",
+            paddingVertical: 12,
+            paddingHorizontal: 32,
+            marginTop: 130,
+            borderRadius: 8,
+            minWidth: "10%",
+          }}
+        >
+          <Text style={{ color: "white", fontSize: 16, textAlign: "center" }}>
+            チュートリアルを見る
+          </Text>
+        </TouchableOpacity>
       </ScrollView>
 
       {/* ボトムナビゲーション */}

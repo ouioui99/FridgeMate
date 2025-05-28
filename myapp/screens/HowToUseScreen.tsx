@@ -16,6 +16,12 @@ import Home from "../components/HowToUse/Home";
 import HowToUseShoppingList from "../components/HowToUse/HowToUseShoppingList";
 import { HowToUseCheckListItemRef } from "../components/HowToUse/HowToUseCheckListItem";
 import HowToUseSettingsMain from "../components/HowToUse/HowToUseSettingsMain";
+import { useNavigation } from "@react-navigation/native";
+import {
+  NativeStackNavigationProp,
+  NativeStackScreenProps,
+} from "@react-navigation/native-stack";
+import { RootStackParamList } from "./MainStack";
 
 const { width } = Dimensions.get("window");
 
@@ -23,7 +29,9 @@ const WalkthroughableText = walkthroughable(Text);
 const WalkthroughableView = walkthroughable(View);
 const WalkthroughableTouchableOpacity = walkthroughable(TouchableOpacity);
 
-export default function HowToUseScreen() {
+type Props = NativeStackScreenProps<RootStackParamList, "HowToUse">;
+
+export default function HowToUseScreen({ route }: Props) {
   const { start, copilotEvents } = useCopilot();
   const [showShoppingList, setShowShoppingList] = useState(false);
   const [showSetting, setShowSetting] = useState(false);
@@ -34,9 +42,13 @@ export default function HowToUseScreen() {
   const settingOpacity = useRef(new Animated.Value(0)).current;
 
   const itemRef = useRef<HowToUseCheckListItemRef>(null);
+  const navigation =
+    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const { previousScreenName } = route.params;
 
   useEffect(() => {
     copilotEvents.on("stepChange", handleStepChange);
+    copilotEvents.on("stop", handleStopCopilot);
     return () => {
       copilotEvents.off("stepChange", handleStepChange);
     };
@@ -85,6 +97,21 @@ export default function HowToUseScreen() {
     }
 
     lastStepNameRef.current = step.name;
+  };
+
+  const handleStopCopilot = () => {
+    if (previousScreenName === "SettingsMain") {
+      console.log("dd");
+
+      navigation.navigate("Home", {
+        screen: "Settings",
+        params: {
+          previousScreenName: "SettingsMain",
+        },
+      });
+    } else {
+      navigation.navigate(previousScreenName as never);
+    }
   };
 
   const toggleToHome = () => {
