@@ -6,29 +6,47 @@ import {
   StyleSheet,
   TextProps,
   TouchableOpacityProps,
+  TouchableOpacity,
 } from "react-native";
 import { CopilotStep } from "react-native-copilot";
 import { PaperProvider } from "react-native-paper";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
-import { Stock } from "../../types/daoTypes";
-import HowToUseCards from "./HowToUseCards";
+import { ShoppingList } from "../../types/daoTypes";
+import CheckList from "../CheckList";
+import { CommonStyles } from "../../styles/CommonStyles";
+import HowToUseCheckList from "./HowToUseCheckList";
 
-const dummyStocks: Stock[] = [
+export const dummyShoppingLists: ShoppingList[] = [
   {
     id: "1",
-    name: "ぶどう",
-    image: "🍇",
-    amount: 2,
-    expiration_date: "2025-06-01",
+    name: "卵",
+    amount: 1,
+    checked: false,
+    creater_id: "user_123",
+    group_id: "group_abc",
+    created_at: new Date("2025-05-01T10:00:00Z"),
+    updated_at: new Date("2025-05-01T12:00:00Z"),
   },
   {
     id: "2",
-    name: "みかん",
-    image: "🍊",
-    amount: 1,
-    expiration_date: "2025-06-02",
+    name: "牛乳",
+    amount: 2,
+    checked: false,
+    creater_id: "user_456",
+    group_id: "group_abc",
+    created_at: new Date("2025-05-02T09:30:00Z"),
+    updated_at: new Date("2025-05-02T09:45:00Z"),
   },
-  // 必要に応じて追加
+  {
+    id: "3",
+    name: "パン",
+    amount: 1,
+    checked: true,
+    creater_id: "user_123",
+    group_id: "group_abc",
+    created_at: new Date("2025-05-03T08:00:00Z"),
+    updated_at: new Date("2025-05-03T08:10:00Z"),
+  },
 ];
 
 type ShoppingListProps = {
@@ -38,36 +56,30 @@ type ShoppingListProps = {
   >;
 };
 
-export default function ShoppingList({
+export default function HowToUseShoppingList({
   WalkthroughableView,
   WalkthroughableTouchableOpacity,
 }: ShoppingListProps) {
-  const [stocks, setStocks] = useState<Stock[]>(dummyStocks);
-  const handleUpdateAmount = (stockId: string, newAmount: number) => {
-    setStocks((prev) =>
-      prev.map((stock) =>
-        stock.id === stockId ? { ...stock, amount: newAmount } : stock
-      )
-    );
-  };
+  const [shoppingLists, setShoppingLists] =
+    useState<ShoppingList[]>(dummyShoppingLists);
 
   return (
     <PaperProvider>
       <SafeAreaView style={styles.container}>
         <View style={styles.container}>
           <CopilotStep
-            text="この画面では、在庫の一覧を確認・編集できます"
+            text="この画面では、買い物リストの一覧を確認・編集できます"
             order={8}
-            name="entireScreenShoppingList-2"
+            name="entireScreenShoppingList"
           >
             <WalkthroughableView style={styles.halfContainer}>
               {/* ヘッダー */}
               <View style={styles.header}>
                 <Text style={styles.headerTitle}>買い物リスト</Text>
                 <CopilotStep
-                  text="このボタンで在庫を追加できます"
+                  text="このボタンで買い物リストにアイテムを追加できます"
                   order={9}
-                  name="stockShoppingListButton-2"
+                  name="addShoppingListButton"
                 >
                   <WalkthroughableTouchableOpacity style={styles.plusButton}>
                     <Text style={styles.plusText}>＋</Text>
@@ -75,9 +87,32 @@ export default function ShoppingList({
                 </CopilotStep>
               </View>
 
-              {/* カード一覧 */}
-              <View style={{ flex: 1 }}></View>
+              <HowToUseCheckList
+                shoppingLists={shoppingLists}
+                setShoppingLists={setShoppingLists}
+              />
             </WalkthroughableView>
+          </CopilotStep>
+        </View>
+        <View
+          style={{
+            paddingHorizontal: 20,
+            marginTop: 16,
+            marginBottom: 18,
+          }}
+        >
+          <CopilotStep
+            text="このボタンを押下するとチェックがついているアイテムが買い物リストから在庫リストへ移動します"
+            order={10}
+            name="completeShoppingList"
+          >
+            <WalkthroughableTouchableOpacity
+              style={[CommonStyles.completeButton]}
+              // onPress={handleShoppingComplete}
+              // disabled={!hasCheckedItem}
+            >
+              <Text style={CommonStyles.buttonText}>買い物完了</Text>
+            </WalkthroughableTouchableOpacity>
           </CopilotStep>
         </View>
         {/* Bottom Navigation */}

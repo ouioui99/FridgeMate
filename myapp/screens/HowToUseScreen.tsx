@@ -13,7 +13,7 @@ import {
   walkthroughable,
 } from "react-native-copilot";
 import Home from "../components/HowToUse/Home";
-import ShoppingList from "../components/HowToUse/ShoppingList";
+import HowToUseShoppingList from "../components/HowToUse/HowToUseShoppingList";
 
 const { width } = Dimensions.get("window");
 
@@ -105,7 +105,7 @@ export default function HowToUseScreen() {
         ]}
         pointerEvents={showShoppingList ? "auto" : "none"}
       >
-        <ShoppingList
+        <HowToUseShoppingList
           WalkthroughableView={WalkthroughableView}
           WalkthroughableTouchableOpacity={WalkthroughableTouchableOpacity}
         />
