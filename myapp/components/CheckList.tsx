@@ -1,13 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {
-  View,
-  FlatList,
-  UIManager,
-  LayoutAnimation,
-  Platform,
-  Alert,
-} from "react-native";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { View, FlatList, UIManager, Platform, Alert } from "react-native";
 import CheckListItem from "./CheckListItem";
 import { ShoppingList } from "../types/daoTypes";
 import {
@@ -33,14 +25,6 @@ export default function CheckList({
   setShoppingLists,
 }: CheckListProps) {
   const toggleCheck = async (id: string) => {
-    // アニメーションを適用
-    LayoutAnimation.configureNext(
-      LayoutAnimation.create(
-        240, // アニメーション時間
-        LayoutAnimation.Types.easeInEaseOut,
-        LayoutAnimation.Properties.opacity
-      )
-    );
     setShoppingLists((prevItems) => {
       const updatedItems = prevItems.map((item) =>
         item.id === id ? { ...item, checked: !item.checked } : item
@@ -49,7 +33,7 @@ export default function CheckList({
     });
 
     try {
-      // データベースを更新
+      // DB更新は後回し（UIの更新に遅れが出ないように）
       const targetItem = shoppingLists.find((item) => item.id === id);
       if (!targetItem) return;
 

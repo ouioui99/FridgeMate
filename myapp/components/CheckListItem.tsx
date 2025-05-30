@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
@@ -7,6 +7,10 @@ import Animated, {
   runOnJS,
   useDerivedValue,
   withTiming,
+  withSequence,
+  LinearTransition,
+  FadingTransition,
+  SequencedTransition,
 } from "react-native-reanimated";
 import { ShoppingList } from "../types/daoTypes";
 
@@ -22,19 +26,26 @@ const CheckListItem: React.FC<Props> = ({
   updateAmount,
 }) => {
   const translateX = useSharedValue(0);
+  const scale = useSharedValue(1);
+  const isBold = useSharedValue(false);
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ translateX: translateX.value }],
   }));
 
   const backgroundColor = useDerivedValue(() => {
-    if (translateX.value > 10) return "rgba(0, 200, 100, 0.2)"; // 右スワイプ
-    if (translateX.value < -10) return "rgba(255, 80, 80, 0.2)"; // 左スワイプ
+    if (translateX.value > 10) return "rgba(0, 200, 100, 0.2)";
+    if (translateX.value < -10) return "rgba(255, 80, 80, 0.2)";
     return "#f0f0f0";
   });
 
   const backgroundStyle = useAnimatedStyle(() => ({
     backgroundColor: backgroundColor.value,
+  }));
+
+  const scaleStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+    fontWeight: isBold.value ? "700" : "400", // 太字切り替え
   }));
 
   const panGesture = Gesture.Pan()
@@ -51,8 +62,25 @@ const CheckListItem: React.FC<Props> = ({
       translateX.value = withTiming(0, { duration: 200 });
     });
 
+  useEffect(() => {
+    // スケールと太字アニメーション
+    scale.value = withSequence(
+      withTiming(1.3, { duration: 250 }),
+      withTiming(1, { duration: 250 })
+    );
+
+    // 太字を一瞬 true にして 200ms で false に戻す
+    isBold.value = true;
+    setTimeout(() => {
+      isBold.value = false;
+    }, 400);
+  }, [item.amount]);
+
   return (
-    <View style={{ marginVertical: 5, position: "relative" }}>
+    <Animated.View
+      layout={LinearTransition}
+      style={{ marginVertical: 5, position: "relative" }}
+    >
       <GestureDetector gesture={panGesture}>
         <View style={{ position: "relative" }}>
           {/* 背景ビュー */}
@@ -127,17 +155,20 @@ const CheckListItem: React.FC<Props> = ({
                 </View>
               </TouchableOpacity>
 
-              <Text
-                style={{
-                  fontSize: 16,
-                  minWidth: 30,
-                  textAlign: "center",
-                  color: "#555",
-                  marginRight: 10,
-                }}
+              <Animated.Text
+                style={[
+                  {
+                    fontSize: 16,
+                    minWidth: 30,
+                    textAlign: "center",
+                    color: "#555",
+                    marginRight: 10,
+                  },
+                  scaleStyle,
+                ]}
               >
                 {item.amount}
-              </Text>
+              </Animated.Text>
 
               <Text style={{ fontSize: 22, fontWeight: "bold", flex: 1 }}>
                 {item.name}
@@ -146,7 +177,7 @@ const CheckListItem: React.FC<Props> = ({
           </Animated.View>
         </View>
       </GestureDetector>
-    </View>
+    </Animated.View>
   );
 };
 

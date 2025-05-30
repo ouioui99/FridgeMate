@@ -7,6 +7,7 @@ import {
   FlatList,
   TouchableOpacity,
   Text,
+  Animated,
 } from "react-native";
 import { Card } from "@rneui/themed";
 import { Stock, stocks } from "../types/daoTypes";
@@ -26,76 +27,101 @@ const Cards: React.FunctionComponent<CardsComponentsProps> = ({
   handleUpdateAmount,
   handleClickCard,
 }) => {
-  // 個数を管理する状態
   const [itemAmounts, setItemAmounts] = useState<{ [key: string]: number }>({});
+  const [animations] = useState<{ [key: string]: Animated.Value }>(() =>
+    Object.fromEntries(stocks.map((item) => [item.id, new Animated.Value(1)]))
+  );
 
-  // カードの幅を計算（画面幅から余白を引いて列数で割る）
+  const animateAmount = (id: string) => {
+    if (!animations[id]) return;
+
+    animations[id].setValue(1);
+    Animated.sequence([
+      Animated.timing(animations[id], {
+        toValue: 1.4,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+      Animated.timing(animations[id], {
+        toValue: 1,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  };
+
   const cardWidth = (screenWidth - 30) / numColumns;
 
-  const renderItem = ({ item }: { item: Stock }) => (
-    <View style={{ width: cardWidth, padding: 2 }}>
-      <TouchableOpacity
-        onPress={() => {
-          handleClickCard(item);
-        }}
-        activeOpacity={0.9} // 押した感が出るように
-      >
-        <Card containerStyle={styles.cardContainer}>
-          {/* タイトル */}
-          <Card.Title style={styles.cardTitle}>{item.name}</Card.Title>
-          <Card.Divider />
+  const renderItem = ({ item }: { item: Stock }) => {
+    if (!animations[item.id]) {
+      animations[item.id] = new Animated.Value(1);
+    }
 
-          <View style={styles.cardContent}>
-            <Text style={styles.emoji}>{item.image || "📦"}</Text>
+    const currentAmount = itemAmounts[item.id] ?? item.amount;
 
-            {/* テキスト部分 */}
-            <View style={styles.textContainer}>
-              {/* 個数の増減 */}
-              <View style={styles.amountContainer}>
-                <TouchableOpacity
-                  style={styles.squareButton}
-                  onPress={() => {
-                    const currentAmount = itemAmounts[item.id] || item.amount;
-                    handleUpdateAmount(item.id, Math.max(currentAmount - 1, 0));
-                  }}
-                >
-                  <Ionicons name="remove-outline" size={17} />
-                </TouchableOpacity>
+    return (
+      <View style={{ width: cardWidth, padding: 2 }}>
+        <TouchableOpacity
+          onPress={() => handleClickCard(item)}
+          activeOpacity={0.9}
+        >
+          <Card containerStyle={styles.cardContainer}>
+            <Card.Title style={styles.cardTitle}>{item.name}</Card.Title>
+            <Card.Divider />
 
-                <Text style={styles.amount}>
-                  {itemAmounts[item.id] || item.amount}
-                </Text>
+            <View style={styles.cardContent}>
+              <Text style={styles.emoji}>{item.image || "📦"}</Text>
 
-                <TouchableOpacity
-                  style={styles.squareButton}
-                  onPress={() => {
-                    const currentAmount = itemAmounts[item.id] || item.amount;
-                    handleUpdateAmount(item.id, currentAmount + 1);
-                  }}
-                >
-                  <Text style={styles.buttonText}>
+              <View style={styles.textContainer}>
+                <View style={styles.amountContainer}>
+                  <TouchableOpacity
+                    style={styles.squareButton}
+                    onPress={() => {
+                      handleUpdateAmount(
+                        item.id,
+                        Math.max(currentAmount - 1, 0)
+                      );
+                      animateAmount(item.id);
+                    }}
+                  >
+                    <Ionicons name="remove-outline" size={17} />
+                  </TouchableOpacity>
+
+                  <Animated.Text
+                    style={[
+                      styles.amount,
+                      {
+                        transform: [{ scale: animations[item.id] }],
+                      },
+                    ]}
+                  >
+                    {currentAmount}
+                  </Animated.Text>
+
+                  <TouchableOpacity
+                    style={styles.squareButton}
+                    onPress={() => {
+                      handleUpdateAmount(item.id, currentAmount + 1);
+                      animateAmount(item.id);
+                    }}
+                  >
                     <Ionicons name="add-outline" size={17} />
-                  </Text>
-                </TouchableOpacity>
+                  </TouchableOpacity>
+                </View>
               </View>
-
-              {/* 賞味期限 */}
-              {/* <Text style={styles.expirationDate}>
-                賞味期限: {item.expiration_date}
-              </Text> */}
             </View>
-          </View>
-        </Card>
-      </TouchableOpacity>
-    </View>
-  );
+          </Card>
+        </TouchableOpacity>
+      </View>
+    );
+  };
 
   return (
     <FlatList
       data={stocks}
       renderItem={renderItem}
-      keyExtractor={(item, index) => index.toString()}
-      numColumns={numColumns} // 列数を指定
+      keyExtractor={(item) => item.id}
+      numColumns={numColumns}
       contentContainerStyle={styles.container}
     />
   );
