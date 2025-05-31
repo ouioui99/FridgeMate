@@ -92,6 +92,9 @@ export default function HowToUseScreen({ route }: Props) {
         }, 700);
         break;
       }
+      case "PlusButton": {
+        break;
+      }
       default:
         break;
     }
@@ -101,8 +104,6 @@ export default function HowToUseScreen({ route }: Props) {
 
   const handleStopCopilot = () => {
     if (previousScreenName === "SettingsMain") {
-      console.log("dd");
-
       navigation.navigate("Home", {
         screen: "Settings",
         params: {
@@ -210,53 +211,3 @@ export default function HowToUseScreen({ route }: Props) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#f2f2f2",
-  },
-  halfContainer: {
-    flex: 0.8,
-    backgroundColor: "#f2f2f2",
-  },
-  header: {
-    height: 56,
-    justifyContent: "center",
-    alignItems: "center",
-    borderBottomWidth: 0.5,
-    borderBottomColor: "#ccc",
-    backgroundColor: "#fff",
-    position: "relative",
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: "600",
-  },
-  plusButton: {
-    position: "absolute",
-    right: 16,
-    top: "50%",
-    transform: [{ translateY: -12 }],
-  },
-  plusText: {
-    fontSize: 24,
-    color: "#007AFF",
-  },
-  bottomNav: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    paddingVertical: 8,
-    borderTopWidth: 0.5,
-    borderTopColor: "#ccc",
-    backgroundColor: "#fff",
-  },
-  navItem: {
-    alignItems: "center",
-  },
-  navLabel: {
-    fontSize: 12,
-    color: "#999",
-    marginTop: 2,
-  },
-});

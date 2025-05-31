@@ -9,8 +9,6 @@ import Animated, {
   withTiming,
   withSequence,
   LinearTransition,
-  FadingTransition,
-  SequencedTransition,
 } from "react-native-reanimated";
 import { ShoppingList } from "../types/daoTypes";
 

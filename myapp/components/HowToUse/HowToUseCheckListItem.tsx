@@ -1,4 +1,9 @@
-import React, { useImperativeHandle, forwardRef, useRef } from "react";
+import React, {
+  useImperativeHandle,
+  forwardRef,
+  useRef,
+  useEffect,
+} from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
@@ -28,9 +33,16 @@ const WalkthroughableView = walkthroughable(View);
 const HowToUseCheckListItem = forwardRef<HowToUseCheckListItemRef, Props>(
   ({ item, toggleCheck, updateAmount }, ref) => {
     const translateX = useSharedValue(0);
+    const scale = useSharedValue(1);
+    const isBold = useSharedValue(false);
 
     const animatedStyle = useAnimatedStyle(() => ({
       transform: [{ translateX: translateX.value }],
+    }));
+
+    const scaleStyle = useAnimatedStyle(() => ({
+      transform: [{ scale: scale.value }],
+      fontWeight: isBold.value ? "700" : "400", // 太字切り替え
     }));
 
     const backgroundColor = useDerivedValue(() => {
@@ -73,6 +85,20 @@ const HowToUseCheckListItem = forwardRef<HowToUseCheckListItemRef, Props>(
         }
         translateX.value = withTiming(0, { duration: 200 });
       });
+
+    useEffect(() => {
+      // スケールと太字アニメーション
+      scale.value = withSequence(
+        withTiming(1.3, { duration: 250 }),
+        withTiming(1, { duration: 250 })
+      );
+
+      // 太字を一瞬 true にして 200ms で false に戻す
+      isBold.value = true;
+      setTimeout(() => {
+        isBold.value = false;
+      }, 400);
+    }, [item.amount]);
 
     return (
       <CopilotStep
@@ -173,7 +199,9 @@ const HowToUseCheckListItem = forwardRef<HowToUseCheckListItemRef, Props>(
                         marginRight: 10,
                       }}
                     >
-                      {item.amount}
+                      <Animated.Text style={[scaleStyle]}>
+                        {item.amount}
+                      </Animated.Text>
                     </WalkthroughableText>
                   </CopilotStep>
 

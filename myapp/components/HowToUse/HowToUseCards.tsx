@@ -32,7 +32,6 @@ const WalkthroughableCard = walkthroughable(Card as any);
 const HowToUseCards: React.FunctionComponent<CardsComponentsProps> = ({
   stocks,
   handleUpdateAmount,
-  //handleClickCard,
 }) => {
   // 個数を管理する状態
   const [itemAmounts, setItemAmounts] = useState<{ [key: string]: number }>({});
@@ -116,7 +115,7 @@ const HowToUseCards: React.FunctionComponent<CardsComponentsProps> = ({
     const card = (
       <View style={{ width: cardWidth, padding: 2 }}>
         <TouchableOpacity
-          onPress={() => handleClickCard(item)}
+          //onPress={() => handleClickCard(item)}
           activeOpacity={0.9}
         >
           <WalkthroughableCard containerStyle={styles.cardContainer}>
